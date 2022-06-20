@@ -215,8 +215,14 @@ class Node {
                 break;
             case "playerUpdate":
                 const player = this.manager.players.get(payload.guildId);
-                if (player)
+                if (player) {
                     player.position = payload.state.position || 0;
+                    const interValSelfCounter = 250;
+                    if(player.get("updateInterval")) clearInterval(player.get("updateInterval"))
+                    player.set("updateInterval", setInterval(() => {
+                        player.position += interValSelfCounter;
+                    }, interValSelfCounter));
+                }
                 break;
             case "event":
                 this.handleEvent(payload);
