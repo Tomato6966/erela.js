@@ -1,4 +1,7 @@
-Added Support for latest Versions of Lavalink (common known plugin searches)
+- Added Support for latest Versions of Lavalink (common known plugin searches)
+
+- Position updates every 250ms
+
 
 
 <div align = "center">
