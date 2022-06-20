@@ -1,3 +1,6 @@
+Added Support for latest Versions of Lavalink (common known plugin searches)
+
+
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>
