@@ -96,13 +96,13 @@ export declare class Player {
         } 
     };
 
-    toggleRotating(rotationHz:number): boolean;
-    toggleVibrato(frequency:number, depth:number): boolean;
-    toggleTremolo(frequency:number, depth:number): boolean;
-    toggleLowPass(smoothing:number): boolean;
-    toggleEcho(delay:number, decay:number): boolean;
-    toggleNightcore(speed:number, pitch:number, rate:number): boolean;
-    toggleKaraoke(level:number, monoLevel:number, filterBand:number, filterWidth:number): boolean;
+    toggleRotating(rotationHz?:number): boolean;
+    toggleVibrato(frequency?:number, depth?:number): boolean;
+    toggleTremolo(frequency?:number, depth?:number): boolean;
+    toggleLowPass(smoothing?:number): boolean;
+    toggleEcho(delay?:number, decay?:number): boolean;
+    toggleNightcore(speed?:number, pitch?:number, rate?:number): boolean;
+    toggleKaraoke(level?:number, monoLevel?:number, filterBand?:number, filterWidth?:number): boolean;
 
     private static _manager;
     private readonly data;
