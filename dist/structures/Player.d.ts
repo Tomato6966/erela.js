@@ -35,8 +35,7 @@ export declare class Player {
     /** The Manager. */
     manager: Manager;
     
-    
-    
+    voiceMembers: string[];
     
     filters: {
         nightcore: boolean|string,
@@ -65,9 +64,9 @@ export declare class Player {
             filterWidth: number
         },
         timescale: {
-            speed: number, // 0 ≤ x
-            pitch: number, // 0 ≤ x
-            rate: number // 0 ≤ x
+            speed: number, // 0 = x
+            pitch: number, // 0 = x
+            rate: number // 0 = x
         },
         echo: {
             delay: number
@@ -78,11 +77,11 @@ export declare class Player {
         },
         tremolo: {
             frequency: number, // 0 < x
-            depth: number // 0 < x ≤ 1
+            depth: number // 0 < x = 1
         },
         vibrato: {
-            frequency: number, // 0 < x ≤ 14
-            depth: number     // 0 < x ≤ 1
+            frequency: number, // 0 < x = 14
+            depth: number     // 0 < x = 1
         },
         distortion?: {
             sinOffset: number,
