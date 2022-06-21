@@ -217,7 +217,7 @@ class Node {
                 const player = this.manager.players.get(payload.guildId);
                 if (player) {
                     player.position = payload.state.position || 0;
-                    const interValSelfCounter = 250;
+                    const interValSelfCounter = player.get("position_update_interval") || 250;
                     if(player.get("updateInterval")) clearInterval(player.get("updateInterval"))
                     player.set("updateInterval", setInterval(() => {
                         player.position += interValSelfCounter;
