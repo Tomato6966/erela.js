@@ -82,6 +82,140 @@ class Player {
         this.manager.players.set(options.guild, this);
         this.manager.emit("playerCreate", this);
         this.setVolume((_a = options.volume) !== null && _a !== void 0 ? _a : 100);
+        this.filters = {
+            nightcore: false,
+            echo: false,
+            rotating: false, 
+            karaoke: false,
+            tremolo: false,
+            vibrato: false,
+            lowPass: false,
+        }
+        this.filterData = { 
+            channelMix: {
+                leftToLeft: 1.0,
+                leftToRight: 0.0,
+                rightToLeft: 0.0,
+                rightToRight: 1.0,
+            },
+            lowPass: {
+                smoothing: 0
+            },
+            karaoke: {
+                level: 0,
+                monoLevel: 0,
+                filterBand: 0,
+                filterWidth: 0
+            },
+            timescale: {
+                speed: 1, // 0 ≤ x
+                pitch: 1, // 0 ≤ x
+                rate: 1 // 0 ≤ x
+            },
+            echo: {
+                delay: 0,
+                decay: 0
+            },
+            rotating: {
+                rotationHz: 0
+            },
+            tremolo: {
+                frequency: 0, // 0 < x
+                depth: 0 // 0 < x ≤ 1
+            },
+            vibrato: {
+                frequency: 0, // 0 < x ≤ 14
+                depth: 0      // 0 < x ≤ 1
+            },
+            distortion: {
+                sinOffset: 0.0,
+                sinScale: 1.0,
+                cosOffset: 0.0,
+                cosScale: 1.0,
+                tanOffset: 0.0,
+                tanScale: 1.0,
+                offset: 0.0,
+                scale: 1.0
+            } 
+        }
+    }
+
+    // all effects possible to "toggle"
+    toggleRotating(rotationHz = 0.2) {
+        const filterDataName = "rotating", filterName = "rotating";
+        
+        this.filterData[filterDataName].rotationHz = this.filters[rotationHz] ? 0 : rotationHz;
+
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    toggleVibrato(frequency = 2, depth = 0.5) {
+        const filterDataName = "vibrato", filterName = "vibrato";
+        
+        this.filterData[filterDataName].frequency = this.filters[rotationHz] ? 0 : frequency;
+        this.filterData[filterDataName].depth = this.filters[rotationHz] ? 0 : depth;
+
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    toggleTremolo(frequency = 2, depth = 0.5) {
+        const filterDataName = "tremolo", filterName = "tremolo";
+        
+        this.filterData[filterDataName].frequency = this.filters[rotationHz] ? 0 : frequency;
+        this.filterData[filterDataName].depth = this.filters[rotationHz] ? 0 : depth;
+
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    toggleLowPass(smoothing = 20) {
+        const filterDataName = "lowPass", filterName = "lowPass";
+        
+        this.filterData[filterDataName].smoothing = this.filters[rotationHz] ? 0 : smoothing;
+        
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    toggleEcho(delay = 1, decay = 0.5) {
+        const filterDataName = "echo", filterName = "echo";
+        
+        this.filterData[filterDataName].delay = this.filters[filterName] ? 0 : delay;
+        this.filterData[filterDataName].decay = this.filters[filterName] ? 0 : decay;
+
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    toggleNightcore(speed = 1.2999999523162842, pitch = 1.2999999523162842, rate = 1) {
+        const filterDataName = "timescale", filterName = "nightcore";
+
+        this.filterData[filterDataName].speed = this.filters[filterName] ? 1 : speed;
+        this.filterData[filterDataName].pitch = this.filters[filterName] ? 1 : pitch;
+        this.filterData[filterDataName].rate = this.filters[filterName] ? 1 : rate;
+
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    toggleKaraoke(level = 1, monoLevel = 1, filterBand = 220, filterWidth = 100) {
+        const filterDataName = "karaoke", filterName = "karaoke";
+
+        this.filterData[filterDataName].level = this.filters[filterName] ? 0 : level;
+        this.filterData[filterDataName].monoLevel = this.filters[filterName] ? 0 : monoLevel;
+        this.filterData[filterDataName].filterBand = this.filters[filterName] ? 0 : filterBand;
+        this.filterData[filterDataName].filterWidth = this.filters[filterName] ? 0 : filterWidth;
+
+        this.filters[filterName] = !this.filters[filterName];
+        return this.updateFilters(), this.filters[filterName];
+    }
+    
+    // function to update all filters at ONCE (and eqs)
+    updatePlayerFilters() {
+        this.node.send({
+            op: "filters",
+            guildId: this.guild,
+            equalizer: this.bands.map((gain, index) => {
+                return { "band": Number(index), "gain": Number(gain), };
+            }),
+            ...this.filterData
+        });
     }
     /**
      * Set custom data.
