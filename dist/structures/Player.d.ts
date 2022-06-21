@@ -162,7 +162,7 @@ export interface Track {
     /** If the track is a stream.. */
     readonly isStream: boolean;
     /** The uri of the track. */
-    readonly uri: string;
+    uri: string;
     /** The thumbnail of the track or null if it's a unsupported source. */
     thumbnail: string | null;
     /** The user that requested the track. */
