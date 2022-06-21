@@ -34,6 +34,76 @@ export declare class Player {
     voiceState: VoiceState;
     /** The Manager. */
     manager: Manager;
+    
+    
+    
+    
+    filters: {
+        nightcore: boolean,
+        echo: boolean,
+        rotating: boolean, 
+        karaoke: boolean,
+        tremolo: boolean,
+        vibrato: boolean,
+        lowPass: boolean,
+    };
+
+    filterData: { 
+        channelMix: {
+            leftToLeft: number,
+            leftToRight: number,
+            rightToLeft: number,
+            rightToRight: number,
+        },
+        lowPass: {
+            smoothing: number
+        },
+        karaoke: {
+            level: number,
+            monoLevel: number,
+            filterBand: number,
+            filterWidth: number
+        },
+        timescale: {
+            speed: number, // 0 ≤ x
+            pitch: number, // 0 ≤ x
+            rate: number // 0 ≤ x
+        },
+        echo: {
+            delay: number
+            decay: number
+        },
+        rotating: {
+            rotationHz: number
+        },
+        tremolo: {
+            frequency: number, // 0 < x
+            depth: number // 0 < x ≤ 1
+        },
+        vibrato: {
+            frequency: number, // 0 < x ≤ 14
+            depth: number     // 0 < x ≤ 1
+        },
+        distortion: {
+            sinOffset: number,
+            sinScale: number,
+            cosOffset: number,
+            cosScale: number,
+            tanOffset: number,
+            tanScale: number,
+            offset: number,
+            scale: number
+        } 
+    };
+
+    toggleRotating(rotationHz:number): boolean;
+    toggleVibrato(frequency:number, depth:number): boolean;
+    toggleTremolo(frequency:number, depth:number): boolean;
+    toggleLowPass(smoothing:number): boolean;
+    toggleEcho(delay:number, decay:number): boolean;
+    toggleNightcore(speed:number, pitch:number, rate:number): boolean;
+    toggleKaraoke(level:number, monoLevel:number, filterBand:number, filterWidth:number): boolean;
+
     private static _manager;
     private readonly data;
     /**
