@@ -39,17 +39,17 @@ export declare class Player {
     
     
     filters: {
-        nightcore: boolean,
-        echo: boolean,
-        rotating: boolean, 
-        karaoke: boolean,
-        tremolo: boolean,
-        vibrato: boolean,
-        lowPass: boolean,
+        nightcore: boolean|string,
+        echo: boolean|string,
+        rotating: boolean|string, 
+        karaoke: boolean|string,
+        tremolo: boolean|string,
+        vibrato: boolean|string,
+        lowPass: boolean|string,
     };
 
     filterData: { 
-        channelMix: {
+        channelMix?: {
             leftToLeft: number,
             leftToRight: number,
             rightToLeft: number,
@@ -84,7 +84,7 @@ export declare class Player {
             frequency: number, // 0 < x ≤ 14
             depth: number     // 0 < x ≤ 1
         },
-        distortion: {
+        distortion?: {
             sinOffset: number,
             sinScale: number,
             cosOffset: number,
@@ -95,7 +95,7 @@ export declare class Player {
             scale: number
         } 
     };
-
+    updatePlayerFilters():void;
     toggleRotating(rotationHz?:number): boolean;
     toggleVibrato(frequency?:number, depth?:number): boolean;
     toggleTremolo(frequency?:number, depth?:number): boolean;
