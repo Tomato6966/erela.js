@@ -82,6 +82,9 @@ class Player {
         this.manager.players.set(options.guild, this);
         this.manager.emit("playerCreate", this);
         this.setVolume((_a = options.volume) !== null && _a !== void 0 ? _a : 100);
+        
+        this.voiceMembers = [];
+
         this.filters = {
             nightcore: false,
             echo: false,
@@ -102,9 +105,9 @@ class Player {
                 filterWidth: 0
             },
             timescale: {
-                speed: 1, // 0 ≤ x
-                pitch: 1, // 0 ≤ x
-                rate: 1 // 0 ≤ x
+                speed: 1, // 0 = x
+                pitch: 1, // 0 = x
+                rate: 1 // 0 = x
             },
             echo: {
                 delay: 0,
@@ -115,11 +118,11 @@ class Player {
             },
             tremolo: {
                 frequency: 2, // 0 < x
-                depth: 0.1 // 0 < x ≤ 1
+                depth: 0.1 // 0 < x = 1
             },
             vibrato: {
-                frequency: 2, // 0 < x ≤ 14
-                depth: 0.1      // 0 < x ≤ 1
+                frequency: 2, // 0 < x = 14
+                depth: 0.1      // 0 < x = 1
             }
         }
     }
@@ -436,7 +439,7 @@ class Player {
         return this;
     }
     /**
-     * Pauses the current track.
+     * Pauses the current tracSk.
      * @param pause
      */
     pause(pause) {
