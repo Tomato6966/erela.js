@@ -217,10 +217,20 @@ class Node {
                 const player = this.manager.players.get(payload.guildId);
                 if (player) {
                     player.position = payload.state.position || 0;
-                    const interValSelfCounter = player.get("position_update_interval") || 250;
+                    
+                    let interValSelfCounter = player.get("position_update_interval") || 250;
+                    if(interValSelfCounter < 25) interValSelfCounter = 25;
+
                     if(player.get("updateInterval")) clearInterval(player.get("updateInterval"))
                     player.set("updateInterval", setInterval(() => {
                         player.position += interValSelfCounter;
+                        if(player.filterUpdated >= 1) {
+                            player.filterUpdated++;
+                            if(player.filterUpdated === 3) {
+                                player.filterUpdated = 0;
+                                player.seek(player.position);
+                            }
+                        }
                     }, interValSelfCounter));
                 }
                 break;
