@@ -83,6 +83,8 @@ class Player {
         this.manager.emit("playerCreate", this);
         this.setVolume((_a = options.volume) !== null && _a !== void 0 ? _a : 100);
         
+        this.instaUpdateFiltersFix = true;
+
         this.voiceMembers = [];
 
         this.filters = {
@@ -208,12 +210,10 @@ class Player {
         this.node.send({
             op: "filters",
             guildId: this.guild,
-            equalizer: this.bands.map((gain, index) => {
-                return { "band": Number(index), "gain": Number(gain), };
-            }),
+            equalizer: this.bands.map((gain, band) => ({ band, gain })),
             ...sendData
         });
-        this.filterUpdated = 1;
+        if(this.instaUpdateFiltersFix === true) this.filterUpdated = 1;
         return this;
     }
     /**
@@ -255,21 +255,14 @@ class Player {
             throw new TypeError("Bands must be a non-empty object array containing 'band' and 'gain' properties.");
         for (const { band, gain } of bands)
             this.bands[band] = gain;
-        this.node.send({
-            op: "equalizer",
-            guildId: this.guild,
-            bands: this.bands.map((gain, band) => ({ band, gain })),
-        });
+        
+        this.updatePlayerFilters();
         return this;
     }
     /** Clears the equalizer bands. */
     clearEQ() {
         this.bands = new Array(15).fill(0.0);
-        this.node.send({
-            op: "equalizer",
-            guildId: this.guild,
-            bands: this.bands.map((gain, band) => ({ band, gain })),
-        });
+        this.updatePlayerFilters();
         return this;
     }
     /** Connect to the voice channel. */
