@@ -204,9 +204,7 @@ class Player {
         if(!this.filters.lowPass) delete sendData.lowPass;
         if(!this.filters.karaoke) delete sendData.karaoke;
         //if(!this.filters.rotating) delete sendData.rotating;
-        
-        console.log(sendData);
-        
+                
         this.node.send({
             op: "filters",
             guildId: this.guild,
@@ -215,6 +213,8 @@ class Player {
             }),
             ...sendData
         });
+        this.filterUpdated = 1;
+        return this;
     }
     /**
      * Set custom data.
