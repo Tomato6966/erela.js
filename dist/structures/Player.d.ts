@@ -34,6 +34,7 @@ export declare class Player {
     voiceState: VoiceState;
     /** The Manager. */
     manager: Manager;
+    instaUpdateFiltersFix: boolean;
     
     voiceMembers: string[];
     
