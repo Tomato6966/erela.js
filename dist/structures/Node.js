@@ -226,9 +226,17 @@ class Node {
                         player.position += interValSelfCounter;
                         if(player.filterUpdated >= 1) {
                             player.filterUpdated++;
-                            if(player.filterUpdated === 3) {
+
+                            const maxMins = 8;
+                            const currentDuration = player?.queue?.current?.duration || 0;
+                            
+                            if(currentDuration <= maxMins*60_000) {
+                                if(player.filterUpdated >= 3) {
+                                    player.filterUpdated = 0;
+                                    player.seek(player.position);
+                                }
+                            }else {
                                 player.filterUpdated = 0;
-                                player.seek(player.position);
                             }
                         }
                     }, interValSelfCounter));
