@@ -149,6 +149,7 @@ class TrackUtils {
         return unresolvedTrack;
     }
     static getClosestTrack(unresolvedTrack) {
+        
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!TrackUtils.manager)
@@ -157,9 +158,9 @@ class TrackUtils {
                 throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
             const res = unresolvedTrack.uri ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester) : yield TrackUtils.manager.search(query, unresolvedTrack.requester);
-            if (res.loadType !== "SEARCH_RESULT")
+            if (res.loadType !== "SEARCH_RESULT" && res.loadType !== "TRACK_LOADED" && res.loadType !== "PLAYLIST_LOADED")
                 throw (_a = res.exception) !== null && _a !== void 0 ? _a : {
-                    message: "No tracks found.",
+                    message: "No tracks found.......",
                     severity: "COMMON",
                 };
             if (unresolvedTrack.author) {
