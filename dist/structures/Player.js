@@ -376,7 +376,11 @@ class Player {
         volume = Number(volume);
         if (isNaN(volume))
             throw new TypeError("Volume must be a number.");
+        
+        if(this.volumeDecrementer) volume *= this.volumeDecrementer;
+        
         this.volume = Math.max(Math.min(volume, 1000), 0);
+        
         this.node.send({
             op: "volume",
             guildId: this.guild,
