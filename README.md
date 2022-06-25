@@ -7,6 +7,8 @@
   - I use smt between 0.5 - 0.75 cause then the volume is not TOO LOUD at 100% (default) and not really earrapy at 150% (which users like to do when trolling ;) ) (for reference 1 is the same as not adding the option)
 
 
+- Works for discordeno too (just do guildId.toString() to save players in a queue [Click here for rest](https://github.com/Tomato6966/erela.js#discordeno) )
+
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>
@@ -86,6 +88,48 @@ You can use plugins below to extend Erela.js' features easily.
 Note: These are the only ones shown before being published, check the GitHub repository for a complete list.
 
 - [erela.js-spotify](https://github.com/MenuDocs/erela.js-spotify) - Converts a Spotify URL into a UnresolvedTrack to play later.
+
+
+# Discordeno
+
+> Script for discordeno (sending data to shards)
+
+```js
+
+bot.musicManager = new Manager({
+    volumeDecrementer: 0.75,
+    position_update_interval: 100,
+    nodes: [
+        {
+            identifier: `Node_1`,
+            host: "localhost",
+            port: 2333,
+            password: "youshallnotpass"
+        }
+    ],
+    // A send method to send data to the Discord WebSocket using your library.
+    // Getting the shard for the guild and sending the data to the WebSocket.
+    send(id, payload) {
+        const shardId = bot.utils.calculateShardId(bot.gateway, BigInt(id));
+        // somehow get the shard
+        const shard = bot.gateway.shards.get(shardId);
+        shard.send(payload);
+        
+        // if your rest is hosted seperately then just do your typical shard request(s)
+    },
+});
+
+// in raw event
+import { VoiceState, VoicePacket, VoiceServer } from "erela.js";
+// code...
+switch (data.t) {
+  case "VOICE_SERVER_UPDATE":
+  case "VOICE_STATE_UPDATE":
+    bot.musicManager.updateVoiceState(data.d as VoiceState | VoiceServer | VoicePacket)
+  break;
+}
+// code ...
+```
 
 
 ## Contributors
