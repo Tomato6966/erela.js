@@ -78,6 +78,13 @@ class Manager extends events_1.EventEmitter {
             delete options.volumeDecrementer;
         }
         
+        this.position_update_interval = 250;
+        
+        if(options.position_update_interval) {
+            if(typeof options.position_update_interval == "number") this.position_update_interval = options.position_update_interval;
+            delete options.position_update_interval;
+        }
+        
         this.options = Object.assign({ plugins: [], nodes: [{ identifier: "default", host: "localhost" }], shards: 1, autoPlay: true, clientName: "erela.js", defaultSearchPlatform: "youtube" }, options);
         if (this.options.plugins) {
             for (const [index, plugin] of this.options.plugins.entries()) {
