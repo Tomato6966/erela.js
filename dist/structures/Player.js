@@ -380,10 +380,7 @@ class Player {
         this.volume = Math.max(Math.min(volume, 1000), 0);
         
         let vol = volume;
-        console.log(vol, this.manager.volumeDecrementer)
         if(this.manager.volumeDecrementer) vol *= this.manager.volumeDecrementer;
-        console.log(vol);
-        
             
         this.node.send({
             op: "volume",
