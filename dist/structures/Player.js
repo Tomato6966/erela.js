@@ -377,6 +377,8 @@ class Player {
         if (isNaN(volume))
             throw new TypeError("Volume must be a number.");
         
+        this.volume = Math.max(Math.min(volume, 1000), 0);
+        
         function realVol() {
             let vol = this.volume;
             console.log(vol, this.manager.volumeDecrementer)
@@ -385,8 +387,6 @@ class Player {
             return vol;
         }
             
-        this.volume = Math.max(Math.min(volume, 1000), 0);
-        
         this.node.send({
             op: "volume",
             guildId: this.guild,
