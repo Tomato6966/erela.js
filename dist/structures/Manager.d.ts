@@ -191,6 +191,8 @@ export interface ManagerOptions {
     shards?: number;
     /** used to decrement the volume to a % */
     volumeDecrementer?: number; 
+    /** used to change the position_update_interval from 250ms to X ms */
+    position_update_interval?: number;
     /** A array of plugins to use. */
     plugins?: Plugin[];
     /** Whether players should automatically play the next song. */
