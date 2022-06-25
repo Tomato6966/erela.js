@@ -2,6 +2,8 @@
 
 - Position updates every 250ms
 
+- Added Manager#Property: `volumeDecrementer` // e.g: `new Manager({volumeDecrementer:0.75});` will send to lavalink 75% of the volume not 100%, aka you will hear 75% of the set volume, tho see in the player.volume property the full 100% aka if you do `player.setVolume(100);` then `player.volume == 100` but lavalink receives `75`
+
 
 
 <div align = "center">
