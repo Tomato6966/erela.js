@@ -156,7 +156,7 @@ class TrackUtils {
             if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
                 throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
-            const res = yield TrackUtils.manager.search(query, unresolvedTrack.requester);
+            const res = unresolvedTrack.uri ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester) : yield TrackUtils.manager.search(query, unresolvedTrack.requester);
             if (res.loadType !== "SEARCH_RESULT")
                 throw (_a = res.exception) !== null && _a !== void 0 ? _a : {
                     message: "No tracks found.",
@@ -168,15 +168,20 @@ class TrackUtils {
                     return (channelNames.some(name => new RegExp(`^${escapeRegExp(name)}$`, "i").test(track.author)) ||
                         new RegExp(`^${escapeRegExp(unresolvedTrack.title)}$`, "i").test(track.title));
                 });
-                if (originalAudio)
+                if (originalAudio) {
+                    originalAudio.uri = unresolvedTrack.uri;
                     return originalAudio;
+                }
             }
             if (unresolvedTrack.duration) {
                 const sameDuration = res.tracks.find(track => (track.duration >= (unresolvedTrack.duration - 1500)) &&
                     (track.duration <= (unresolvedTrack.duration + 1500)));
-                if (sameDuration)
+                if (sameDuration) {
+                    sameDuration.uri = unresolvedTrack.uri;
                     return sameDuration;
+                }
             }
+            res.tracks[0].uri = unresolvedTrack.uri;
             return res.tracks[0];
         });
     }
