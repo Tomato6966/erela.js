@@ -61,6 +61,8 @@ export interface UnresolvedQuery {
     title: string;
     /** The author of the unresolved track. If provided it will have a more precise search. */
     author?: string;
+    /** The uri of the unresolved track. If provided it will have a more precise search. */
+    uri?: string;
     /** The duration of the unresolved track. If provided it will have a more precise search. */
     duration?: number;
 }
