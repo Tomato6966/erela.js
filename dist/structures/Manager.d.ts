@@ -189,6 +189,8 @@ export interface ManagerOptions {
     clientName?: string;
     /** The shard count. */
     shards?: number;
+    /** used to decrement the volume to a % */
+    volumeDecrementer?: number; 
     /** A array of plugins to use. */
     plugins?: Plugin[];
     /** Whether players should automatically play the next song. */
