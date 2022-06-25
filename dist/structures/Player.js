@@ -379,18 +379,16 @@ class Player {
         
         this.volume = Math.max(Math.min(volume, 1000), 0);
         
-        function realVol() {
-            let vol = this.volume;
-            console.log(vol, this.manager.volumeDecrementer)
-            if(this.manager.volumeDecrementer) vol *= this.manager.volumeDecrementer;
-            console.log(vol);
-            return vol;
-        }
+        let vol = volume;
+        console.log(vol, this.manager.volumeDecrementer)
+        if(this.manager.volumeDecrementer) vol *= this.manager.volumeDecrementer;
+        console.log(vol);
+        
             
         this.node.send({
             op: "volume",
             guildId: this.guild,
-            volume: Math.max(Math.min(realVol(), 1000), 0),
+            volume: Math.max(Math.min(vol, 1000), 0),
         });
         return this;
     }
