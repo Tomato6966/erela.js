@@ -374,13 +374,6 @@ class Player {
                 options.track = options.track.track;
             }
             
-            if(finalOptions.pause) {
-                this.playing = !finalOptions.pause;
-                this.paused = finalOptions.pause;
-            }
-            if(finalOptions.volume) this.volume = finalOptions.volume;
-            if(finalOptions.startTime) this.position = finalOptions.startTime;
-
             yield this.node.send(options);
         });
     }
