@@ -347,9 +347,17 @@ class Player {
                 throw new RangeError("No current track.");
             const finalOptions = playOptions
                 ? playOptions
-                : ["startTime", "endTime", "noReplace"].every((v) => Object.keys(optionsOrTrack || {}).includes(v))
+                : getOptions(optionsOrTrack)
                     ? optionsOrTrack
                     : {};
+            function getOptions(opts) {
+                const valids = ["startTime", "endTime", "noReplace", "volume", "pause"];
+                const returnObject = {}
+                for(const [key, value] of Object.entries(opts)) {
+                    if(valids.includes(key)) returnObject[key] = value;
+                }
+                return returnObject;
+            }
             if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
                 try {
                     this.queue.current = yield Utils_1.TrackUtils.getClosestTrack(this.queue.current);
@@ -365,6 +373,14 @@ class Player {
             if (typeof options.track !== "string") {
                 options.track = options.track.track;
             }
+            
+            if(finalOptions.pause) {
+                this.playing = !pause;
+                this.paused = finalOptions.pause;
+            }
+            if(finalOptions.volume) this.volume = finalOptions.volume;
+            if(finalOptions.startTime) this.position = finalOptions.startTime;
+
             yield this.node.send(options);
         });
     }
