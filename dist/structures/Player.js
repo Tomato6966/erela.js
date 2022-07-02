@@ -353,7 +353,8 @@ class Player {
             function getOptions(opts) {
                 const valids = ["startTime", "endTime", "noReplace", "volume", "pause"];
                 const returnObject = {}
-                for(const [key, value] of Object.entries(opts)) {
+                if(!opts) return false;
+                for(const [key, value] of Object.entries(Object.assign({}, opts))) {
                     if(valids.includes(key)) returnObject[key] = value;
                 }
                 return returnObject;
