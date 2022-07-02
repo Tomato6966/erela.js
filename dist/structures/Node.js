@@ -279,8 +279,19 @@ class Node {
         }
     }
     trackStart(player, track, payload) {
-        player.playing = true;
-        player.paused = false;
+        const finalOptions = player.get("finalOptions");
+        if(finalOptions) {
+            if(finalOptions.pause) {
+                player.playing = !finalOptions.pause;
+                player.paused = finalOptions.pause;
+            }
+            if(finalOptions.volume) player.volume = finalOptions.volume;
+            if(finalOptions.startTime) player.position = finalOptions.startTime;
+            player.set("finalOptions", undefined);
+        } else {
+            player.playing = true;
+            player.paused = false;
+        }
         this.manager.emit("trackStart", player, track, payload);
     }
     trackEnd(player, track, payload) {
