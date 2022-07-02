@@ -258,6 +258,12 @@ export interface PlayOptions {
     readonly endTime?: number;
     /** Whether to not replace the track if a play payload is sent. */
     readonly noReplace?: boolean;
+    /** If to start "paused" */
+    pause?: boolean;
+    /** The Volume to start with */
+    volume?: number;
+}
+    
 }
 export interface EqualizerBand {
     /** The band number being 0 to 14. */
