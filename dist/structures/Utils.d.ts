@@ -65,6 +65,8 @@ export interface UnresolvedQuery {
     uri?: string;
     /** The duration of the unresolved track. If provided it will have a more precise search. */
     duration?: number;
+    /** Thumbnail of the track */
+    thumbnail?: string;
 }
 export declare type Sizes = "0" | "1" | "2" | "3" | "default" | "mqdefault" | "hqdefault" | "maxresdefault";
 export declare type LoadType = "TRACK_LOADED" | "PLAYLIST_LOADED" | "SEARCH_RESULT" | "LOAD_FAILED" | "NO_MATCHES";
