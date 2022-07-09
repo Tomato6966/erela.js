@@ -248,6 +248,8 @@ export interface UnresolvedTrack extends Partial<Track> {
     author?: string;
     /** The duration to search within 1500 milliseconds of the results from YouTube. */
     duration?: number;
+    /** Thumbnail of the track */
+    thumbnail?: string;
     /** Resolves into a Track. */
     resolve(): Promise<void>;
 }
@@ -262,8 +264,6 @@ export interface PlayOptions {
     pause?: boolean;
     /** The Volume to start with */
     volume?: number;
-}
-    
 }
 export interface EqualizerBand {
     /** The band number being 0 to 14. */
