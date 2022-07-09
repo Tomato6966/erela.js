@@ -359,9 +359,17 @@ class Player {
                 }
                 return returnObject;
             }
+            
             if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
                 try {
+                    const unresolvedTrack = { data: this.queue.current};
                     this.queue.current = yield Utils_1.TrackUtils.getClosestTrack(this.queue.current);
+                    
+                    if(this.queue.current.title == 'Unknown title' && unresolvedTrack.data.title != this.queue.current.title) {
+                        this.queue.current.title = unresolvedTrack.data.title;
+                        this.queue.current.author = unresolvedTrack.data.author;
+                        this.queue.current.thumbnail = unresolvedTrack.data.thumbnail;
+                    }
                 }
                 catch (error) {
                     this.manager.emit("trackError", this, this.queue.current, error);
@@ -375,6 +383,14 @@ class Player {
                 options.track = options.track.track;
             }
             
+            this.set("finalOptions", finalOptions);
+            if(finalOptions.pause) {
+                this.playing = !finalOptions.pause;
+                this.paused = finalOptions.pause;
+            }
+            if(finalOptions.volume) this.volume = finalOptions.volume;
+            if(finalOptions.startTime) this.position = finalOptions.startTime;
+
             yield this.node.send(options);
         });
     }
