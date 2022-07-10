@@ -111,12 +111,12 @@ export declare class Player {
      * @param key
      * @param value
      */
-    set(key: string, value: unknown): void;
+    set(key: string|bigint, value: unknown): void;
     /**
      * Get custom data.
      * @param key
      */
-    get<T>(key: string): T;
+    get<T>(key: string|bigint): T;
     /** @hidden */
     static init(manager: Manager): void;
     /**
