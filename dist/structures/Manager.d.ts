@@ -102,7 +102,7 @@ export interface Manager {
 export declare class Manager extends EventEmitter {
     static readonly DEFAULT_SOURCES: Record<SearchPlatform, string>;
     /** The map of players. */
-    readonly players: Collection<string, Player>;
+    readonly players: Collection<string|bigint, Player>;
     /** The map of nodes. */
     readonly nodes: Collection<string, Node>;
     /** The options that were set. */
