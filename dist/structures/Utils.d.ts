@@ -67,6 +67,8 @@ export interface UnresolvedQuery {
     duration?: number;
     /** Thumbnail of the track */
     thumbnail?: string;
+    /** Identifier of the track */
+    identifier?: string;
 }
 export declare type Sizes = "0" | "1" | "2" | "3" | "default" | "mqdefault" | "hqdefault" | "maxresdefault";
 export declare type LoadType = "TRACK_LOADED" | "PLAYLIST_LOADED" | "SEARCH_RESULT" | "LOAD_FAILED" | "NO_MATCHES";
