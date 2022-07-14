@@ -250,6 +250,8 @@ export interface UnresolvedTrack extends Partial<Track> {
     duration?: number;
     /** Thumbnail of the track */
     thumbnail?: string;
+    /** Identifier of the track */
+    identifier?: string;
     /** Resolves into a Track. */
     resolve(): Promise<void>;
 }
