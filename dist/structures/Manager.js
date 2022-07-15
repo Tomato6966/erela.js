@@ -171,12 +171,12 @@ class Manager extends events_1.EventEmitter {
             const result = {
                 loadType: res.loadType,
                 exception: (_c = res.exception) !== null && _c !== void 0 ? _c : null,
-                tracks: res.tracks.map((track) => Utils_1.TrackUtils.build(track, requester)),
+                tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
             if (result.loadType === "PLAYLIST_LOADED") {
                 result.playlist = {
                     name: res.playlistInfo.name,
-                    selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
+                    selectedTrack: res.playlistInfo?.selectedTrack === -1 ? null :
                         Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
                     duration: result.tracks
                         .reduce((acc, cur) => acc + (cur.duration || 0), 0),
