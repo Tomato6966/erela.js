@@ -312,4 +312,9 @@ Manager.DEFAULT_SOURCES = {
     "scsearch": "scsearch",
     "amsearch": "amsearch",
     "spsearch": "spsearch",
+    "yt": "ytsearch",
+    "ytm": "ytmsearch",
+    "sp": "spsearch",
+    "sc": "scsearch",
+    "am": "amsearch"
 };
