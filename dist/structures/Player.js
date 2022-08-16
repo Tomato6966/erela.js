@@ -82,6 +82,8 @@ class Player {
             }
         }
         
+        if(options.region) this.region = options.region;
+        
         const node = this.manager.nodes.get(options.node);
         this.node = node || this.manager.leastLoadNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first() || this.manager.leastLoadNodes.first();
         
