@@ -73,6 +73,8 @@ export interface NodeOptions {
     retryDelay?: number;
     /** The timeout used for api calls */
     requestTimeout?: number;
+    /** Regions for region sort */
+    regions?: string[];
 }
 export interface NodeStats {
     /** The amount of players on the node. */
