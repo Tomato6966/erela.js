@@ -75,8 +75,16 @@ class Player {
             this.voiceChannel = options.voiceChannel;
         if (options.textChannel)
             this.textChannel = options.textChannel;
+        
+        if(!this.manager.leastLoadNodes?.size) {
+            if(this.manager.initiated) {
+               this.manager.initiated = false; this.manager.init("undefined");
+            }
+        }
+        
         const node = this.manager.nodes.get(options.node);
-        this.node = node || this.manager.leastLoadNodes.first();
+        this.node = node || this.manager.leastLoadNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first() || this.manager.leastLoadNodes.first();
+        
         if (!this.node)
             throw new RangeError("No available nodes.");
         this.manager.players.set(options.guild, this);
