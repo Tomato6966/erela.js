@@ -66,6 +66,9 @@ class Node {
             return this.manager.nodes.get(options.identifier || options.host);
         }
         check(options);
+        
+        this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
+        
         this.options = Object.assign({ port: 2333, password: "youshallnotpass", secure: false, retryAmount: 5, retryDelay: 30e3 }, options);
         this.options.identifier = options.identifier || options.host;
         this.stats = {
