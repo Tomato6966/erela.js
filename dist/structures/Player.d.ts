@@ -214,6 +214,8 @@ export interface PlayerOptions {
     selfMute?: boolean;
     /** If the player should deaf itself. */
     selfDeafen?: boolean;
+    /** Voice-Region */
+    region?: string;
 }
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {
