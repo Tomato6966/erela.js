@@ -1,13 +1,55 @@
-- Added Support for latest Versions of Lavalink (common known plugin searches)
+# What's different / better
 
-- Position updates every 250ms ( you can change that by doing: `new Manager({position_update_interval: 250})`
+## Added Support for Regioning System:
 
-- Added Manager#Property: `volumeDecrementer` // e.g: `new Manager({volumeDecrementer:0.75});` will send to lavalink 75% of the volume not 100%, aka you will hear 75% of the set volume, tho see in the player.volume property the full 100% aka if you do `player.setVolume(100);` then `player.volume == 100` but lavalink receives `75`
+When creating the node(s) pass the variable regions, to auto-select the right region based on what region u provide in the players.create(options#region) options!
 
-  - I use smt between 0.5 - 0.75 cause then the volume is not TOO LOUD at 100% (default) and not really earrapy at 150% (which users like to do when trolling ;) ) (for reference 1 is the same as not adding the option)
+```js
+const nodes = [
+   {
+     identifier: "USA_NODE", host, password, port
+     regions: ["us-east", "us-central", "us-south", "us-west", "brazil"],
+   },
+   {
+     identifier: "GERMANY_NODE", host, password, port
+     regions: ["rotterdam", "russia"],
+   },
+]
+```
+
+When creating the Player, pass the rtcRegion like that:
+```js
+const { channel } = message.member.voice;
+const player = client.musicManager.create({
+  region: channel?.rtcRegion || undefined,
+  guild: channel.guild.id,
+  voiceChannel: channel.id,
+  textChannel: message.channel.id,
+  selfDeafen: true,
+});
+```
+
+## Added Support for latest Versions of Lavalink (common known plugin searches)
+
+```
+const source = "yt"; // "yt" / "ap" / "sp" / "sc" / "ytm" / "..."
+client.musicManager.search({query, source});
+```
+
+## Position updates every 250ms ( you can change that by doing: `new Manager({position_update_interval: 150})`) 
+
+It is client sided, not server sided, means, that on your client player.position will be more accurate, if the server changes, the client will be updated either way by the server (real) data.
+
+## Added Manager#Property: `volumeDecrementer` 
+
+// e.g: `new Manager({volumeDecrementer:0.75});` will send to lavalink 75% of the volume not 100%, aka you will hear 75% of the set volume, tho see in the player.volume property the full 100% aka if you do `player.setVolume(100);` then `player.volume == 100` but lavalink receives `75`
+
+- I use smt between 0.5 - 0.75 cause then the volume is not TOO LOUD at 100% (default) and not really earrapy at 150% (which users like to do when trolling ;) ) (for reference 1 is the same as not adding the option)
 
 
-- Works for discordeno too (just do guildId.toString() to save players in a queue [Click here for rest](https://github.com/Tomato6966/erela.js#discordeno) )
+## Works for discordeno too (just do guildId.toString() to save players in a queue [Click here for rest](https://github.com/Tomato6966/erela.js#discordeno) )
+
+- or any other discord lib ;)
 
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
