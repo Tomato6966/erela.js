@@ -148,10 +148,10 @@ class Manager extends events_1.EventEmitter {
      * @param requester
      * @returns The search result.
      */
-    search(query, requester) {
+      search(query, requester, customNode) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
-            const node = this.leastUsedNodes.first();
+            const node = customNode || this.leastUsedNodes.first();
             if (!node)
                 throw new Error("No available nodes.");
             const _query = typeof query === "string" ? { query } : query;
