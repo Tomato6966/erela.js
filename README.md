@@ -27,7 +27,14 @@ const player = client.musicManager.create({
   textChannel: message.channel.id,
   selfDeafen: true,
 });
+
+// find track:
+client.musicManager.search(query, requester, player.node);
 ```
+
+**IMPORTANT NOTE!**
+
+*When using regioning, you must SEARCH on the same NODE as you play the TRACK on, best practice can be found in the JS script above for the search() method, just provide the correct node (the node the player is using)*
 
 ## Added Support for latest Versions of Lavalink (common known plugin searches)
 
