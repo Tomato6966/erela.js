@@ -181,6 +181,9 @@ export interface Payload {
     };
 }
 export interface ManagerOptions {
+    // if you want to handle those events by yourself
+    handleError: boolean;
+    handleStuck: boolean; 
     /** The array of nodes to connect to. */
     nodes?: NodeOptions[];
     /** The client ID to use. */
