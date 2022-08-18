@@ -85,6 +85,9 @@ class Manager extends events_1.EventEmitter {
             delete options.position_update_interval;
         }
         
+        if(options.handleError) this.handleError = options.handleError;
+        if(options.handleStuck) this.handleStuck = options.handleStuck;
+        
         this.options = Object.assign({ plugins: [], nodes: [{ identifier: "default", host: "localhost" }], shards: 1, autoPlay: true, clientName: "erela.js", defaultSearchPlatform: "youtube" }, options);
         if (this.options.plugins) {
             for (const [index, plugin] of this.options.plugins.entries()) {
