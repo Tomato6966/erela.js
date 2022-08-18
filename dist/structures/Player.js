@@ -383,7 +383,7 @@ class Player {
                 }
                 catch (error) {
                     this.manager.emit("trackError", this, this.queue.current, error);
-                    if (this.queue[0])
+                    if (this.queue[0] && !this.manager.handleError) return this.play(this.queue[0]);
                         return this.play(this.queue[0]);
                     return;
                 }
