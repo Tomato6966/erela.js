@@ -363,11 +363,11 @@ class Node {
         this.manager.emit("queueEnd", player, track, payload);
     }
     trackStuck(player, track, payload) {
-        player.stop();
+        if(!this.manager.handleStuck) player.stop();
         this.manager.emit("trackStuck", player, track, payload);
     }
     trackError(player, track, payload) {
-        player.stop();
+        if(!this.manager.handleError) player.stop();
         this.manager.emit("trackError", player, track, payload);
     }
     socketClosed(player, payload) {
