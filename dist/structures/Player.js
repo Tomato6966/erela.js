@@ -78,7 +78,7 @@ class Player {
         
         if(!this.manager.leastLoadNodes?.size) {
             if(this.manager.initiated) {
-               this.manager.initiated = false; this.manager.init("undefined");
+                this.manager.initiated = false; this.manager.init("undefined");
             }
         }
         
@@ -86,17 +86,13 @@ class Player {
         
         const node = this.manager.nodes.get(options.node);
         this.node = node || this.manager.leastLoadNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first() || this.manager.leastLoadNodes.first();
-        
         if (!this.node)
             throw new RangeError("No available nodes.");
         this.manager.players.set(options.guild, this);
         this.manager.emit("playerCreate", this);
         this.setVolume((_a = options.volume) !== null && _a !== void 0 ? _a : 100);
-        
-        this.instaUpdateFiltersFix = true;
-
-        this.voiceMembers = [];
-
+    
+        this.instaUpdateFiltersFix = options?.instaUpdateFiltersFix ?? true;
         this.filters = {
             nightcore: false,
             echo: false,
@@ -138,7 +134,7 @@ class Player {
             }
         }
     }
-
+    
     // all effects possible to "toggle"
     toggleRotating(rotationHz = 0.2) {
         const filterDataName = "rotating", filterName = "rotating";
@@ -226,6 +222,7 @@ class Player {
         if(this.instaUpdateFiltersFix === true) this.filterUpdated = 1;
         return this;
     }
+
     /**
      * Set custom data.
      * @param key
@@ -259,13 +256,10 @@ class Player {
      */
     setEQ(...bands) {
         // Hacky support for providing an array
-        if (Array.isArray(bands[0]))
-            bands = bands[0];
+        if (Array.isArray(bands[0])) bands = bands[0];
         if (!bands.length || !bands.every((band) => JSON.stringify(Object.keys(band).sort()) === '["band","gain"]'))
             throw new TypeError("Bands must be a non-empty object array containing 'band' and 'gain' properties.");
-        for (const { band, gain } of bands)
-            this.bands[band] = gain;
-        
+        for (const { band, gain } of bands) this.bands[band] = gain;
         this.updatePlayerFilters();
         return this;
     }
@@ -369,7 +363,6 @@ class Player {
                 }
                 return returnObject;
             }
-            
             if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
                 try {
                     const unresolvedTrack = { data: this.queue.current};
@@ -383,16 +376,15 @@ class Player {
                 }
                 catch (error) {
                     this.manager.emit("trackError", this, this.queue.current, error);
-                    if (this.queue[0] && !this.manager.handleError) return this.play(this.queue[0]);
+                    if (this.queue[0])
                         return this.play(this.queue[0]);
                     return;
                 }
             }
             const options = Object.assign({ op: "play", guildId: this.guild, track: this.queue.current.track }, finalOptions);
-            if (options.track && typeof options.track !== "string" && options.track?.track) {
+            if (typeof options.track !== "string") {
                 options.track = options.track.track;
             }
-            
             this.set("finalOptions", finalOptions);
             if(finalOptions.pause) {
                 this.playing = !finalOptions.pause;
@@ -400,7 +392,6 @@ class Player {
             }
             if(finalOptions.volume) this.volume = finalOptions.volume;
             if(finalOptions.startTime) this.position = finalOptions.startTime;
-
             yield this.node.send(options);
         });
     }
@@ -473,7 +464,7 @@ class Player {
         return this;
     }
     /**
-     * Pauses the current tracSk.
+     * Pauses the current track.
      * @param pause
      */
     pause(pause) {
