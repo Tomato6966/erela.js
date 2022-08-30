@@ -34,9 +34,8 @@ export declare class Player {
     voiceState: VoiceState;
     /** The Manager. */
     manager: Manager;
+    /** If filters should be instantupdated */
     instaUpdateFiltersFix: boolean;
-    
-    voiceMembers: string[];
     
     filters: {
         nightcore: boolean|string,
@@ -111,12 +110,12 @@ export declare class Player {
      * @param key
      * @param value
      */
-    set(key: string|bigint, value: unknown): void;
+    set(key: string, value: unknown): void;
     /**
      * Get custom data.
      * @param key
      */
-    get<T>(key: string|bigint): T;
+    get<T>(key: string): T;
     /** @hidden */
     static init(manager: Manager): void;
     /**
@@ -203,9 +202,9 @@ export interface PlayerOptions {
     /** The guild the Player belongs to. */
     guild: string;
     /** The text channel the Player belongs to. */
-    textChannel?: string;
+    textChannel: string;
     /** The voice channel the Player belongs to. */
-    voiceChannel: string;
+    voiceChannel?: string;
     /** The node the Player uses. */
     node?: string;
     /** The initial volume the Player will use. */
@@ -222,11 +221,11 @@ export interface Track {
     /** The base64 encoded track. */
     readonly track: string;
     /** The title of the track. */
-    title: string;
+    readonly title: string;
     /** The identifier of the track. */
     readonly identifier: string;
     /** The author of the track. */
-    author: string;
+    readonly author: string;
     /** The duration of the track. */
     readonly duration: number;
     /** If the track is seekable. */
@@ -234,9 +233,9 @@ export interface Track {
     /** If the track is a stream.. */
     readonly isStream: boolean;
     /** The uri of the track. */
-    uri: string;
+    readonly uri: string;
     /** The thumbnail of the track or null if it's a unsupported source. */
-    thumbnail: string | null;
+    readonly thumbnail: string | null;
     /** The user that requested the track. */
     readonly requester: unknown | null;
     /** Displays the track thumbnail with optional size or null if it's a unsupported source. */
@@ -263,7 +262,7 @@ export interface PlayOptions {
     /** The position to end the track. */
     readonly endTime?: number;
     /** Whether to not replace the track if a play payload is sent. */
-    readonly noReplace?: boolean;
+    readonly noReplace?: boolean;    
     /** If to start "paused" */
     pause?: boolean;
     /** The Volume to start with */
