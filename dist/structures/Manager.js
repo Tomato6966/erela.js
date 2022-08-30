@@ -72,7 +72,6 @@ class Manager extends events_1.EventEmitter {
             Utils_1.TrackUtils.setTrackPartial(options.trackPartial);
             delete options.trackPartial;
         }
-        
         if(options.volumeDecrementer) {
             this.volumeDecrementer = options.volumeDecrementer;
             delete options.volumeDecrementer;
@@ -84,10 +83,7 @@ class Manager extends events_1.EventEmitter {
             if(typeof options.position_update_interval == "number") this.position_update_interval = options.position_update_interval;
             delete options.position_update_interval;
         }
-        
-        if(options.handleError) this.handleError = options.handleError;
-        if(options.handleStuck) this.handleStuck = options.handleStuck;
-        
+
         this.options = Object.assign({ plugins: [], nodes: [{ identifier: "default", host: "localhost" }], shards: 1, autoPlay: true, clientName: "erela.js", defaultSearchPlatform: "youtube" }, options);
         if (this.options.plugins) {
             for (const [index, plugin] of this.options.plugins.entries()) {
@@ -151,7 +147,7 @@ class Manager extends events_1.EventEmitter {
      * @param requester
      * @returns The search result.
      */
-     search(query, requester, customNode) {
+    search(query, requester, customNode) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const node = customNode || this.leastUsedNodes.first();
@@ -172,12 +168,12 @@ class Manager extends events_1.EventEmitter {
             const result = {
                 loadType: res.loadType,
                 exception: (_c = res.exception) !== null && _c !== void 0 ? _c : null,
-                tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: res.tracks.map((track) => Utils_1.TrackUtils.build(track, requester)),
             };
             if (result.loadType === "PLAYLIST_LOADED") {
                 result.playlist = {
                     name: res.playlistInfo.name,
-                    selectedTrack: res.playlistInfo?.selectedTrack === -1 ? null :
+                    selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
                         Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
                     duration: result.tracks
                         .reduce((acc, cur) => acc + (cur.duration || 0), 0),
@@ -200,7 +196,8 @@ class Manager extends events_1.EventEmitter {
                 r.body = JSON.stringify(tracks);
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 r.headers["Content-Type"] = "application/json";
-            }).catch(err => reject(err));
+            })
+                .catch(err => reject(err));
             if (!res) {
                 return reject(new Error("No data returned from query."));
             }
