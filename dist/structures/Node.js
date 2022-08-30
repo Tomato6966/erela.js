@@ -105,6 +105,11 @@ class Node {
             return false;
         return this.socket.readyState === ws_1.default.OPEN;
     }
+    /** Returns the address for this node. */
+    get address() {
+        const requiresPort = this.options.port === 80 || (this.options.secure && this.options.port === 443);
+        return `${this.options.host}${requiresPort ? `:${this.options.port}` : ""}`;
+    }
     /** @hidden */
     static init(manager) {
         this._manager = manager;
@@ -168,16 +173,13 @@ class Node {
      */
     send(data) {
         return new Promise((resolve, reject) => {
-            if (!this.connected)
-                return resolve(false);
+            if (!this.connected) return resolve(false);
             if (!data || !JSON.stringify(data).startsWith("{")) {
                 return reject(false);
             }
             this.socket.send(JSON.stringify(data), (error) => {
-                if (error)
-                    reject(error);
-                else
-                    resolve(true);
+                if (error) reject(error);
+                else resolve(true);
             });
         });
     }
