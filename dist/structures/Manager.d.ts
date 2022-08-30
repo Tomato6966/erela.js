@@ -102,7 +102,7 @@ export interface Manager {
 export declare class Manager extends EventEmitter {
     static readonly DEFAULT_SOURCES: Record<SearchPlatform, string>;
     /** The map of players. */
-    readonly players: Collection<string|bigint, Player>;
+    readonly players: Collection<string, Player>;
     /** The map of nodes. */
     readonly nodes: Collection<string, Node>;
     /** The options that were set. */
@@ -181,9 +181,6 @@ export interface Payload {
     };
 }
 export interface ManagerOptions {
-    // if you want to handle those events by yourself
-    handleError?: boolean;
-    handleStuck?: boolean; 
     /** The array of nodes to connect to. */
     nodes?: NodeOptions[];
     /** The client ID to use. */
