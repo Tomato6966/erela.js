@@ -1,13 +1,16 @@
 /// <reference types="node" />
 import WebSocket from "ws";
+import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
 import { Player, Track, UnresolvedTrack } from "./Player";
 import { PlayerEvent, PlayerEvents, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
-import type { PetitioRequest } from "petitio/dist/lib/PetitioRequest";
+
 export declare class Node {
     options: NodeOptions;
     /** The socket for the node. */
     socket: WebSocket | null;
+    /** The HTTP pool used for rest calls. */
+    http: Pool;
     /** The amount of rest calls the node has made. */
     calls: number;
     /** The stats for the node. */
@@ -55,7 +58,7 @@ export declare class Node {
     protected socketClosed(player: Player, payload: WebSocketClosedEvent): void;
 }
 /** Modifies any outgoing REST requests. */
-export declare type ModifyRequest = (request: PetitioRequest) => unknown;
+export declare type ModifyRequest = (options: Dispatcher.RequestOptions) => void;
 export interface NodeOptions {
     /** The host for the node. */
     host: string;
@@ -75,6 +78,8 @@ export interface NodeOptions {
     requestTimeout?: number;
     /** Regions for region sort */
     regions?: string[];
+    /** Options for the undici http pool used for http requests */
+    poolOptions?: Pool.Options;
 }
 export interface NodeStats {
     /** The amount of players on the node. */
