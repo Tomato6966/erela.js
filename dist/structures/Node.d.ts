@@ -4,7 +4,6 @@ import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
 import { Player, Track, UnresolvedTrack } from "./Player";
 import { PlayerEvent, PlayerEvents, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
-
 export declare class Node {
     options: NodeOptions;
     /** The socket for the node. */
@@ -21,6 +20,8 @@ export declare class Node {
     private reconnectAttempts;
     /** Returns if connected to the Node. */
     get connected(): boolean;
+    /** Returns the address for this node. */
+    get address(): string;
     /** @hidden */
     static init(manager: Manager): void;
     /**
