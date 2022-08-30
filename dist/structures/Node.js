@@ -173,13 +173,16 @@ class Node {
      */
     send(data) {
         return new Promise((resolve, reject) => {
-            if (!this.connected) return resolve(false);
+            if (!this.connected)
+                return resolve(false);
             if (!data || !JSON.stringify(data).startsWith("{")) {
                 return reject(false);
             }
             this.socket.send(JSON.stringify(data), (error) => {
-                if (error) reject(error);
-                else resolve(true);
+                if (error)
+                    reject(error);
+                else
+                    resolve(true);
             });
         });
     }
