@@ -151,7 +151,7 @@ class Manager extends events_1.EventEmitter {
      * @param requester
      * @returns The search result.
      */
-      search(query, requester, customNode) {
+     search(query, requester, customNode) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const node = customNode || this.leastUsedNodes.first();
@@ -163,11 +163,9 @@ class Manager extends events_1.EventEmitter {
             if (!/^https?:\/\//.test(search)) {
                 search = `${_source}:${search}`;
             }
-            const res = yield node.makeRequest(`/loadtracks?identifier=${encodeURIComponent(search)}`, r => {
-                if (node.options.requestTimeout) {
-                    r.timeout(node.options.requestTimeout);
-                }
-            }).catch(err => reject(err));
+            const res = yield node
+                .makeRequest(`/loadtracks?identifier=${encodeURIComponent(search)}`)
+                .catch(err => reject(err));
             if (!res) {
                 return reject(new Error("Query not found."));
             }
@@ -197,10 +195,12 @@ class Manager extends events_1.EventEmitter {
             const node = this.nodes.first();
             if (!node)
                 throw new Error("No available nodes.");
-            const res = yield node.makeRequest(`/decodetracks`, r => r
-                .method("POST")
-                .body(tracks, "json"))
-                .catch(err => reject(err));
+            const res = yield node.makeRequest(`/decodetracks`, r => {
+                r.method = "POST";
+                r.body = JSON.stringify(tracks);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                r.headers["Content-Type"] = "application/json";
+            }).catch(err => reject(err));
             if (!res) {
                 return reject(new Error("No data returned from query."));
             }
