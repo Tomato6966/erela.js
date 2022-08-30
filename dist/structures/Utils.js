@@ -91,11 +91,11 @@ class TrackUtils {
                 isStream: data.info.isStream,
                 uri: data.info.uri,
                 thumbnail: data.info.uri.includes("youtube")
-                    ? `https://img.youtube.com/vi/${data.info.identifier}/default.jpg`
+                    ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
                     : null,
-                displayThumbnail(size = "default") {
+                displayThumbnail(size = "mqdefault") {
                     var _a;
-                    const finalSize = (_a = SIZES.find((s) => s === size)) !== null && _a !== void 0 ? _a : "default";
+                    const finalSize = (_a = SIZES.find((s) => s === size)) !== null && _a !== void 0 ? _a : "mqdefault";
                     return this.uri.includes("youtube")
                         ? `https://img.youtube.com/vi/${data.info.identifier}/${finalSize}.jpg`
                         : null;
@@ -148,7 +148,7 @@ class TrackUtils {
         });
         return unresolvedTrack;
     }
-    static getClosestTrack(unresolvedTrack) {
+    static getClosestTrack(unresolvedTrack, customNode) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!TrackUtils.manager)
@@ -156,7 +156,7 @@ class TrackUtils {
             if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
                 throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
-            const res = unresolvedTrack.uri ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester) : yield TrackUtils.manager.search(query, unresolvedTrack.requester);
+            const res = unresolvedTrack.uri ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : yield TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
             if (res.loadType !== "SEARCH_RESULT" && res.loadType !== "TRACK_LOADED" && res.loadType !== "PLAYLIST_LOADED")
                 throw (_a = res.exception) !== null && _a !== void 0 ? _a : {
                     message: "No tracks found.......",
@@ -196,6 +196,7 @@ class TrackUtils {
         });
     }
 }
+
 exports.TrackUtils = TrackUtils;
 TrackUtils.trackPartial = null;
 /** Gets or extends structures to extend the built in, or already extended, classes to add more functionality. */
