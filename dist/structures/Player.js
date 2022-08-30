@@ -247,8 +247,8 @@ class Player {
      * @param query
      * @param requester
      */
-    search(query, requester) {
-        return this.manager.search(query, requester);
+    search(query, requester, customNode) {
+        return this.manager.search(query, requester, customNode||this.node);
     }
     /**
      * Sets the players equalizer band on-top of the existing ones.
@@ -366,7 +366,7 @@ class Player {
             if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
                 try {
                     const unresolvedTrack = { data: this.queue.current};
-                    this.queue.current = yield Utils_1.TrackUtils.getClosestTrack(this.queue.current);
+                    this.queue.current = yield Utils_1.TrackUtils.getClosestTrack(this.queue.current, this.node);
                     
                     if(this.queue.current.title == 'Unknown title' && unresolvedTrack.data.title != this.queue.current.title) {
                         this.queue.current.title = unresolvedTrack.data.title;
