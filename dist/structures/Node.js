@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Node = void 0;
 /* eslint-disable no-case-declarations */
 const ws_1 = __importDefault(require("ws"));
-const petitio_1 = __importDefault(require("petitio"));
+const undici_1 = require("undici");
 const Utils_1 = require("./Utils");
 function check(options) {
     if (!options)
@@ -70,6 +70,10 @@ class Node {
         this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
         
         this.options = Object.assign({ port: 2333, password: "youshallnotpass", secure: false, retryAmount: 5, retryDelay: 30e3 }, options);
+        if (this.options.secure) {
+            this.options.port = 443;
+        }
+        this.http = new undici_1.Pool(`http${this.options.secure ? "s" : ""}://${this.address}`, this.options.poolOptions);
         this.options.identifier = options.identifier || options.host;
         this.stats = {
             players: 0,
@@ -144,14 +148,18 @@ class Node {
      */
     makeRequest(endpoint, modify) {
         return __awaiter(this, void 0, void 0, function* () {
-            endpoint = endpoint.replace(/^\//gm, "");
-            const request = (0, petitio_1.default)(`http${this.options.secure ? "s" : ""}://${this.options.host}:${this.options.port}/${endpoint}`)
-                .header("Authorization", this.options.password);
-            if (modify) {
-                yield modify(request);
-            }
+            const options = {
+                path: `/${endpoint.replace(/^\//gm, "")}`,
+                method: "GET",
+                headers: {
+                    Authorization: this.options.password
+                },
+                headersTimeout: this.options.requestTimeout,
+            };
+            modify === null || modify === void 0 ? void 0 : modify(options);
+            const request = yield this.http.request(options);
             this.calls++;
-            return yield request.json();
+            return yield request.body.json();
         });
     }
     /**
