@@ -66,7 +66,6 @@ class Node {
             return this.manager.nodes.get(options.identifier || options.host);
         }
         check(options);
-        
         this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
         
         this.options = Object.assign({ port: 2333, password: "youshallnotpass", secure: false, retryAmount: 5, retryDelay: 30e3 }, options);
@@ -107,8 +106,7 @@ class Node {
     }
     /** Returns the address for this node. */
     get address() {
-        const requiresPort = this.options.port === 80 || (this.options.secure && this.options.port === 443);
-        return `${this.options.host}${requiresPort ? `:${this.options.port}` : ""}`;
+        return `${this.options.host}:${this.options.port}`;
     }
     /** @hidden */
     static init(manager) {
@@ -124,7 +122,7 @@ class Node {
             "User-Id": this.manager.options.clientId,
             "Client-Name": this.manager.options.clientName,
         };
-        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.options.host}:${this.options.port}/`, { headers });
+        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
         this.socket.on("open", this.open.bind(this));
         this.socket.on("close", this.close.bind(this));
         this.socket.on("message", this.message.bind(this));
@@ -376,11 +374,11 @@ class Node {
         this.manager.emit("queueEnd", player, track, payload);
     }
     trackStuck(player, track, payload) {
-        if(!this.manager.handleStuck) player.stop();
+        player.stop();
         this.manager.emit("trackStuck", player, track, payload);
     }
     trackError(player, track, payload) {
-        if(!this.manager.handleError) player.stop();
+        player.stop();
         this.manager.emit("trackError", player, track, payload);
     }
     socketClosed(player, payload) {
