@@ -58,6 +58,34 @@ It is client sided, not server sided, means, that on your client player.position
 
 - or any other discord lib ;)
 
+## Added Inbuilt Filters
+
+Variables to see which Filter is active:
+```js
+player.filters.nightcore // READONLY - {Boolean} if it's enabled or not
+player.filters.rotating // READONLY - {Boolean} if it's enabled or not
+player.filters.tremolo // READONLY - {Boolean} if it's enabled or not
+player.filters.vibrato // READONLY - {Boolean} if it's enabled or not
+player.filters.lowPass // READONLY - {Boolean} if it's enabled or not 
+
+// only available with lavalink-filter-plugin
+player.filters.echo // READONLY - {Boolean} if it's enabled or not
+```
+
+Functions to set the Filters:
+```js
+player.toggleRotating();
+player.toggleVibrato();
+player.toggleTremolo();
+player.toggleLowPass();
+player.toggleEcho();
+player.toggleNightcore();
+player.toggleKaraoke();
+player.toggleRotating();
+```
+
+You can add in each functio ntheir Parameters, [Check this file for more infos](https://github.com/Tomato6966/erela.js/blob/main/dist/structures/Player.js#L139)
+
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>
