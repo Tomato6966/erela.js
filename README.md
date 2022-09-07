@@ -78,10 +78,11 @@ player.toggleRotating();
 player.toggleVibrato();
 player.toggleTremolo();
 player.toggleLowPass();
-player.toggleEcho();
 player.toggleNightcore();
 player.toggleKaraoke();
-player.toggleRotating();
+
+// only available with lavalink-filter-plugin
+player.toggleEcho();
 ```
 
 You can add in each functio ntheir Parameters, [Check this file for more infos](https://github.com/Tomato6966/erela.js/blob/main/dist/structures/Player.js#L139)
