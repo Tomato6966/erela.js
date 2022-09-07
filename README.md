@@ -40,7 +40,7 @@ player.search(query, requester);
 
 ## Added Support for latest Versions of Lavalink (common known plugin searches)
 
-```
+```js
 const source = "yt"; // "yt" / "ap" / "sp" / "sc" / "ytm" / "..."
 client.musicManager.search({query, source}, requester, player.node);
 // e.g. search on spotify 
