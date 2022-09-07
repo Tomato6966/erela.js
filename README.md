@@ -30,6 +30,8 @@ const player = client.musicManager.create({
 
 // find track:
 client.musicManager.search(query, requester, player.node);
+// or via player:
+player.search(query, requester);
 ```
 
 **IMPORTANT NOTE!**
@@ -40,7 +42,21 @@ client.musicManager.search(query, requester, player.node);
 
 ```
 const source = "yt"; // "yt" / "ap" / "sp" / "sc" / "ytm" / "..."
-client.musicManager.search({query, source});
+client.musicManager.search({query, source}, requester, player.node);
+// e.g. search on spotify 
+client.musicManager.search({
+   query: "Adele - Hello",
+   source: "sp",
+}, interaction.user, player.node);
+```
+
+## Added `instaUpdateFiltersFix` Player#Property. - Default: true (update filters & equalizers instantly when u send a filterupdate request with the provided filter functions)
+
+```js
+const player = client.musicManager.create({
+    ...,
+    instaUpdateFiltersFix: true, // to disable it (and save resources) set it to false
+})
 ```
 
 ## Position updates every 250ms ( you can change that by doing: `new Manager({position_update_interval: 150})`) 
