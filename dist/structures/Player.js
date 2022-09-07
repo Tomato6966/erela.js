@@ -389,6 +389,9 @@ class Player {
             if(finalOptions.pause) {
                 this.playing = !finalOptions.pause;
                 this.paused = finalOptions.pause;
+            } else {
+                this.playing = true;
+                this.paused = false;
             }
             if(finalOptions.volume) this.volume = finalOptions.volume;
             if(finalOptions.startTime) this.position = finalOptions.startTime;
