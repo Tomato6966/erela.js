@@ -382,7 +382,7 @@ class Player {
                 }
             }
             const options = Object.assign({ op: "play", guildId: this.guild, track: this.queue.current.track }, finalOptions);
-            if (typeof options.track !== "string") {
+            if (typeof options.track !== "string" && typeof options.track === "object" && options.track.track) {
                 options.track = options.track.track;
             }
             this.set("finalOptions", finalOptions);
