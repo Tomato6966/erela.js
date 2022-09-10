@@ -113,6 +113,12 @@ const Manager = new Manager({
 })
 ```
 
+## Self Made Plugins!
+
+You can also use my plugins, which make are better then their originals due to some things missing..
+
+- [better-erela.js-deezer](https://github.com/Tomato6966/better-erela.js-deezer) | `npm i Tomato6966/better-erela.js-deezer` / `yarn add Tomato6966/better-erela.js-deezer`
+
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>
