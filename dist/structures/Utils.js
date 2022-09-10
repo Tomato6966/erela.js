@@ -156,7 +156,7 @@ class TrackUtils {
             if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
                 throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
-            const isvalidUri(str) {
+            const isvalidUri = (str) => {
                 if(!str) return false;
                 if(str?.includes?.("www.youtu")) return true;
                 if(str?.includes?.("music.youtu")) return true;
