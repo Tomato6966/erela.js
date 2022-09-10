@@ -157,11 +157,17 @@ class TrackUtils {
                 throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
             const isvalidUri = (str) => {
+                const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
+                if(TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
+                    valids.push(...TrackUtils.manager.options.validUnresolvedUris);
+                }
+                // auto remove plugins which make it to unresolved, so that it can search on youtube etc.
+                if(TrackUtils.manager.options.plugins && TrackUtils.manager.options.plugins.length) {
+                    const pluginNames = TrackUtils.manager.options.plugins.map(c => c?.constructor?.name?.toLowerCase?.());
+                    for(const valid of valids) if(pluginNames?.some?.(v => valid?.toLowerCase?.().includes?.(v))) valids.splice(valids.indexOf(valid), 1);
+                }
                 if(!str) return false;
-                if(str?.includes?.("www.youtu")) return true;
-                if(str?.includes?.("music.youtu")) return true;
-                if(str?.includes?.("soundcloud.com")) return true;
-                if(str?.includes?.("spotify.com")) return true;
+                if(valids.some(x => str.includes(x.toLowerCase()))) return true;
                 return false
             }
             const res = isvalidUri(unresolvedTrack.uri) ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : yield TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
