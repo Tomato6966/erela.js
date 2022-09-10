@@ -201,6 +201,8 @@ export interface ManagerOptions {
     trackPartial?: string[];
     /** The default search platform to use, can be "youtube", "youtube music", or "soundcloud". */
     defaultSearchPlatform?: SearchPlatform;
+    /** Extra Uris which are allowed to be saved as a unresolved from URI (only provide ones which can be handled by LAVALINK) */
+    validUnresolvedUris?: string[];
     /**
      * Function to send data to the websocket.
      * @param id
