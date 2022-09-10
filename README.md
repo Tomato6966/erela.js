@@ -101,7 +101,17 @@ player.toggleKaraoke();
 player.toggleEcho();
 ```
 
-You can add in each functio ntheir Parameters, [Check this file for more infos](https://github.com/Tomato6966/erela.js/blob/main/dist/structures/Player.js#L139)
+You can add in each function their Parameters, [Check this file for more infos](https://github.com/Tomato6966/erela.js/blob/main/dist/structures/Player.js#L139)
+
+## Added Manager#validUnresolvedUris for unresolved tracks
+
+- If an unresolved Track is saved from lavalink plugins, like spotify and u wanna search on spotify with that uri, then u should do this:
+```js
+const Manager = new Manager({
+    ...,
+    validUnresolvedUris: ["spotify.com"]
+})
+```
 
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
