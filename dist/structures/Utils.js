@@ -156,7 +156,15 @@ class TrackUtils {
             if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
                 throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
-            const res = unresolvedTrack.uri ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : yield TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+            const isvalidUri(str) {
+                if(!str) return false;
+                if(str?.includes?.("www.youtu")) return true;
+                if(str?.includes?.("music.youtu")) return true;
+                if(str?.includes?.("soundcloud.com")) return true;
+                if(str?.includes?.("spotify.com")) return true;
+                return false
+            }
+            const res = isvalidUri(unresolvedTrack.uri) ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : yield TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
             if (res.loadType !== "SEARCH_RESULT" && res.loadType !== "TRACK_LOADED" && res.loadType !== "PLAYLIST_LOADED")
                 throw (_a = res.exception) !== null && _a !== void 0 ? _a : {
                     message: "No tracks found.......",
