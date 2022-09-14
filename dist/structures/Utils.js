@@ -187,17 +187,18 @@ class TrackUtils {
                     if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
                     if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
                     if(originalAudio.thumbnail != unresolvedTrack.thumbnail) originalAudio.thumbnail = unresolvedTrack.thumbnail;
+                    if(originalAudio?.identifier?.includes?.("/preview") && originalAudio?.identifier?.includes?.("soundcloud")) originalAudio.duration = 30000;
                     return originalAudio;
                 }
             }
             if (unresolvedTrack.duration) {
-                const sameDuration = res.tracks.find(track => (track.duration >= (unresolvedTrack.duration - 1500)) &&
-                    (track.duration <= (unresolvedTrack.duration + 1500)));
+                const sameDuration = res.tracks.find(track => (track.duration >= (unresolvedTrack.duration - 1500)) && (track.duration <= (unresolvedTrack.duration + 1500)));
                 if (sameDuration) {
                     sameDuration.uri = unresolvedTrack.uri;
                     if((sameDuration.title == 'Unknown title' || sameDuration.title == "Unspecified description") && sameDuration.title != unresolvedTrack.title) sameDuration.title = unresolvedTrack.title;
                     if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
                     if(sameDuration.thumbnail != unresolvedTrack.thumbnail) sameDuration.thumbnail = unresolvedTrack.thumbnail;
+                    if(sameDuration?.identifier?.includes?.("/preview") && sameDuration?.identifier?.includes?.("soundcloud")) sameDuration.duration = 30000;
                     return sameDuration;
                 }
             }
@@ -205,7 +206,7 @@ class TrackUtils {
             if((res.tracks[0].title == 'Unknown title' || res.tracks[0].title == "Unspecified description") && unresolvedTrack.title != res.tracks[0].title) res.tracks[0].title = unresolvedTrack.title;
             if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
             if(unresolvedTrack.thumbnail != res.tracks[0].thumbnail) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
-            
+            if(res.tracks[0]?.identifier?.includes?.("/preview") && res.tracks[0]?.identifier?.includes?.("soundcloud")) res.tracks[0].duration = 30000;
             return res.tracks[0];
         });
     }

@@ -168,7 +168,11 @@ class Manager extends events_1.EventEmitter {
             const result = {
                 loadType: res.loadType,
                 exception: (_c = res.exception) !== null && _c !== void 0 ? _c : null,
-                tracks: res.tracks.map((track) => Utils_1.TrackUtils.build(track, requester)),
+                tracks: res.tracks.map((track) => {
+                    const track = Utils_1.TrackUtils.build(track, requester)
+                    if(track?.identifier?.includes?.("/preview") && track?.identifier?.includes?.("soundcloud")) track.duration = 30000;
+                    return track;
+                }),
             };
             if (result.loadType === "PLAYLIST_LOADED") {
                 result.playlist = {
