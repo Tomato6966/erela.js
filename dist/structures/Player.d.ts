@@ -240,6 +240,8 @@ export interface Track {
     readonly requester: unknown | null;
     /** Displays the track thumbnail with optional size or null if it's a unsupported source. */
     displayThumbnail(size?: Sizes): string;
+    /** If the Track is a preview */
+    readonly isPreview: boolean;
 }
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
 export interface UnresolvedTrack extends Partial<Track> {
