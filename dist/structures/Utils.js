@@ -86,11 +86,11 @@ class TrackUtils {
                 title: data.info.title,
                 identifier: data.info.identifier,
                 author: data.info.author,
-                duration: (data?.identifier?.includes?.("/preview") && data?.identifier?.includes?.("soundcloud")) ? 30000 : data.info.length,
+                duration: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) ? 30000 : data.info.length,
                 isSeekable: data.info.isSeekable,
                 isStream: data.info.isStream,
                 uri: data.info.uri,
-                isPreview: (data?.identifier?.includes?.("/preview") && data?.identifier?.includes?.("soundcloud")),
+                isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")),
                 thumbnail: data.info.uri.includes("youtube")
                     ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
                     : null,
@@ -188,7 +188,7 @@ class TrackUtils {
                     if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
                     if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
                     if(originalAudio.thumbnail != unresolvedTrack.thumbnail) originalAudio.thumbnail = unresolvedTrack.thumbnail;
-                    return TrackUtils.build(originalAudio);
+                    return originalAudio;
                 }
             }
             if (unresolvedTrack.duration) {
@@ -198,14 +198,14 @@ class TrackUtils {
                     if((sameDuration.title == 'Unknown title' || sameDuration.title == "Unspecified description") && sameDuration.title != unresolvedTrack.title) sameDuration.title = unresolvedTrack.title;
                     if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
                     if(sameDuration.thumbnail != unresolvedTrack.thumbnail) sameDuration.thumbnail = unresolvedTrack.thumbnail;
-                    return TrackUtils.build(sameDuration);
+                    return sameDuration;
                 }
             }
             res.tracks[0].uri = unresolvedTrack.uri;
             if((res.tracks[0].title == 'Unknown title' || res.tracks[0].title == "Unspecified description") && unresolvedTrack.title != res.tracks[0].title) res.tracks[0].title = unresolvedTrack.title;
             if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
             if(unresolvedTrack.thumbnail != res.tracks[0].thumbnail) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
-            return TrackUtils.build(res.tracks[0]);
+            return res.tracks[0];
         });
     }
 }
