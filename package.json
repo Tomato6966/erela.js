@@ -28,7 +28,10 @@
     "ayntee"
   ],
   "license": "Apache-2.0",
-  "repository": "Tomato6966/erela.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tomato6966/erela.js.git"
+  },
   "bugs": "https://github.com/Tomato6966/erela.js",
   "devDependencies": {
     "@types/node": "^16.6.1",
