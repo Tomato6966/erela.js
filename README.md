@@ -364,4 +364,30 @@ client.on("ready", () => {
     clientId: client.user.id, 
   });
 })
+
+
+
+// example how to search with rtcRegion
+const player = client.musicManager.create({
+  region: interaction.member.voice.channel?.rtcRegion || undefined,
+  guild: interaction.guildId,
+  voiceChannel: interaction.member.voice.channel.id, // message.member.voice.channel.id,
+  textChannel: interaction.channel.id,
+  selfDeafen: true,
+});
+const query = `eminem without me`; 
+// Alternative query with sources: { query: `eminem without me`, source: "sc" }; 
+const result = await client.musicManager.search(query, interaction, player.node)
+```
+
+
+all Valid Sources
+```
+youtube music === ytm
+youtube       === yt
+soundcloud    === sc
+ytmsearch     === ytm
+ytsearch      === yt
+amsearch      === am
+spsearch      === sp
 ```
