@@ -2,6 +2,18 @@
 
 - [Click here to see an example of the new Manager creation](https://github.com/Tomato6966/erela.js/blob/main/README.md#examplemanager)
 
+Install custom Version:
+
+npm:
+```
+npm i Tomato6966/erela.js
+```
+
+yarn:
+```
+yarn add Tomato6966/erela.js
+```
+
 ## Added Support for Regioning System:
 
 When creating the node(s) pass the variable regions, to auto-select the right region based on what region u provide in the players.create(options#region) options!
