@@ -1,5 +1,7 @@
 # What's different / better
 
+- [Click here to see an example of the new Manager creation](https://github.com/Tomato6966/erela.js/tree/main/README.md#exampleManager)
+
 ## Added Support for Regioning System:
 
 When creating the node(s) pass the variable regions, to auto-select the right region based on what region u provide in the players.create(options#region) options!
@@ -118,6 +120,7 @@ const Manager = new Manager({
 You can also use my plugins, which make are better then their originals due to some things missing..
 
 - [better-erela.js-deezer](https://github.com/Tomato6966/better-erela.js-deezer) | `npm i Tomato6966/better-erela.js-deezer` / `yarn add Tomato6966/better-erela.js-deezer`
+- [erela.js-bandcamp-search](https://github.com/Tomato6966/erela.js-bandcamp-search) | `npm i Tomato6966/erela.js-bandcamp-search` / `yarn add Tomato6966/erela.js-bandcamp-search`
 
 ## Added Manager#forceLoadPlugin for forcing plugin loadings
 
@@ -282,3 +285,71 @@ switch (data.t) {
 
 - Contributor
 - Github: [@ayntee](https://github.com/ayntee)
+
+## exampleManager
+
+```js
+const { Manager } = require("erela.js"); // npm i Tomato6966/erela.js
+
+const Deezer = require("better-erela.js-deezer"); // npm i Tomato6966/better-erela.js-deezer
+const BandCampSearch = require("erela.js-bandcamp-search"); // npm i Tomato6966/erela.js-bandcamp-search"
+
+// creation
+client.musicManager = new Manager({
+    defaultSearchPlatform: "ytsearch", // "ytmsearch" / "ytsearch" / "deezer" / "scsearch" // etc. etc. deezer only valid if you have MY better-erela.js-deezer plugin installed!
+    handleError: false, // if true, you have to handle what happens when an Error happens, if false it auto skips!
+    handleStuck: false, // if true, you have to handle what happens when an track gets stucked happens, if false it auto skips!
+    volumeDecrementer: 0.75, // instead of sending 100% it sends 75%
+    position_update_interval: 100, // update the player.position every 100ms
+    nodes: [
+        {
+            identifier: `Use_Node_1`,
+            port: 2333,  host: "localhost", // ip.address. e.g. 127.0.0.1
+            regions: ["us-east", "us-central", "us-south", "us-west", "brazil"], // example regions
+            password: "youshallnotpass",
+            retryAmount: 10,
+            retryDelay: 7500,
+        },
+        {
+            identifier: `GERMANY_Node_1`,
+            port: 2333, host: "localhost", // ip.address. e.g. 127.0.0.1
+            regions: ["rotterdam", "russia"],
+            password: "milrato_pass_3569",
+            retryAmount: 10, retryDelay: 7500,
+        }
+    ],
+    // every base-url provided in here, will be resolved once the track is beeing tryed to play, aka fetched by lavalink. 
+    validUnresolvedUris: [
+        "spotify.com",  // only if your lavalink has spotify plugin
+        "twitch.com", 
+        "twitch.tv",
+        "vimeo.com", 
+        "bandcamp.com", 
+        "music.apple.com", // only if your lavalink has apple music plugin
+    ],
+    plugins: [
+        new Deezer(),
+        new BandCampSearch({
+            querySource: ["bandcamp", "bc"], 
+        }),
+    ],
+    shards: client.ws.totalShards || 1,
+    clientName: client.user?.username,
+    clientId: client.user?.id || client.id,
+    send(id, payload) {
+        const guild = client.guilds.cache.get(id);
+        if(!guild) return;
+        guild.shard.send(payload);
+    },
+});
+
+// init the manager
+
+client.on("ready", () => {
+  client.musicManager.init(client.user.id, {
+    shards: client.ws.totalShards,
+    clientName: client.user.username,
+    clientId: client.user.id, 
+  });
+})
+```
