@@ -55,8 +55,8 @@ class Player {
         this.connected = undefined;
         /** Last sent payload from lavalink */
         this.payload = { };
-        /** The Lavalink response time ping in ms | < 0 == not connected */
-        this.ping = -1;
+        /** The Lavalink response time ping in ms | < 0 == not connected | null === lavalinkVersion < 3.5 | undefined === not defined yet */
+        this.ping = undefined;
         /** The equalizer bands array. */
         this.bands = new Array(15).fill(0.0);
         this.data = {};
