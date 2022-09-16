@@ -59,7 +59,7 @@ class Node {
         this.calls = 0;
         this.reconnectAttempts = 1;
         if (!this.manager)
-            this.manager = Utils_1.Structure.get("Node")._manager;
+            this.manager = options?.manager || Utils_1.Structure.get("Node")._manager;
         if (!this.manager)
             throw new RangeError("Manager has not been initiated.");
         if (this.manager.nodes.has(options.identifier || options.host)) {

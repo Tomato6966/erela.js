@@ -84,7 +84,7 @@ class TrackUtils {
             const track = {
                 track: data.track,
                 title: data.info.title,
-                identifier: data.info.identifier,
+                identifier: data.info.identifier?.includes?.("soundcloud.com") ? (data.info.uri?.split?.("/").reverse()?.[0] || data.info.identifier?.split?.("/").reverse()?.[0] || data.info.identifier) : data.info.identifier,
                 author: data.info.author,
                 duration: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) ? 30000 : data.info.length,
                 isSeekable: data.info.isSeekable,
