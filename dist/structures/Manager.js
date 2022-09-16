@@ -8,13 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Manager = void 0;
 /* eslint-disable no-async-promise-executor */
-const Collection = __importDefault(require("@discordjs/collection"));
+const { Collection } = require("@discordjs/collection");
 const Events = require("events");
 const Utils = require("./Utils");
 const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
@@ -60,9 +57,9 @@ class Manager extends Events.EventEmitter {
     constructor(options) {
         super();
         /** The map of players. */
-        this.players = new Collection.default();
+        this.players = new Collection();
         /** The map of nodes. */
-        this.nodes = new Collection.default();
+        this.nodes = new Collection();
         this.initiated = false;
         check(options);
         Utils.Structure.get("Player").init(this);
@@ -122,7 +119,7 @@ class Manager extends Events.EventEmitter {
      * @param clientId
      */
     init(clientIdString, { clientId, clientName, shards } = {}) {
-        if (!force && this.initiated) return this;
+        if (this.initiated) return this;
         if (typeof clientIdString !== "undefined") this.options.clientId = clientIdString;
         if (typeof clientId !== "undefined") this.options.clientId = clientId;
         if (typeof clientName !== "undefined") this.options.clientName = clientName;

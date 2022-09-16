@@ -212,13 +212,14 @@ class Node {
                     player.payload = Object.assign({}, payload)
 
                     player.position = payload.state.position || 0;
-                    player.ping = payload.state.ping >= 0 ? payload.state.ping : player.ping || 0;
+                    player.connected = payload.state.connected;
+                    player.ping = payload.state.ping >= 0 ? payload.state.ping : player.ping <= 0 && player.connected ? null : player.ping || 0;
+                    
                     if(!player.createdTimeStamp && payload.state.time) {
                         player.createdTimeStamp = payload.state.time;
                         player.createdAt = new Date(player.createdTimeStamp);
                     }
-                    player.connected = payload.state.connected;
-
+                    
                     let interValSelfCounter = player.get("position_update_interval") || 250;
                     if(interValSelfCounter < 25) interValSelfCounter = 25;
 
