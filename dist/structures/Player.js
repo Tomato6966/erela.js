@@ -21,6 +21,33 @@ function check(options) {
     if (typeof options.selfMute !== "undefined" && typeof options.selfMute !== "boolean") throw new TypeError('Player option "selfMute" must be a boolean.');
     if (typeof options.selfDeafen !== "undefined" && typeof options.selfDeafen !== "boolean") throw new TypeError('Player option "selfDeafen" must be a boolean.');
 }
+
+const validAudioOutputs = {
+    mono: {
+        leftToLeft: 1,
+        leftToRight: 0,
+        rightToLeft: 0,
+        rightToRight: 1,
+    },
+    stereo: {
+        leftToLeft: 1,
+        leftToRight: 0,
+        rightToLeft: 0,
+        rightToRight: 1,
+    },
+    left: {
+        leftToLeft: 1,
+        leftToRight: 0,
+        rightToLeft: 0,
+        rightToRight: 1,
+    },
+    right: {
+        leftToLeft: 1,
+        leftToRight: 0,
+        rightToLeft: 0,
+        rightToRight: 1,
+    },
+}
 class Player {
     /**
      * Creates a new player, returns one if it already exists.
@@ -95,6 +122,7 @@ class Player {
             tremolo: false,
             vibrato: false,
             lowPass: false,
+            audioOutput: "stereo",
         }
         this.filterData = { 
             lowPass: {
@@ -125,10 +153,30 @@ class Player {
             vibrato: {
                 frequency: 2, // 0 < x = 14
                 depth: 0.1      // 0 < x = 1
-            }
+            },
+            channelMix: validAudioOutputs.stereo,
+            /*distortion: {
+                sinOffset: 0,
+                sinScale: 1,
+                cosOffset: 0,
+                cosScale: 1,
+                tanOffset: 0,
+                tanScale: 1,
+                offset: 0,
+                scale: 1
+            }*/
         }
     }
-    
+    /**
+     * 
+     * @param {AudioOutputs} type 
+     */
+    setAudioOutput(type) {
+        if(!type || !validAudioOutputs[type])throw "Invalid audio type added, must be 'mono' / 'stereo' / 'left' / 'right'"
+        this.filterData.channelMix = validAudioOutputs[type];
+        this.filters.audioOutput = type;
+        return this.updatePlayerFilters(), this.filters.audioOutput;
+    }
     // all effects possible to "toggle"
     toggleRotating(rotationHz = 0.2) {
         const filterDataName = "rotating", filterName = "rotating";
@@ -206,6 +254,7 @@ class Player {
         if(!this.filters.lowPass) delete sendData.lowPass;
         if(!this.filters.karaoke) delete sendData.karaoke;
         //if(!this.filters.rotating) delete sendData.rotating;
+        if(this.filters.audioOutput === "stereo") delete this.filters.audioOutput;
                 
         this.node.send({
             op: "filters",

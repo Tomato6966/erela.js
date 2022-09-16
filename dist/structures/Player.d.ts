@@ -11,6 +11,9 @@ export interface PlayerUpdatePayload {
     },
     guildId: string
 }
+export enum AudioOutputs {
+    mono, stereo, left, right
+}
 export declare class Player {
     options: PlayerOptions;
     /** The Queue for the Player. */
@@ -64,6 +67,8 @@ export declare class Player {
         tremolo: boolean|string,
         vibrato: boolean|string,
         lowPass: boolean|string,
+        /** audio Output (default stereo, mono sounds the fullest and best for not-stereo tracks) */
+        audioOutput: AudioOutputs,
     };
     /** The Current Filter Data(s) */
     filterData: { 
@@ -114,6 +119,7 @@ export declare class Player {
         } 
     };
     updatePlayerFilters():void;
+    setAudioOutput(type:AudioOutputs): boolean;
     toggleRotating(rotationHz?:number): boolean;
     toggleVibrato(frequency?:number, depth?:number): boolean;
     toggleTremolo(frequency?:number, depth?:number): boolean;

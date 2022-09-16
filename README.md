@@ -97,6 +97,7 @@ player.filters.rotating // READONLY - {Boolean} if it's enabled or not
 player.filters.tremolo // READONLY - {Boolean} if it's enabled or not
 player.filters.vibrato // READONLY - {Boolean} if it's enabled or not
 player.filters.lowPass // READONLY - {Boolean} if it's enabled or not 
+player.filters.audioOutput // READONLY - {"stereo"|"mono"|"right"|"left"} how the audio is getting outputted
 
 // only available with lavalink-filter-plugin
 player.filters.echo // READONLY - {Boolean} if it's enabled or not
@@ -110,6 +111,8 @@ player.toggleTremolo();
 player.toggleLowPass();
 player.toggleNightcore();
 player.toggleKaraoke();
+// default: stereo, rightChannel is right 100% and left 0%, and leftChannel is invert of rightChannel
+player.setAudioOutput("stereo"|"mono"|"right"|"left");
 
 // only available with lavalink-filter-plugin
 player.toggleEcho();
