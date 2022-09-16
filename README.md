@@ -1,6 +1,6 @@
 # What's different / better
 
-- [Click here to see an example of the new Manager creation](https://github.com/Tomato6966/erela.js/tree/main/README.md#exampleManager)
+- [Click here to see an example of the new Manager creation](https://github.com/Tomato6966/erela.js/blob/main/README.md#examplemanager)
 
 ## Added Support for Regioning System:
 
