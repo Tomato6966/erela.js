@@ -2,6 +2,15 @@ import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
 import { Sizes, State, VoiceState } from "./Utils";
+export interface PlayerUpdatePayload {
+    state: { 
+        connected: boolean, 
+        ping: number, 
+        position: number, 
+        time: number
+    },
+    guildId: string
+}
 export declare class Player {
     options: PlayerOptions;
     /** The Queue for the Player. */
@@ -36,7 +45,17 @@ export declare class Player {
     manager: Manager;
     /** If filters should be instantupdated */
     instaUpdateFiltersFix: boolean;
-    
+    /** When the player was created [Date] (from lavalink) */
+    createdAt: Date|null;
+    /** When the player was created [Timestamp] (from lavalink) */
+    createdTimeStamp: number;
+    /** If lavalink says it's connected or not */
+    connected: boolean|undefined;
+    /** Last sent payload from lavalink */
+    payload: PlayerUpdatePayload;
+    /** The Lavalink response time ping in ms | < 0 == not connected */
+    ping: number;
+    /** All States of a Filter, however you can manually overwrite it with a string, if you need so */
     filters: {
         nightcore: boolean|string,
         echo: boolean|string,
@@ -46,7 +65,7 @@ export declare class Player {
         vibrato: boolean|string,
         lowPass: boolean|string,
     };
-
+    /** The Current Filter Data(s) */
     filterData: { 
         channelMix?: {
             leftToLeft: number,

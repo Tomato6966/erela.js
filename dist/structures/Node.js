@@ -14,37 +14,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Node = void 0;
 /* eslint-disable no-case-declarations */
-const ws_1 = __importDefault(require("ws"));
-const undici_1 = require("undici");
-const Utils_1 = require("./Utils");
+const Ws = __importDefault(require("ws"));
+const Undici = require("undici");
+const Utils = require("./Utils");
 function check(options) {
-    if (!options)
-        throw new TypeError("NodeOptions must not be empty.");
-    if (typeof options.host !== "string" ||
-        !/.+/.test(options.host))
-        throw new TypeError('Node option "host" must be present and be a non-empty string.');
-    if (typeof options.port !== "undefined" &&
-        typeof options.port !== "number")
-        throw new TypeError('Node option "port" must be a number.');
-    if (typeof options.password !== "undefined" &&
-        (typeof options.password !== "string" ||
-            !/.+/.test(options.password)))
-        throw new TypeError('Node option "password" must be a non-empty string.');
-    if (typeof options.secure !== "undefined" &&
-        typeof options.secure !== "boolean")
-        throw new TypeError('Node option "secure" must be a boolean.');
-    if (typeof options.identifier !== "undefined" &&
-        typeof options.identifier !== "string")
-        throw new TypeError('Node option "identifier" must be a non-empty string.');
-    if (typeof options.retryAmount !== "undefined" &&
-        typeof options.retryAmount !== "number")
-        throw new TypeError('Node option "retryAmount" must be a number.');
-    if (typeof options.retryDelay !== "undefined" &&
-        typeof options.retryDelay !== "number")
-        throw new TypeError('Node option "retryDelay" must be a number.');
-    if (typeof options.requestTimeout !== "undefined" &&
-        typeof options.requestTimeout !== "number")
-        throw new TypeError('Node option "requestTimeout" must be a number.');
+    if (!options) throw new TypeError("NodeOptions must not be empty.");
+    if (typeof options.host !== "string" || !/.+/.test(options.host)) throw new TypeError('Node option "host" must be present and be a non-empty string.');
+    if (typeof options.port !== "undefined" && typeof options.port !== "number") throw new TypeError('Node option "port" must be a number.');
+    if (typeof options.password !== "undefined" && (typeof options.password !== "string" || !/.+/.test(options.password))) throw new TypeError('Node option "password" must be a non-empty string.');
+    if (typeof options.secure !== "undefined" && typeof options.secure !== "boolean") throw new TypeError('Node option "secure" must be a boolean.');
+    if (typeof options.identifier !== "undefined" && typeof options.identifier !== "string") throw new TypeError('Node option "identifier" must be a non-empty string.');
+    if (typeof options.retryAmount !== "undefined" && typeof options.retryAmount !== "number") throw new TypeError('Node option "retryAmount" must be a number.');
+    if (typeof options.retryDelay !== "undefined" && typeof options.retryDelay !== "number") throw new TypeError('Node option "retryDelay" must be a number.');
+    if (typeof options.requestTimeout !== "undefined" && typeof options.requestTimeout !== "number") throw new TypeError('Node option "requestTimeout" must be a number.');
 }
 class Node {
     /**
@@ -59,7 +41,7 @@ class Node {
         this.calls = 0;
         this.reconnectAttempts = 1;
         if (!this.manager)
-            this.manager = options?.manager || Utils_1.Structure.get("Node")._manager;
+            this.manager = options?.manager || Utils.Structure.get("Node")._manager;
         if (!this.manager)
             throw new RangeError("Manager has not been initiated.");
         if (this.manager.nodes.has(options.identifier || options.host)) {
@@ -72,7 +54,7 @@ class Node {
         if (this.options.secure) {
             this.options.port = 443;
         }
-        this.http = new undici_1.Pool(`http${this.options.secure ? "s" : ""}://${this.address}`, this.options.poolOptions);
+        this.http = new Undici.Pool(`http${this.options.secure ? "s" : ""}://${this.address}`, this.options.poolOptions);
         this.options.identifier = options.identifier || options.host;
         this.stats = {
             players: 0,
@@ -102,7 +84,7 @@ class Node {
     get connected() {
         if (!this.socket)
             return false;
-        return this.socket.readyState === ws_1.default.OPEN;
+        return this.socket.readyState === Ws.default.OPEN;
     }
     /** Returns the address for this node. */
     get address() {
@@ -114,15 +96,14 @@ class Node {
     }
     /** Connects to the Node. */
     connect() {
-        if (this.connected)
-            return;
+        if (this.connected) return;
         const headers = {
-            Authorization: this.options.password,
+            "Authorization": this.options.password,
             "Num-Shards": String(this.manager.options.shards),
             "User-Id": this.manager.options.clientId,
             "Client-Name": this.manager.options.clientName,
         };
-        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
+        this.socket = new Ws.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
         this.socket.on("open", this.open.bind(this));
         this.socket.on("close", this.close.bind(this));
         this.socket.on("message", this.message.bind(this));
@@ -130,11 +111,9 @@ class Node {
     }
     /** Destroys the Node and all players connected with it. */
     destroy() {
-        if (!this.connected)
-            return;
+        if (!this.connected) return;
         const players = this.manager.players.filter(p => p.node == this);
-        if (players.size)
-            players.forEach(p => p.destroy());
+        if (players.size) players.forEach(p => p.destroy());
         this.socket.close(1000, "destroy");
         this.socket.removeAllListeners();
         this.socket = null;
@@ -214,13 +193,12 @@ class Node {
         this.manager.emit("nodeError", this, error);
     }
     message(d) {
-        if (Array.isArray(d))
-            d = Buffer.concat(d);
-        else if (d instanceof ArrayBuffer)
-            d = Buffer.from(d);
+        if (Array.isArray(d)) d = Buffer.concat(d);
+        else if (d instanceof ArrayBuffer) d = Buffer.from(d);
+        
         const payload = JSON.parse(d.toString());
-        if (!payload.op)
-            return;
+        if (!payload.op) return;
+        
         this.manager.emit("nodeRaw", payload);
         switch (payload.op) {
             case "stats":
@@ -230,8 +208,17 @@ class Node {
             case "playerUpdate":
                 const player = this.manager.players.get(payload.guildId);
                 if (player) {
+                    delete payload.op;
+                    player.payload = Object.assign({}, payload)
+
                     player.position = payload.state.position || 0;
-                    
+                    player.ping = payload.state.ping >= 0 ? payload.state.ping : player.ping || 0;
+                    if(!player.createdTimeStamp && payload.state.time) {
+                        player.createdTimeStamp = payload.state.time;
+                        player.createdAt = new Date(player.createdTimeStamp);
+                    }
+                    player.connected = payload.state.connected;
+
                     let interValSelfCounter = player.get("position_update_interval") || 250;
                     if(interValSelfCounter < 25) interValSelfCounter = 25;
 

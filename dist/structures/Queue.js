@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Queue = void 0;
-const Utils_1 = require("./Utils");
+const Utils = require("./Utils");
 /**
  * The player's queue, the `current` property is the currently playing track, think of the rest as the up-coming tracks.
  * @noInheritDoc
@@ -35,7 +35,7 @@ class Queue extends Array {
      * @param [offset=null]
      */
     add(track, offset) {
-        if (!Utils_1.TrackUtils.validate(track)) {
+        if (!Utils.TrackUtils.validate(track)) {
             throw new RangeError('Track must be a "Track" or "Track[]".');
         }
         if (!this.current) {

@@ -203,6 +203,8 @@ export interface ManagerOptions {
     defaultSearchPlatform?: SearchPlatform;
     /** Extra Uris which are allowed to be saved as a unresolved from URI (only provide ones which can be handled by LAVALINK) */
     validUnresolvedUris?: string[];
+    /** If the plugin should force-load plugins */
+    forceLoadPlugin?: boolean;
     /**
      * Function to send data to the websocket.
      * @param id

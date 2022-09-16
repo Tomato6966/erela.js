@@ -10,27 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Player = void 0;
-const Utils_1 = require("./Utils");
+const Utils = require("./Utils");
 function check(options) {
-    if (!options)
-        throw new TypeError("PlayerOptions must not be empty.");
-    if (!/^\d+$/.test(options.guild))
-        throw new TypeError('Player option "guild" must be present and be a non-empty string.');
-    if (options.textChannel && !/^\d+$/.test(options.textChannel))
-        throw new TypeError('Player option "textChannel" must be a non-empty string.');
-    if (options.voiceChannel && !/^\d+$/.test(options.voiceChannel))
-        throw new TypeError('Player option "voiceChannel" must be a non-empty string.');
-    if (options.node && typeof options.node !== "string")
-        throw new TypeError('Player option "node" must be a non-empty string.');
-    if (typeof options.volume !== "undefined" &&
-        typeof options.volume !== "number")
-        throw new TypeError('Player option "volume" must be a number.');
-    if (typeof options.selfMute !== "undefined" &&
-        typeof options.selfMute !== "boolean")
-        throw new TypeError('Player option "selfMute" must be a boolean.');
-    if (typeof options.selfDeafen !== "undefined" &&
-        typeof options.selfDeafen !== "boolean")
-        throw new TypeError('Player option "selfDeafen" must be a boolean.');
+    if (!options) throw new TypeError("PlayerOptions must not be empty.");
+    if (!/^\d+$/.test(options.guild)) throw new TypeError('Player option "guild" must be present and be a non-empty string.');
+    if (options.textChannel && !/^\d+$/.test(options.textChannel)) throw new TypeError('Player option "textChannel" must be a non-empty string.');
+    if (options.voiceChannel && !/^\d+$/.test(options.voiceChannel)) throw new TypeError('Player option "voiceChannel" must be a non-empty string.');
+    if (options.node && typeof options.node !== "string") throw new TypeError('Player option "node" must be a non-empty string.');
+    if (typeof options.volume !== "undefined" && typeof options.volume !== "number") throw new TypeError('Player option "volume" must be a number.');
+    if (typeof options.selfMute !== "undefined" && typeof options.selfMute !== "boolean") throw new TypeError('Player option "selfMute" must be a boolean.');
+    if (typeof options.selfDeafen !== "undefined" && typeof options.selfDeafen !== "boolean") throw new TypeError('Player option "selfDeafen" must be a boolean.');
 }
 class Player {
     /**
@@ -41,7 +30,7 @@ class Player {
         var _a;
         this.options = options;
         /** The Queue for the Player. */
-        this.queue = new (Utils_1.Structure.get("Queue"))();
+        this.queue = new (Utils.Structure.get("Queue"))();
         /** Whether the queue repeats the track. */
         this.trackRepeat = false;
         /** Whether the queue repeats the queue. */
@@ -58,36 +47,41 @@ class Player {
         this.textChannel = null;
         /** The current state of the player. */
         this.state = "DISCONNECTED";
+        /** When the player was created [Date] (from lavalink) | null */
+        this.createdAt = null;
+        /** When the player was created [Timestamp] (from lavalink) | 0 */
+        this.createdTimeStamp = 0;
+        /** If lavalink says it's connected or not */
+        this.connected = undefined;
+        /** Last sent payload from lavalink */
+        this.payload = { };
+        /** The Lavalink response time ping in ms | < 0 == not connected */
+        this.ping = -1;
         /** The equalizer bands array. */
         this.bands = new Array(15).fill(0.0);
         this.data = {};
-        if (!this.manager)
-            this.manager = Utils_1.Structure.get("Player")._manager;
-        if (!this.manager)
-            throw new RangeError("Manager has not been initiated.");
-        if (this.manager.players.has(options.guild)) {
-            return this.manager.players.get(options.guild);
-        }
+        if (!this.manager) this.manager = Utils.Structure.get("Player")._manager;
+        if (!this.manager) throw new RangeError("Manager has not been initiated.");
+        if (this.manager.players.has(options.guild)) return this.manager.players.get(options.guild);
+        
         check(options);
         this.guild = options.guild;
         this.voiceState = Object.assign({ op: "voiceUpdate", guildId: options.guild });
-        if (options.voiceChannel)
-            this.voiceChannel = options.voiceChannel;
-        if (options.textChannel)
-            this.textChannel = options.textChannel;
+
+        if (options.voiceChannel) this.voiceChannel = options.voiceChannel;
+        if (options.textChannel) this.textChannel = options.textChannel;
         
         if(!this.manager.leastLoadNodes?.size) {
-            if(this.manager.initiated) {
-                this.manager.initiated = false; this.manager.init("undefined");
-            }
+            if(this.manager.initiated) this.manager.initiated = false; 
+            this.manager.init(this.manager.options?.clientId);
         }
         
-        if(options.region) this.region = options.region;
+        this.region = options?.region;
         
         const node = this.manager.nodes.get(options.node);
         this.node = node || this.manager.leastLoadNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first() || this.manager.leastLoadNodes.first();
-        if (!this.node)
-            throw new RangeError("No available nodes.");
+        if (!this.node) throw new RangeError("No available nodes.");
+       
         this.manager.players.set(options.guild, this);
         this.manager.emit("playerCreate", this);
         this.setVolume((_a = options.volume) !== null && _a !== void 0 ? _a : 100);
@@ -342,7 +336,7 @@ class Player {
     play(optionsOrTrack, playOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof optionsOrTrack !== "undefined" &&
-                Utils_1.TrackUtils.validate(optionsOrTrack)) {
+                Utils.TrackUtils.validate(optionsOrTrack)) {
                 if (this.queue.current)
                     this.queue.previous = this.queue.current;
                 this.queue.current = optionsOrTrack;
@@ -363,10 +357,10 @@ class Player {
                 }
                 return returnObject;
             }
-            if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
+            if (Utils.TrackUtils.isUnresolvedTrack(this.queue.current)) {
                 try {
                     const unresolvedTrack = { data: this.queue.current};
-                    this.queue.current = yield Utils_1.TrackUtils.getClosestTrack(this.queue.current, this.node);
+                    this.queue.current = yield Utils.TrackUtils.getClosestTrack(this.queue.current, this.node);
                     
                     if(this.queue.current.title == 'Unknown title' && unresolvedTrack.data.title != this.queue.current.title) {
                         this.queue.current.title = unresolvedTrack.data.title;

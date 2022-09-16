@@ -14,9 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Manager = void 0;
 /* eslint-disable no-async-promise-executor */
-const collection_1 = __importDefault(require("@discordjs/collection"));
-const events_1 = require("events");
-const Utils_1 = require("./Utils");
+const Collection = __importDefault(require("@discordjs/collection"));
+const Events = require("events");
+const Utils = require("./Utils");
 const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
 function check(options) {
     if (!options)
@@ -52,7 +52,7 @@ function check(options) {
  * The main hub for interacting with Lavalink and using Erela.JS,
  * @noInheritDoc
  */
-class Manager extends events_1.EventEmitter {
+class Manager extends Events.EventEmitter {
     /**
      * Initiates the Manager class.
      * @param options
@@ -60,22 +60,23 @@ class Manager extends events_1.EventEmitter {
     constructor(options) {
         super();
         /** The map of players. */
-        this.players = new collection_1.default();
+        this.players = new Collection.default();
         /** The map of nodes. */
-        this.nodes = new collection_1.default();
+        this.nodes = new Collection.default();
         this.initiated = false;
         check(options);
-        Utils_1.Structure.get("Player").init(this);
-        Utils_1.Structure.get("Node").init(this);
-        Utils_1.TrackUtils.init(this);
+        Utils.Structure.get("Player").init(this);
+        Utils.Structure.get("Node").init(this);
+        Utils.TrackUtils.init(this);
         if (options.trackPartial) {
-            Utils_1.TrackUtils.setTrackPartial(options.trackPartial);
+            Utils.TrackUtils.setTrackPartial(options.trackPartial);
             delete options.trackPartial;
         }
         if(options.volumeDecrementer) {
             this.volumeDecrementer = options.volumeDecrementer;
             delete options.volumeDecrementer;
         }
+        this.forceLoadPlugin = options?.forceLoadPlugin ?? false;
         
         this.position_update_interval = 250;
         
@@ -87,14 +88,13 @@ class Manager extends events_1.EventEmitter {
         this.options = Object.assign({ plugins: [], nodes: [{ identifier: "default", host: "localhost" }], shards: 1, autoPlay: true, clientName: "erela.js", defaultSearchPlatform: "youtube" }, options);
         if (this.options.plugins) {
             for (const [index, plugin] of this.options.plugins.entries()) {
-                if (!(plugin instanceof Utils_1.Plugin))
-                    throw new RangeError(`Plugin at index ${index} does not extend Plugin.`);
+                if (!this.forceLoadPlugin && !(plugin instanceof Utils.Plugin)) throw new RangeError(`Plugin at index ${index} does not extend Plugin.`);
                 plugin.load(this);
             }
         }
         if (this.options.nodes) {
             for (const nodeOptions of this.options.nodes)
-                new (Utils_1.Structure.get("Node"))(nodeOptions);
+                new (Utils.Structure.get("Node"))(nodeOptions);
         }
     }
     /** Returns the least used Nodes. */
@@ -121,15 +121,14 @@ class Manager extends events_1.EventEmitter {
      * Initiates the Manager.
      * @param clientId
      */
-    init(clientId) {
-        if (this.initiated)
-            return this;
-        if (typeof clientId !== "undefined")
-            this.options.clientId = clientId;
-        if (typeof this.options.clientId !== "string")
-            throw new Error('"clientId" set is not type of "string"');
-        if (!this.options.clientId)
-            throw new Error('"clientId" is not set. Pass it in Manager#init() or as a option in the constructor.');
+    init(clientIdString, { clientId, clientName, shards } = {}) {
+        if (!force && this.initiated) return this;
+        if (typeof clientIdString !== "undefined") this.options.clientId = clientIdString;
+        if (typeof clientId !== "undefined") this.options.clientId = clientId;
+        if (typeof clientName !== "undefined") this.options.clientName = clientName;
+        if (typeof shards !== "undefined") this.options.shards = shards;
+        if (typeof this.options.clientId !== "string") throw new Error('"clientId" set is not type of "string"');
+        if (!this.options.clientId) throw new Error('"clientId" is not set. Pass it in Manager#init() or as a option in the constructor.');
         for (const node of this.nodes.values()) {
             try {
                 node.connect();
@@ -168,13 +167,13 @@ class Manager extends events_1.EventEmitter {
             const result = {
                 loadType: res.loadType,
                 exception: (_c = res.exception) !== null && _c !== void 0 ? _c : null,
-                tracks: res.tracks.map((track) => Utils_1.TrackUtils.build(track, requester)),
+                tracks: res.tracks.map((track) => Utils.TrackUtils.build(track, requester)),
             };
             if (result.loadType === "PLAYLIST_LOADED") {
                 result.playlist = {
                     name: res.playlistInfo.name,
                     selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-                        Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
+                        Utils.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
                     duration: result.tracks
                         .reduce((acc, cur) => acc + (cur.duration || 0), 0),
                 };
@@ -222,7 +221,7 @@ class Manager extends events_1.EventEmitter {
         if (this.players.has(options.guild)) {
             return this.players.get(options.guild);
         }
-        return new (Utils_1.Structure.get("Player"))(options);
+        return new (Utils.Structure.get("Player"))(options);
     }
     /**
      * Returns a player or undefined if it does not exist.
@@ -246,7 +245,7 @@ class Manager extends events_1.EventEmitter {
         if (this.nodes.has(options.identifier || options.host)) {
             return this.nodes.get(options.identifier || options.host);
         }
-        return new (Utils_1.Structure.get("Node"))(options);
+        return new (Utils.Structure.get("Node"))(options);
     }
     /**
      * Destroys a node if it exists.

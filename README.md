@@ -119,6 +119,29 @@ You can also use my plugins, which make are better then their originals due to s
 
 - [better-erela.js-deezer](https://github.com/Tomato6966/better-erela.js-deezer) | `npm i Tomato6966/better-erela.js-deezer` / `yarn add Tomato6966/better-erela.js-deezer`
 
+## Added Manager#forceLoadPlugin for forcing plugin loadings
+
+If you get errors like does not extend plugin, then you can do this to force load it!
+```js
+const Manager = new Manager({
+    ...,
+    forceLoadPlugin: true,
+})
+```
+
+## Added manager.init("clientId", { clientId, clientName, shards });
+
+This allows it, that you can add data from the client once you init the manager!
+Like clientName or shards Count, you should init the manager either way, once it's ready!
+
+## Added More player parameters:
+
+ - `player.createdAt` Date object, when the player was created in LAVALINK
+ - `player.createdTimeStamp` Date Timestamp in MS, when the player was created in LAVALINK
+ - `player.connected` Lavalink connected state, if it's true, lavalink thinks player is connected...
+ - `player.payload` Last payload from playerUpdate Event lavalink sent
+ - `player.ping` Ping in ms from Lavalink server. if it's less then 0, it means player is not connected yet
+ 
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>
