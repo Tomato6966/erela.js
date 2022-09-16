@@ -25,14 +25,14 @@ function check(options) {
 const validAudioOutputs = {
     mono: {
         leftToLeft: 1,
-        leftToRight: 0,
-        rightToLeft: 0,
+        leftToRight: 1,
+        rightToLeft: 1,
         rightToRight: 1,
     },
     stereo: {
         leftToLeft: 1,
-        leftToRight: 1,
-        rightToLeft: 1,
+        leftToRight: 0,
+        rightToLeft: 0,
         rightToRight: 1,
     },
     left: {
@@ -254,7 +254,7 @@ class Player {
         if(!this.filters.lowPass) delete sendData.lowPass;
         if(!this.filters.karaoke) delete sendData.karaoke;
         //if(!this.filters.rotating) delete sendData.rotating;
-        if(this.filters.audioOutput === "stereo") delete this.filters.audioOutput;
+        if(this.filters.audioOutput === "stereo") delete sendData.channelMix;
                 
         this.node.send({
             op: "filters",
