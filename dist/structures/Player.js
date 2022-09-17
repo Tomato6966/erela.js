@@ -23,29 +23,29 @@ function check(options) {
 }
 
 const validAudioOutputs = {
-    mono: {
-        leftToLeft: 1,
-        leftToRight: 1,
-        rightToLeft: 1,
-        rightToRight: 1,
+    mono: { // totalLeft: 1, totalRight: 1
+        leftToLeft: 0.5, //each channel should in total 0 | 1, 0 === off, 1 === on, 0.5+0.5 === 1
+        leftToRight: 0.5,
+        rightToLeft: 0.5,
+        rightToRight: 0.5,
     },
-    stereo: {
+    stereo: { // totalLeft: 1, totalRight: 1
         leftToLeft: 1,
         leftToRight: 0,
         rightToLeft: 0,
         rightToRight: 1,
     },
-    left: {
-        leftToLeft: 1,
+    left: { // totalLeft: 1, totalRight: 0
+        leftToLeft: 0.5,
         leftToRight: 0,
-        rightToLeft: 1,
+        rightToLeft: 0.5,
         rightToRight: 0,
     },
-    right: {
+    right: { // totalLeft: 0, totalRight: 1
         leftToLeft: 0,
-        leftToRight: 1,
+        leftToRight: 0.5,
         rightToLeft: 0,
-        rightToRight: 1,
+        rightToRight: 0.5,
     },
 }
 class Player {
