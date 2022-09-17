@@ -179,7 +179,7 @@ class Player {
         this.filters.karaoke = false;
         this.filters.audioOutput = "stereo";
         for(const [key, value] of Object.keys(this.disabledFilterData)) this.filterData[key] = value;
-        return player.updatePlayerFilters(); this.filters
+        return this.updatePlayerFilters(); this.filters
     }
     /**
      * 
