@@ -123,7 +123,7 @@ class Player {
             vibrato: false,
             lowPass: false,
             audioOutput: "stereo",
-        }
+        } 
         this.filterData = { 
             lowPass: {
                 smoothing: 0
@@ -166,6 +166,20 @@ class Player {
                 scale: 1
             }*/
         }
+        this.disabledFilterData = { ...this.filterData };
+    }
+    resetFilters() {
+        this.filters.echo = false;
+        this.filters.nightcore = false;
+        this.filters.lowPass = false;
+        this.filters.rotating = false;
+        this.filters.tremolo = false;
+        this.filters.vibrato = false;
+        this.filters.karaoke = false;
+        this.filters.karaoke = false;
+        this.filters.audioOutput = "stereo";
+        for(const [key, value] of Object.keys(this.disabledFilterData)) this.filterData[key] = value;
+        return player.updatePlayerFilters(); this.filters
     }
     /**
      * 

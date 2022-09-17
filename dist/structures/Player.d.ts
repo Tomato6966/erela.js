@@ -118,10 +118,17 @@ export declare class Player {
             scale: number
         } 
     };
+    /** Update the filters to the lavalink node */
     updatePlayerFilters():void;
+    /** Reset the filters */
+    resetFilters():any; 
+    /** Set an audio output type left/right/stereo/mono */
     setAudioOutput(type:AudioOutputs): boolean;
+    /** set a rotating filter effect */
     toggleRotating(rotationHz?:number): boolean;
+    /** Set a vibrato filter effect */
     toggleVibrato(frequency?:number, depth?:number): boolean;
+    /** Set a tremolo filter effect */
     toggleTremolo(frequency?:number, depth?:number): boolean;
     toggleLowPass(smoothing?:number): boolean;
     toggleEcho(delay?:number, decay?:number): boolean;

@@ -113,6 +113,8 @@ player.toggleNightcore();
 player.toggleKaraoke();
 // default: stereo, rightChannel is right 100% and left 0%, and leftChannel is invert of rightChannel
 player.setAudioOutput("stereo"|"mono"|"right"|"left");
+// reset all filters to default
+player.resetFilters();
 
 // only available with lavalink-filter-plugin
 player.toggleEcho();
