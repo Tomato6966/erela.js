@@ -122,19 +122,22 @@ class Manager extends Events.EventEmitter {
         if (this.initiated) return this;
         if (typeof clientIdString !== "undefined") this.options.clientId = clientIdString;
         if (typeof clientId !== "undefined") this.options.clientId = clientId;
-        if (typeof clientName !== "undefined") this.options.clientName = clientName;
+        if (typeof clientName !== "undefined") this.options.clientName = clientName || `Unknown Name - ${clientId||clientIdString}`;
         if (typeof shards !== "undefined") this.options.shards = shards;
         if (typeof this.options.clientId !== "string") throw new Error('"clientId" set is not type of "string"');
         if (!this.options.clientId) throw new Error('"clientId" is not set. Pass it in Manager#init() or as a option in the constructor.');
+        let success = 0;
         for (const node of this.nodes.values()) {
             try {
                 node.connect();
+                success++;
             }
             catch (err) {
+                console.error(err);
                 this.emit("nodeError", node, err);
             }
         }
-        this.initiated = true;
+        if(success > 0) this.initiated = true;
         return this;
     }
     /**
@@ -147,8 +150,8 @@ class Manager extends Events.EventEmitter {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const node = customNode || this.leastUsedNodes.first();
-            if (!node)
-                throw new Error("No available nodes.");
+            if(!this.initiated) throw new Error("Manager not initiated yet");
+            if (!node) throw new Error("No available nodes.");
             const _query = typeof query === "string" ? { query } : query;
             const _source = (_b = Manager.DEFAULT_SOURCES[(_a = _query.source) !== null && _a !== void 0 ? _a : this.options.defaultSearchPlatform]) !== null && _b !== void 0 ? _b : _query.source;
             let search = _query.query;
@@ -184,6 +187,7 @@ class Manager extends Events.EventEmitter {
      */
     decodeTracks(tracks) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            if(!this.initiated) throw new Error("Manager not initiated yet");
             const node = this.nodes.first();
             if (!node)
                 throw new Error("No available nodes.");
@@ -205,6 +209,7 @@ class Manager extends Events.EventEmitter {
      * @param track
      */
     decodeTrack(track) {
+        if(!this.initiated) throw new Error("Manager not initiated yet");
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.decodeTracks([track]);
             return res[0];
@@ -215,9 +220,7 @@ class Manager extends Events.EventEmitter {
      * @param options
      */
     create(options) {
-        if (this.players.has(options.guild)) {
-            return this.players.get(options.guild);
-        }
+        if (this.players.has(options.guild)) return this.players.get(options.guild);
         return new (Utils.Structure.get("Player"))(options);
     }
     /**
@@ -239,9 +242,7 @@ class Manager extends Events.EventEmitter {
      * @param options
      */
     createNode(options) {
-        if (this.nodes.has(options.identifier || options.host)) {
-            return this.nodes.get(options.identifier || options.host);
-        }
+        if (this.nodes.has(options.identifier || options.host)) return this.nodes.get(options.identifier || options.host);
         return new (Utils.Structure.get("Node"))(options);
     }
     /**

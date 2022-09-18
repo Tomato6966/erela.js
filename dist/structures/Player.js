@@ -82,8 +82,10 @@ class Player {
         this.connected = undefined;
         /** Last sent payload from lavalink */
         this.payload = { };
-        /** The Lavalink response time ping in ms | < 0 == not connected | null === lavalinkVersion < 3.5 | undefined === not defined yet */
+        /** Ping to Lavalink from Client */
         this.ping = undefined;
+        /** The Voice Connection Ping from Lavalink */
+        this.wsPing = undefined,
         /** The equalizer bands array. */
         this.bands = new Array(15).fill(0.0);
         this.data = {};
@@ -259,25 +261,29 @@ class Player {
     
     // function to update all filters at ONCE (and eqs)
     updatePlayerFilters() {
-        const sendData = {...this.filterData};
+        __awaiter(this, void 0, void 0, function* () {
+            const sendData = {...this.filterData};
         
-        if(!this.filters.tremolo) delete sendData.tremolo;
-        if(!this.filters.vibrato) delete sendData.vibrato;
-        //if(!this.filters.karaoke) delete sendData.karaoke;
-        if(!this.filters.echo) delete sendData.echo;
-        if(!this.filters.lowPass) delete sendData.lowPass;
-        if(!this.filters.karaoke) delete sendData.karaoke;
-        //if(!this.filters.rotating) delete sendData.rotating;
-        if(this.filters.audioOutput === "stereo") delete sendData.channelMix;
-                
-        this.node.send({
-            op: "filters",
-            guildId: this.guild,
-            equalizer: this.bands.map((gain, band) => ({ band, gain })),
-            ...sendData
+            if(!this.filters.tremolo) delete sendData.tremolo;
+            if(!this.filters.vibrato) delete sendData.vibrato;
+            //if(!this.filters.karaoke) delete sendData.karaoke;
+            if(!this.filters.echo) delete sendData.echo;
+            if(!this.filters.lowPass) delete sendData.lowPass;
+            if(!this.filters.karaoke) delete sendData.karaoke;
+            //if(!this.filters.rotating) delete sendData.rotating;
+            if(this.filters.audioOutput === "stereo") delete sendData.channelMix;
+            const now = Date.now()
+            yield this.node.send({
+                op: "filters",
+                guildId: this.guild,
+                equalizer: this.bands.map((gain, band) => ({ band, gain })),
+                ...sendData
+            });
+            this.ping = Date.now() - now;
+            if(this.instaUpdateFiltersFix === true) this.filterUpdated = 1;
+            return this;
         });
-        if(this.instaUpdateFiltersFix === true) this.filterUpdated = 1;
-        return this;
+        
     }
 
     /**
@@ -452,7 +458,9 @@ class Player {
             }
             if(finalOptions.volume) this.volume = finalOptions.volume;
             if(finalOptions.startTime) this.position = finalOptions.startTime;
+            const now = Date.now();
             yield this.node.send(options);
+            this.ping = Date.now() - now;
         });
     }
     /**
@@ -460,21 +468,23 @@ class Player {
      * @param volume
      */
     setVolume(volume) {
-        volume = Number(volume);
-        if (isNaN(volume))
-            throw new TypeError("Volume must be a number.");
-        
-        this.volume = Math.max(Math.min(volume, 1000), 0);
-        
-        let vol = volume;
-        if(this.manager.volumeDecrementer) vol *= this.manager.volumeDecrementer;
+        return __awaiter(this, void 0, void 0, function* () {
+            volume = Number(volume);
+            if (isNaN(volume)) throw new TypeError("Volume must be a number.");
             
-        this.node.send({
-            op: "volume",
-            guildId: this.guild,
-            volume: Math.max(Math.min(vol, 1000), 0),
+            this.volume = Math.max(Math.min(volume, 1000), 0);
+            
+            let vol = volume;
+            if(this.manager.volumeDecrementer) vol *= this.manager.volumeDecrementer;
+            const now = Date.now();
+            yield this.node.send({
+                op: "volume",
+                guildId: this.guild,
+                volume: Math.max(Math.min(vol, 1000), 0),
+            });
+            this.ping = Date.now() - now;
+            return this;
         });
-        return this;
     }
     /**
      * Sets the track repeat.
@@ -512,56 +522,64 @@ class Player {
     }
     /** Stops the current track, optionally give an amount to skip to, e.g 5 would play the 5th song. */
     stop(amount) {
-        if (typeof amount === "number" && amount > 1) {
-            if (amount > this.queue.length)
-                throw new RangeError("Cannot skip more than the queue length.");
-            this.queue.splice(0, amount - 1);
-        }
-        this.node.send({
-            op: "stop",
-            guildId: this.guild,
+        
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof amount === "number" && amount > 1) {
+                if (amount > this.queue.length) throw new RangeError("Cannot skip more than the queue length.");
+                this.queue.splice(0, amount - 1);
+            }
+            const now = Date.now()
+            yield this.node.send({
+                op: "stop",
+                guildId: this.guild,
+            });
+            this.ping = Date.now() - now;
+            return this;
         });
-        return this;
     }
     /**
      * Pauses the current track.
      * @param pause
      */
     pause(pause) {
-        if (typeof pause !== "boolean")
-            throw new RangeError('Pause can only be "true" or "false".');
-        // If already paused or the queue is empty do nothing https://github.com/MenuDocs/erela.js/issues/58
-        if (this.paused === pause || !this.queue.totalSize)
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof pause !== "boolean") throw new RangeError('Pause can only be "true" or "false".');
+            // If already paused or the queue is empty do nothing https://github.com/MenuDocs/erela.js/issues/58
+            if (this.paused === pause || !this.queue.totalSize) return this;
+            this.playing = !pause;
+            this.paused = pause;
+            const now = Date.now();
+            this.node.send({
+                op: "pause",
+                guildId: this.guild,
+                pause,
+            });
+            this.ping = Date.now() - now;
             return this;
-        this.playing = !pause;
-        this.paused = pause;
-        this.node.send({
-            op: "pause",
-            guildId: this.guild,
-            pause,
         });
-        return this;
     }
     /**
      * Seeks to the position in the current track.
      * @param position
      */
     seek(position) {
-        if (!this.queue.current)
-            return undefined;
-        position = Number(position);
-        if (isNaN(position)) {
-            throw new RangeError("Position must be a number.");
-        }
-        if (position < 0 || position > this.queue.current.duration)
-            position = Math.max(Math.min(position, this.queue.current.duration), 0);
-        this.position = position;
-        this.node.send({
-            op: "seek",
-            guildId: this.guild,
-            position,
+        return __awaiter(this, void 0, void 0, function* () {
+        if (!this.queue.current) return undefined;
+            position = Number(position);
+            if (isNaN(position)) throw new RangeError("Position must be a number.");
+            
+            if (position < 0 || position > this.queue.current.duration)
+                position = Math.max(Math.min(position, this.queue.current.duration), 0);
+            this.position = position;
+            const now = Date.now();
+            this.node.send({
+                op: "seek",
+                guildId: this.guild,
+                position,
+            });
+            this.ping = Date.now() - now;
+            return this;
         });
-        return this;
     }
 }
 exports.Player = Player;

@@ -56,8 +56,10 @@ export declare class Player {
     connected: boolean|undefined;
     /** Last sent payload from lavalink */
     payload: PlayerUpdatePayload;
-    /** The Lavalink response time ping in ms | < 0 == not connected | null == lavalinkversion is < 3.5.1 in where there is no ping info. | undefined == not defined yet. */
-    ping: number|null|undefined;
+    /** The Ping to the Lavalink Client in ms | < 0 == not connected | undefined == not defined yet. */
+    ping: number|undefined;
+    /** The Voice Connection Ping from Lavalink in ms | < 0 == not connected | null == lavalinkversion is < 3.5.1 in where there is no ping info. | undefined == not defined yet. */
+    wsPing: number|null|undefined;
     /** All States of a Filter, however you can manually overwrite it with a string, if you need so */
     filters: {
         nightcore: boolean|string,

@@ -100,8 +100,8 @@ class Node {
         const headers = {
             "Authorization": this.options.password,
             "Num-Shards": String(this.manager.options.shards),
-            "User-Id": this.manager.options.clientId,
-            "Client-Name": this.manager.options.clientName,
+            "User-Id": this.manager.options?.clientId,
+            "Client-Name": this.manager.options?.clientName || `${this.manager.options?.clientId}`,
         };
         this.socket = new Ws.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
         this.socket.on("open", this.open.bind(this));
@@ -213,7 +213,7 @@ class Node {
 
                     player.position = payload.state.position || 0;
                     player.connected = payload.state.connected;
-                    player.ping = payload.state.ping >= 0 ? payload.state.ping : player.ping <= 0 && player.connected ? null : player.ping || 0;
+                    player.wsPing = payload.state.ping >= 0 ? payload.state.ping : player.wsPing <= 0 && player.connected ? null : player.wsPing || 0;
                     
                     if(!player.createdTimeStamp && payload.state.time) {
                         player.createdTimeStamp = payload.state.time;
