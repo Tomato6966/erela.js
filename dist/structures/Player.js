@@ -168,8 +168,7 @@ class Player {
                 scale: 1
             }*/
         }
-        this.defaultFilterData = { ...this.filterData }
-        Object.freeze(this.defaultFilterData);
+        this.defaultFilterData = Object.freeze(Object.create({ ...this.filterData }))
     }
     resetFilters() {
         this.filters.echo = false;
