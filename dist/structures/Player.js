@@ -180,7 +180,10 @@ class Player {
         this.filters.karaoke = false;
         this.filters.karaoke = false;
         this.filters.audioOutput = "stereo";
-        for(const [key, value] of Object.entries(disabledFiltersData)) this.filterData[key] = value;
+        for(const [key, value] of Object.entries(disabledFiltersData)) {
+            this.filterData[key] = value;
+            console.log(key, value)
+        }
         return this.updatePlayerFilters(); this.filters
     }
     /**
