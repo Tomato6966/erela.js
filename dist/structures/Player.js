@@ -168,7 +168,18 @@ class Player {
                 scale: 1
             }*/
         }
-        this.defaultFilterData = Object.freeze(Object.create({ ...this.filterData }))
+        this.defaultFilterData = this.deepFreeze({ ...this.filterData });
+    }
+    deepFreeze(o) {
+        Object.freeze(o);
+      
+        Object.getOwnPropertyNames(o).forEach(function(prop) {
+             if (o.hasOwnProperty(prop) && o[prop] !== null && (typeof o[prop] === "object" || typeof o[prop] === "function") && !Object.isFrozen(o[prop])) {
+              deepFreeze(o[prop]);
+            }
+        });
+      
+        return o;
     }
     resetFilters() {
         this.filters.echo = false;
