@@ -168,8 +168,6 @@ class Player {
                 scale: 1
             }*/
         }
-        this.defaultFilterData = Object.create({ ...this.filterData });
-        deepFreeze(this.defaultFilterData);
     }
     resetFilters() {
         this.filters.echo = false;
@@ -182,7 +180,38 @@ class Player {
         this.filters.karaoke = false;
         this.filters.audioOutput = "stereo";
         // disable all filters
-        for(const [key, value] of Object.entries(this.defaultFilterData)) {
+        for(const [key, value] of Object.entries({ 
+            lowPass: {
+                smoothing: 0
+            },
+            karaoke: {
+                level: 0,
+                monoLevel: 0,
+                filterBand: 0,
+                filterWidth: 0
+            },
+            timescale: {
+                speed: 1, // 0 = x
+                pitch: 1, // 0 = x
+                rate: 1 // 0 = x
+            },
+            echo: {
+                delay: 0,
+                decay: 0
+            },
+            rotating: {
+                rotationHz: 0
+            },
+            tremolo: {
+                frequency: 2, // 0 < x
+                depth: 0.1 // 0 < x = 1
+            },
+            vibrato: {
+                frequency: 2, // 0 < x = 14
+                depth: 0.1      // 0 < x = 1
+            },
+            channelMix: validAudioOutputs.stereo,
+        })) {
             this.filterData[key] = value;
         }
         return this.updatePlayerFilters(); this.filters
