@@ -168,16 +168,7 @@ class Player {
                 scale: 1
             }*/
         }
-        this.defaultFilterData = this.deepFreeze({ ...this.filterData });
-    }
-    deepFreeze(o) {
-        Object.freeze(o);
-        Object.getOwnPropertyNames(o).forEach(function(prop) {
-            if (o.hasOwnProperty(prop) && o[prop] !== null && (typeof o[prop] === "object" || typeof o[prop] === "function") && !Object.isFrozen(o[prop])) {
-              this.deepFreeze(o[prop]);
-            }
-        });
-        return o;
+        this.defaultFilterData = deepFreeze({ ...this.filterData });
     }
     resetFilters() {
         this.filters.echo = false;
@@ -595,3 +586,11 @@ class Player {
     }
 }
 exports.Player = Player;
+function deepFreeze(o) {
+    Object.freeze(o);
+    Object.getOwnPropertyNames(o).forEach(function(prop) {
+        if (o.hasOwnProperty(prop) && o[prop] !== null && (typeof o[prop] === "object" || typeof o[prop] === "function") && !Object.isFrozen(o[prop])) deepFreeze(o[prop]);
+        return true;
+    });
+    return o;
+}
