@@ -48,6 +48,48 @@ const validAudioOutputs = {
         rightToRight: 0.5,
     },
 }
+const disabledFiltersData = { 
+    lowPass: {
+        smoothing: 0
+    },
+    karaoke: {
+        level: 0,
+        monoLevel: 0,
+        filterBand: 0,
+        filterWidth: 0
+    },
+    timescale: {
+        speed: 1, // 0 = x
+        pitch: 1, // 0 = x
+        rate: 1 // 0 = x
+    },
+    echo: {
+        delay: 0,
+        decay: 0
+    },
+    rotating: {
+        rotationHz: 0
+    },
+    tremolo: {
+        frequency: 2, // 0 < x
+        depth: 0.1 // 0 < x = 1
+    },
+    vibrato: {
+        frequency: 2, // 0 < x = 14
+        depth: 0.1      // 0 < x = 1
+    },
+    channelMix: validAudioOutputs.stereo,
+    /*distortion: {
+        sinOffset: 0,
+        sinScale: 1,
+        cosOffset: 0,
+        cosScale: 1,
+        tanOffset: 0,
+        tanScale: 1,
+        offset: 0,
+        scale: 1
+    }*/
+}
 class Player {
     /**
      * Creates a new player, returns one if it already exists.
@@ -126,49 +168,7 @@ class Player {
             lowPass: false,
             audioOutput: "stereo",
         } 
-        this.filterData = { 
-            lowPass: {
-                smoothing: 0
-            },
-            karaoke: {
-                level: 0,
-                monoLevel: 0,
-                filterBand: 0,
-                filterWidth: 0
-            },
-            timescale: {
-                speed: 1, // 0 = x
-                pitch: 1, // 0 = x
-                rate: 1 // 0 = x
-            },
-            echo: {
-                delay: 0,
-                decay: 0
-            },
-            rotating: {
-                rotationHz: 0
-            },
-            tremolo: {
-                frequency: 2, // 0 < x
-                depth: 0.1 // 0 < x = 1
-            },
-            vibrato: {
-                frequency: 2, // 0 < x = 14
-                depth: 0.1      // 0 < x = 1
-            },
-            channelMix: validAudioOutputs.stereo,
-            /*distortion: {
-                sinOffset: 0,
-                sinScale: 1,
-                cosOffset: 0,
-                cosScale: 1,
-                tanOffset: 0,
-                tanScale: 1,
-                offset: 0,
-                scale: 1
-            }*/
-        }
-        this.disabledFilterData = { ...this.filterData };
+        this.filterData = disabledFiltersData
     }
     resetFilters() {
         this.filters.echo = false;
@@ -180,7 +180,7 @@ class Player {
         this.filters.karaoke = false;
         this.filters.karaoke = false;
         this.filters.audioOutput = "stereo";
-        for(const [key, value] of Object.keys(this.disabledFilterData)) this.filterData[key] = value;
+        for(const [key, value] of Object.entries(disabledFiltersData)) this.filterData[key] = value;
         return this.updatePlayerFilters(); this.filters
     }
     /**

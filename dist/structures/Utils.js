@@ -127,8 +127,7 @@ class TrackUtils {
      * @param requester
      */
     static buildUnresolved(query, requester) {
-        if (typeof query === "undefined")
-            throw new RangeError('Argument "query" must be present.');
+        if (typeof query === "undefined") throw new RangeError('Argument "query" must be present.');
         let unresolvedTrack = {
             requester,
             resolve() {
@@ -139,10 +138,8 @@ class TrackUtils {
                 });
             }
         };
-        if (typeof query === "string")
-            unresolvedTrack.title = query;
-        else
-            unresolvedTrack = Object.assign(Object.assign({}, unresolvedTrack), query);
+        if (typeof query === "string") unresolvedTrack.title = query;
+        else unresolvedTrack = Object.assign(Object.assign({}, unresolvedTrack), query);
         Object.defineProperty(unresolvedTrack, UNRESOLVED_TRACK_SYMBOL, {
             configurable: true,
             value: true
@@ -152,10 +149,8 @@ class TrackUtils {
     static getClosestTrack(unresolvedTrack, customNode) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            if (!TrackUtils.manager)
-                throw new RangeError("Manager has not been initiated.");
-            if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
-                throw new RangeError("Provided track is not a UnresolvedTrack.");
+            if (!TrackUtils.manager) throw new RangeError("Manager has not been initiated.");
+            if (!TrackUtils.isUnresolvedTrack(unresolvedTrack)) throw new RangeError("Provided track is not a UnresolvedTrack.");
             const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
             const isvalidUri = (str) => {
                 const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
@@ -220,8 +215,7 @@ class Structure {
      * @param extender
      */
     static extend(name, extender) {
-        if (!structures[name])
-            throw new TypeError(`"${name} is not a valid structure`);
+        if (!structures[name]) throw new TypeError(`"${name} is not a valid structure`);
         const extended = extender(structures[name]);
         structures[name] = extended;
         return extended;
@@ -232,8 +226,7 @@ class Structure {
      */
     static get(name) {
         const structure = structures[name];
-        if (!structure)
-            throw new TypeError('"structure" must be provided.');
+        if (!structure) throw new TypeError('"structure" must be provided.');
         return structure;
     }
 }
