@@ -168,7 +168,8 @@ class Player {
                 scale: 1
             }*/
         }
-        this.defaultFilterData = deepFreeze({ ...this.filterData });
+        this.defaultFilterData = Object.create({ ...this.filterData });
+        deepFreeze(this.defaultFilterData);
     }
     resetFilters() {
         this.filters.echo = false;
