@@ -225,8 +225,8 @@ class Manager extends Events.EventEmitter {
     search(query, requester, customNode) {
         if(this.allowedLinksRegexes.length || this.allowedLinks.length) {
             const _query = typeof query === "string" ? { query } : query;
-            const link = this.getValidUrlOfQuery(_query);
-            if(link && !this.allowedLinksRegexes.some(regex => link.match(regex)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query} Contains link: ${link}, which is not an allowed / valid Link`);
+            const link = this.getValidUrlOfQuery(_query.query);
+            if(link && !this.allowedLinksRegexes.some(regex => link.match(regex)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
         }
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
