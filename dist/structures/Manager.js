@@ -395,7 +395,7 @@ Manager.regex = {
     
     radiohost: /^https?:\/\/[^.\s]+\.radiohost\.de\/?(.*)/,
     bandcamp: /^https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/?.*/,
-    appleMusic: /^https?:\/\/|?(?:www\.)?music\.apple\.com\/?(.*)/,
+    appleMusic: /^https?:\/\/?(?:www\.)?music\.apple\.com\/?(.*)/,
     TwitchTv: /^https?:\/\/?(?:www\.)?twitch\.tv\/\w+/,
     vimeo: /^https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|)(\d+)(?:|\/\?)/,
 }
