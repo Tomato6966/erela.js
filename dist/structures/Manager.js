@@ -196,7 +196,7 @@ class Manager extends Events.EventEmitter {
         if(this.allowedLinksRegexes.length || this.allowedLinks.length) {
             const _query = typeof query === "string" ? { query } : query;
             const link = this.getValidUrlOfQuery(_query.query);
-            if(link && !this.allowedLinksRegexes.some(regex => link.match(regex)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
+            if(link && !this.allowedLinksRegexes.some(regex => regex.test(link)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
         }
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
@@ -367,8 +367,8 @@ Manager.DEFAULT_SOURCES = {
     "am": "amsearch"
 };
 Manager.regex = {
-    YoutubeRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
-    YoutubeMusicRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+    YoutubeRegex: /^(https?:\/\/)?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+    YoutubeMusicRegex: /^(https?:\/\/)?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
     
     SoundCloudRegex: /^https?:\/\/(soundcloud\.com)\/(.*)$/,
     SoundCloudMobileRegex: /^https?:\/\/(soundcloud\.app\.goo\.gl)\/(.*)$/,
@@ -378,13 +378,13 @@ Manager.regex = {
     DeezerAlbumRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
     AllDeezerRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)/,
     
-    SpotifySongRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)track[\/:]([A-Za-z0-9]+)/,
-    SpotifyPlaylistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
-    SpotifyArtistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)artist[\/:]([A-Za-z0-9]+)/,
-    SpotifyEpisodeRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)episode[\/:]([A-Za-z0-9]+)/,
-    SpotifyShowRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)show[\/:]([A-Za-z0-9]+)/,
-    SpotifyAlbumRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)album[\/:]([A-Za-z0-9]+)/,
-    AllSpotifyRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|artist|episode|show|album)[\/:]([A-Za-z0-9]+)/,
+    SpotifySongRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)track[\/:]([A-Za-z0-9]+)/,
+    SpotifyPlaylistRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
+    SpotifyArtistRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)artist[\/:]([A-Za-z0-9]+)/,
+    SpotifyEpisodeRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)episode[\/:]([A-Za-z0-9]+)/,
+    SpotifyShowRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)show[\/:]([A-Za-z0-9]+)/,
+    SpotifyAlbumRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)album[\/:]([A-Za-z0-9]+)/,
+    AllSpotifyRegex: /(http|https)?:\/\/(www\.)?open\.spotify\.com\/(?:.+)?(track|playlist|artist|episode|show|album)[\/:]([A-Za-z0-9]+)/,
 
     mp3Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
     m3uUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
@@ -392,4 +392,10 @@ Manager.regex = {
     mp4Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
     m4aUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
     wavUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
+    
+    radiohost: /^https:\/\/[^.\s]+\.radiohost\.de\/?(.*)/,
+    bandcamp: /^(?:https?:\/\/|)?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/?.*/,
+    appleMusic: /^(?:https?:\/\/|)?(?:www\.)?music\.apple\.com\/?(.*)/,
+    TwitchTv: /^(?:https?:\/\/|)?(?:www\.)?twitch\.tv\/(?P<channel>\w+)/,
+    vimeo: /^(http|https)?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|)(\d+)(?:|\/\?)/,
 }
