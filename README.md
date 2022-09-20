@@ -162,6 +162,13 @@ Like clientName or shards Count, you should init the manager either way, once it
  - `player.payload` Last payload from playerUpdate Event lavalink sent
  - `player.ping` Ping in ms from Lavalink server. if it's less then 0, it means player is not connected yet
  
+## Added Link (Url) Query Validation:
+
+ - `Manager#allowedLinks` Array of Strings of Urls which are allowed
+ - `Manager#allowedLinksRegexes` Array of Regexes which must match the link
+    - `Manager#regex` --> Default Regexes applied to allowedLinksRegexes, if not Set
+If provided link to query is **not** valid, then it throws an error,
+
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>

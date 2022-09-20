@@ -44,6 +44,8 @@ function check(options) {
     if (typeof options.defaultSearchPlatform !== "undefined" &&
         typeof options.defaultSearchPlatform !== "string")
         throw new TypeError('Manager option "defaultSearchPlatform" must be a string.');
+    if(typeof options.allowedLinksRegexes !== "undefined" && !options.allowedLinksRegexes.every(re => re instanceof RegExp)) throw new TypeError("Every allowedLinkRegex, must be an instance of new RegExp('expression') or /regex/")
+    if(typeof options.allowedLinks !== "undefined" && !options.allowedLinks.every(re => typeof re === "string")) throw new TypeError("Every allowedLins, must be a string")
 }
 /**
  * The main hub for interacting with Lavalink and using Erela.JS,
@@ -93,12 +95,84 @@ class Manager extends Events.EventEmitter {
             for (const nodeOptions of this.options.nodes)
                 new (Utils.Structure.get("Node"))(nodeOptions);
         }
+        /**
+         * @type {RegExp[]} Array of RegexPression Links
+         */
+        this.allowedLinksRegexes = [];
+        /**
+         * @type {string[]} Array of all Allowed Links
+         */
+        this.allowedLinks = [];
+
+        if(options.allowedLinks) this.allowedLinks = options.allowedLinks;
+        if(options.allowedLinksRegexes) {
+            this.allowedLinksRegexes = options.allowedLinksRegexes;
+        } else {
+            this.allowedLinksRegexes = [
+                this.regex.YoutubeRegex,
+                this.regex.YoutubeMusicRegex,
+                this.regex.SoundCloudRegex,
+                this.regex.SoundCloudMobileRegex,
+                // this.regex.AllDeezerRegex,
+                // this.regex.AllSpotifyRegex,
+                this.regex.mp3Url,
+                this.regex.m3uUrl,
+                this.regex.m3u8Url,
+                this.regex.mp4Url,
+                this.regex.m4aUrl,
+                this.regex.wavUrl,
+            ]
+        }
+    }
+    get regex() {
+        return {
+            YoutubeRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+            YoutubeMusicRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+            
+            SoundCloudRegex: /^https?:\/\/(soundcloud\.com)\/(.*)$/,
+            SoundCloudMobileRegex: /^https?:\/\/(soundcloud\.app\.goo\.gl)\/(.*)$/,
+
+            DeezerTrackRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/,
+            DeezerPlaylistRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?playlist\/(\d+)/,
+            DeezerAlbumRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
+            AllDeezerRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)/,
+            
+            SpotifySongRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)track[\/:]([A-Za-z0-9]+)/,
+            SpotifyPlaylistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
+            SpotifyArtistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)artist[\/:]([A-Za-z0-9]+)/,
+            SpotifyEpisodeRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)episode[\/:]([A-Za-z0-9]+)/,
+            SpotifyShowRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)show[\/:]([A-Za-z0-9]+)/,
+            SpotifyAlbumRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)album[\/:]([A-Za-z0-9]+)/,
+            AllSpotifyRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|artist|episode|show|album)[\/:]([A-Za-z0-9]+)/,
+
+            mp3Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
+            m3uUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
+            m3u8Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u8)$/,
+            mp4Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
+            m4aUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
+            wavUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
+        }
     }
     /** Returns the least used Nodes. */
     get leastUsedNodes() {
         return this.nodes
             .filter((node) => node.connected)
             .sort((a, b) => b.calls - a.calls);
+    }
+    /** Get FIRST valid LINK QUERY out of a string query, if it's not a valid link, then it will return undefined */
+    getValidUrlOfQuery(query) {
+        const args = query?.split(" ");
+        let url;
+        for (const arg of args) {
+            try {
+                url = new URL(arg);
+                url = url.protocol === "http:" || url.protocol === "https:" ? url.href : false;
+                break;
+            } catch (_) {
+                url = undefined;
+            }
+        }
+        return url;
     }
     /** Returns the least system load Nodes. */
     get leastLoadNodes() {
@@ -147,6 +221,11 @@ class Manager extends Events.EventEmitter {
      * @returns The search result.
      */
     search(query, requester, customNode) {
+        if(this.allowedLinksRegexes.length || this.allowedLinks.length) {
+            const _query = typeof query === "string" ? { query } : query;
+            const link = this.getValidUrlOfQuery(_query);
+            if(link && !this.allowedLinksRegexes.some(regex => link.match(regex)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query} Contains link: ${link}, which is not an allowed / valid Link`);
+        }
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const node = customNode || this.leastUsedNodes.first();

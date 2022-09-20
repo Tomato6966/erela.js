@@ -5,6 +5,34 @@ import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
 import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
+interface regexObject {
+
+        YoutubeRegex,
+        YoutubeMusicRegex,
+        SoundCloudRegex,
+        SoundCloudMobileRegex,
+
+        DeezerTrackRegex,
+        DeezerPlaylistRegex,
+        DeezerAlbumRegex,
+        AllDeezerRegex,
+        
+        SpotifySongRegex,
+        SpotifyPlaylistRegex,
+        SpotifyArtistRegex,
+        SpotifyEpisodeRegex,
+        SpotifyShowRegex,
+        SpotifyAlbumRegex,
+        AllSpotifyRegex,
+
+        mp3Url,
+        m3uUrl,
+        m3u8Url,
+        mp4Url,
+        m4aUrl,
+        wavUrl,
+    
+}
 export interface Manager {
     /**
      * Emitted when a Node is created.
@@ -107,7 +135,23 @@ export declare class Manager extends EventEmitter {
     readonly nodes: Collection<string, Node>;
     /** The options that were set. */
     readonly options: ManagerOptions;
-    private initiated;
+    /** Array of valid links; */
+    private allowedLinks?: String[];
+    /** used to decrement the volume to a % */
+    readonly volumeDecrementer?: number; 
+    /** used to change the position_update_interval from 250ms to X ms */
+    readonly position_update_interval?: number;
+    /** The default search platform to use, can be "youtube", "youtube music", or "soundcloud". */
+    readonly defaultSearchPlatform?: SearchPlatform;
+    /** Extra Uris which are allowed to be saved as a unresolved from URI (only provide ones which can be handled by LAVALINK) */
+    readonly validUnresolvedUris?: string[];
+    /** If the plugin should force-load plugins */
+    readonly forceLoadPlugin?: boolean;
+    /** RegExpressions for all Valid Links, default allowed ones are for youtube, youtubemusic, and soundcloud, mp3Url, m3uUrl, m3u8Url, mp4Url, m4aUrl, wavUrl */
+    readonly allowedLinksRegexes?: RegExp[];
+    readonly initiated;
+    /** Object of Link Regexes */
+    get regex() : regexObject;
     /** Returns the least used Nodes. */
     get leastUsedNodes(): Collection<string, Node>;
     /** Returns the least system load Nodes. */
@@ -205,6 +249,8 @@ export interface ManagerOptions {
     validUnresolvedUris?: string[];
     /** If the plugin should force-load plugins */
     forceLoadPlugin?: boolean;
+    /** RegExpressions for all Valid Links, default allowed ones are for youtube, youtubemusic, and soundcloud, mp3Url, m3uUrl, m3u8Url, mp4Url, m4aUrl, wavUrl */
+    allowedLinksRegexes?: RegExp[];
     /**
      * Function to send data to the websocket.
      * @param id
