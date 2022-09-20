@@ -161,8 +161,10 @@ class Manager extends Events.EventEmitter {
     }
     /** Get FIRST valid LINK QUERY out of a string query, if it's not a valid link, then it will return undefined */
     getValidUrlOfQuery(query) {
-        const args = query?.split(" ");
+        const args = query?.split?.(" ");
         let url;
+        console.log(query, args);
+        if(!args?.length || !Array.isArray(args)) return undefined
         for (const arg of args) {
             try {
                 url = new URL(arg);

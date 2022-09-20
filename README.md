@@ -166,7 +166,7 @@ Like clientName or shards Count, you should init the manager either way, once it
 
  - `Manager#allowedLinks` Array of Strings of Urls which are allowed
  - `Manager#allowedLinksRegexes` Array of Regexes which must match the link
-    - `Manager#regex` --> Default Regexes applied to allowedLinksRegexes, if not Set
+    - `Manager#regex` --> Default Regexes applied to allowedLinksRegexes, if not Set (except spotify and deezer links)
 If provided link to query is **not** valid, then it throws an error,
 
 <div align = "center">
