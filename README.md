@@ -184,7 +184,18 @@ new Manager({
     Manager.regex.mp4Url,
     Manager.regex.m4aUrl,
     Manager.regex.wavUrl,
-  ] // these are the default Values
+
+    //Manager.regex.vimeo,
+    //Manager.regex.TwitchTv,
+    //Manager.regex.appleMusic,
+    //Manager.regex.bandcamp,
+    //Manager.regex.radiohost,
+  ] // these are the default Values with comments, are all available, you can add your custom regexes if you want like this: /regex/ or new RegExp("regex", "flags");
+})
+// or: accept all the provided regexes:
+new Manager({
+  ...,
+  allowedLinksRegexes: Object.values(Manager.regex),
 })
 ```
 <div align = "center">
