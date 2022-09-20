@@ -109,48 +109,19 @@ class Manager extends Events.EventEmitter {
             this.allowedLinksRegexes = options.allowedLinksRegexes;
         } else {
             this.allowedLinksRegexes = [
-                this.regex.YoutubeRegex,
-                this.regex.YoutubeMusicRegex,
-                this.regex.SoundCloudRegex,
-                this.regex.SoundCloudMobileRegex,
-                // this.regex.AllDeezerRegex,
-                // this.regex.AllSpotifyRegex,
-                this.regex.mp3Url,
-                this.regex.m3uUrl,
-                this.regex.m3u8Url,
-                this.regex.mp4Url,
-                this.regex.m4aUrl,
-                this.regex.wavUrl,
+                Manager.regex.YoutubeRegex,
+                Manager.regex.YoutubeMusicRegex,
+                Manager.regex.SoundCloudRegex,
+                Manager.regex.SoundCloudMobileRegex,
+                // Manager.regex.AllDeezerRegex,
+                // Manager.regex.AllSpotifyRegex,
+                Manager.regex.mp3Url,
+                Manager.regex.m3uUrl,
+                Manager.regex.m3u8Url,
+                Manager.regex.mp4Url,
+                Manager.regex.m4aUrl,
+                Manager.regex.wavUrl,
             ]
-        }
-    }
-    get regex() {
-        return {
-            YoutubeRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
-            YoutubeMusicRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
-            
-            SoundCloudRegex: /^https?:\/\/(soundcloud\.com)\/(.*)$/,
-            SoundCloudMobileRegex: /^https?:\/\/(soundcloud\.app\.goo\.gl)\/(.*)$/,
-
-            DeezerTrackRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/,
-            DeezerPlaylistRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?playlist\/(\d+)/,
-            DeezerAlbumRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
-            AllDeezerRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)/,
-            
-            SpotifySongRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)track[\/:]([A-Za-z0-9]+)/,
-            SpotifyPlaylistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
-            SpotifyArtistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)artist[\/:]([A-Za-z0-9]+)/,
-            SpotifyEpisodeRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)episode[\/:]([A-Za-z0-9]+)/,
-            SpotifyShowRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)show[\/:]([A-Za-z0-9]+)/,
-            SpotifyAlbumRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)album[\/:]([A-Za-z0-9]+)/,
-            AllSpotifyRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|artist|episode|show|album)[\/:]([A-Za-z0-9]+)/,
-
-            mp3Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
-            m3uUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
-            m3u8Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u8)$/,
-            mp4Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
-            m4aUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
-            wavUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
         }
     }
     /** Returns the least used Nodes. */
@@ -396,3 +367,30 @@ Manager.DEFAULT_SOURCES = {
     "sc": "scsearch",
     "am": "amsearch"
 };
+Manager.regex = {
+    YoutubeRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+    YoutubeMusicRegex: /^(?:https?:\/\/)?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+    
+    SoundCloudRegex: /^https?:\/\/(soundcloud\.com)\/(.*)$/,
+    SoundCloudMobileRegex: /^https?:\/\/(soundcloud\.app\.goo\.gl)\/(.*)$/,
+
+    DeezerTrackRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/,
+    DeezerPlaylistRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?playlist\/(\d+)/,
+    DeezerAlbumRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
+    AllDeezerRegex: /^(?:https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)/,
+    
+    SpotifySongRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)track[\/:]([A-Za-z0-9]+)/,
+    SpotifyPlaylistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
+    SpotifyArtistRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)artist[\/:]([A-Za-z0-9]+)/,
+    SpotifyEpisodeRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)episode[\/:]([A-Za-z0-9]+)/,
+    SpotifyShowRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)show[\/:]([A-Za-z0-9]+)/,
+    SpotifyAlbumRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)album[\/:]([A-Za-z0-9]+)/,
+    AllSpotifyRegex: /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|artist|episode|show|album)[\/:]([A-Za-z0-9]+)/,
+
+    mp3Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
+    m3uUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
+    m3u8Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u8)$/,
+    mp4Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
+    m4aUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
+    wavUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
+}

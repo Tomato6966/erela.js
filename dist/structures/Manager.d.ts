@@ -151,7 +151,7 @@ export declare class Manager extends EventEmitter {
     readonly allowedLinksRegexes?: RegExp[];
     readonly initiated;
     /** Object of Link Regexes */
-    get regex() : regexObject;
+    static readonly regex : regexObject;
     /** Returns the least used Nodes. */
     get leastUsedNodes(): Collection<string, Node>;
     /** Returns the least system load Nodes. */

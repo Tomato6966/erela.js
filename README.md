@@ -168,7 +168,25 @@ Like clientName or shards Count, you should init the manager either way, once it
  - `Manager#allowedLinksRegexes` Array of Regexes which must match the link
     - `Manager#regex` --> Default Regexes applied to allowedLinksRegexes, if not Set (except spotify and deezer links)
 If provided link to query is **not** valid, then it throws an error,
-
+e.g.
+```js
+new Manager({
+  allowedLinksRegexes: [
+    Manager.regex.YoutubeRegex,
+    Manager.regex.YoutubeMusicRegex,
+    Manager.regex.SoundCloudRegex,
+    Manager.regex.SoundCloudMobileRegex,
+    // Manager.regex.AllDeezerRegex,
+    // Manager.regex.AllSpotifyRegex,
+    Manager.regex.mp3Url,
+    Manager.regex.m3uUrl,
+    Manager.regex.m3u8Url,
+    Manager.regex.mp4Url,
+    Manager.regex.m4aUrl,
+    Manager.regex.wavUrl,
+  ] // these are the default Values
+})
+```
 <div align = "center">
     <img src = "https://solaris-site.netlify.app/projects/erelajs/images/transparent_logo.png">
     <hr>
