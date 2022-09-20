@@ -7,30 +7,30 @@ import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
 import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
 interface regexObject {
 
-        YoutubeRegex,
-        YoutubeMusicRegex,
-        SoundCloudRegex,
-        SoundCloudMobileRegex,
+        YoutubeRegex: RegExp,
+        YoutubeMusicRegex: RegExp,
+        SoundCloudRegex: RegExp,
+        SoundCloudMobileRegex: RegExp,
 
-        DeezerTrackRegex,
-        DeezerPlaylistRegex,
-        DeezerAlbumRegex,
-        AllDeezerRegex,
+        DeezerTrackRegex: RegExp,
+        DeezerPlaylistRegex: RegExp,
+        DeezerAlbumRegex: RegExp,
+        AllDeezerRegex: RegExp,
         
-        SpotifySongRegex,
-        SpotifyPlaylistRegex,
-        SpotifyArtistRegex,
-        SpotifyEpisodeRegex,
-        SpotifyShowRegex,
-        SpotifyAlbumRegex,
-        AllSpotifyRegex,
+        SpotifySongRegex: RegExp,
+        SpotifyPlaylistRegex: RegExp,
+        SpotifyArtistRegex: RegExp,
+        SpotifyEpisodeRegex: RegExp,
+        SpotifyShowRegex: RegExp,
+        SpotifyAlbumRegex: RegExp,
+        AllSpotifyRegex: RegExp,
 
-        mp3Url,
-        m3uUrl,
-        m3u8Url,
-        mp4Url,
-        m4aUrl,
-        wavUrl,
+        mp3Url: RegExp,
+        m3uUrl: RegExp,
+        m3u8Url: RegExp,
+        mp4Url: RegExp,
+        m4aUrl: RegExp,
+        wavUrl: RegExp,
     
 }
 export interface Manager {
@@ -129,6 +129,8 @@ export interface Manager {
  */
 export declare class Manager extends EventEmitter {
     static readonly DEFAULT_SOURCES: Record<SearchPlatform, string>;
+    /** Object of Link Regexes */
+    static readonly regex : regexObject;
     /** The map of players. */
     readonly players: Collection<string, Player>;
     /** The map of nodes. */
@@ -150,8 +152,6 @@ export declare class Manager extends EventEmitter {
     /** RegExpressions for all Valid Links, default allowed ones are for youtube, youtubemusic, and soundcloud, mp3Url, m3uUrl, m3u8Url, mp4Url, m4aUrl, wavUrl */
     readonly allowedLinksRegexes?: RegExp[];
     readonly initiated;
-    /** Object of Link Regexes */
-    static readonly regex : regexObject;
     /** Returns the least used Nodes. */
     get leastUsedNodes(): Collection<string, Node>;
     /** Returns the least system load Nodes. */
