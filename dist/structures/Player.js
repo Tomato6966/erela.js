@@ -64,6 +64,7 @@ class Player {
         this.queueRepeat = false;
         /** The time the player is in the track. */
         this.position = 0;
+        this.set("lastposition", this.position);
         /** Whether the player is playing. */
         this.playing = false;
         /** Whether the player is paused. */
@@ -491,6 +492,8 @@ class Player {
             }
             if(finalOptions.volume) this.volume = finalOptions.volume;
             if(finalOptions.startTime) this.position = finalOptions.startTime;
+            else this.position = 0;
+            this.set("lastposition", this.position);
             const now = Date.now();
             yield this.node.send(options);
             this.ping = Date.now() - now;
@@ -601,9 +604,9 @@ class Player {
             position = Number(position);
             if (isNaN(position)) throw new RangeError("Position must be a number.");
             
-            if (position < 0 || position > this.queue.current.duration)
-                position = Math.max(Math.min(position, this.queue.current.duration), 0);
+            if (position < 0 || position > this.queue.current.duration) position = Math.max(Math.min(position, this.queue.current.duration), 0);
             this.position = position;
+            this.set("lastposition", position);
             const now = Date.now();
             this.node.send({
                 op: "seek",
