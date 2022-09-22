@@ -211,7 +211,9 @@ class Node {
                     delete payload.op;
                     player.payload = Object.assign({}, payload)
 
+                    if(player.get("updateInterval")) clearInterval(player.get("updateInterval"))
                     player.position = payload.state.position || 0;
+                    player.set("lastposition", player.position);
                     player.connected = payload.state.connected;
                     player.wsPing = payload.state.ping >= 0 ? payload.state.ping : player.wsPing <= 0 && player.connected ? null : player.wsPing || 0;
                     
@@ -223,9 +225,9 @@ class Node {
                     let interValSelfCounter = player.get("position_update_interval") || 250;
                     if(interValSelfCounter < 25) interValSelfCounter = 25;
 
-                    if(player.get("updateInterval")) clearInterval(player.get("updateInterval"))
                     player.set("updateInterval", setInterval(() => {
                         player.position += interValSelfCounter;
+                        player.set("lastposition", player.position);
                         if(player.filterUpdated >= 1) {
                             player.filterUpdated++;
 
