@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Node = void 0;
 /* eslint-disable no-case-declarations */
 const Ws = __importDefault(require("ws"));
-const Undici = require("undici");
+const Undici = __importDefault(require("undici"));
 const Utils = require("./Utils");
 function check(options) {
     if (!options) throw new TypeError("NodeOptions must not be empty.");
@@ -54,7 +54,7 @@ class Node {
         if (this.options.secure) {
             this.options.port = 443;
         }
-        this.http = new Undici.Pool(`http${this.options.secure ? "s" : ""}://${this.address}`, this.options.poolOptions);
+        this.http = new Undici.default.Pool(`http${this.options.secure ? "s" : ""}://${this.address}`, this.options.poolOptions);
         this.options.identifier = options.identifier || options.host;
         this.stats = {
             players: 0,
