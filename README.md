@@ -406,7 +406,15 @@ client.on("ready", () => {
   });
 })
 
-
+// send voicestate updates
+client.on("raw", (data) => {
+    switch(data.t) {
+        case "VOICE_SERVER_UPDATE":
+        case "VOICE_STATE_UPDATE":
+            client.musicManager.updateVoiceState(data.d)
+        break;
+    }
+});
 
 // example how to search with rtcRegion
 const player = client.musicManager.create({
