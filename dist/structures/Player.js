@@ -64,7 +64,6 @@ class Player {
         this.queueRepeat = false;
         /** The time the player is in the track. */
         this.position = 0;
-        this.lastposition = this.position;
         /** Whether the player is playing. */
         this.playing = false;
         /** Whether the player is paused. */
@@ -90,6 +89,7 @@ class Player {
         /** The equalizer bands array. */
         this.bands = new Array(15).fill(0.0);
         this.data = {};
+        this.set("lastposition", this.position);
         if (!this.manager) this.manager = Utils.Structure.get("Player")._manager;
         if (!this.manager) throw new RangeError("Manager has not been initiated.");
         if (this.manager.players.has(options.guild)) return this.manager.players.get(options.guild);
@@ -493,7 +493,7 @@ class Player {
             if(finalOptions.volume) this.volume = finalOptions.volume;
             if(finalOptions.startTime) this.position = finalOptions.startTime;
             else this.position = 0;
-            this.lastposition = this.position;
+            this.set("lastposition", this.position);
             const now = Date.now();
             yield this.node.send(options);
             this.ping = Date.now() - now;
@@ -606,7 +606,7 @@ class Player {
             
             if (position < 0 || position > this.queue.current.duration) position = Math.max(Math.min(position, this.queue.current.duration), 0);
             this.position = position;
-            this.lastposition = this.position;
+            this.set("lastposition", position);
             const now = Date.now();
             this.node.send({
                 op: "seek",
