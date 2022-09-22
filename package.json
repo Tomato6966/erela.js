@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@discordjs/collection": "^1.1.0",
-    "undici": "^4.11.0",
+    "undici": "^5.10.0",
     "ws": "^8.1.0"
   },
   "engines": {
