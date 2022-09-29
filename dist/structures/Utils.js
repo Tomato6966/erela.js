@@ -181,6 +181,7 @@ class TrackUtils {
                 if (originalAudio) {
                     originalAudio.uri = unresolvedTrack.uri;
                     if(TrackUtils.manager.options.useUnresolvedData) {
+                        console.log("TrackUtils.manager.options.useUnresolvedData");
                         if(unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
                         if(unresolvedTrack.thumbnail?.title) originalAudio.title = unresolvedTrack.title;
                         if(unresolvedTrack.thumbnail?.author) originalAudio.author = unresolvedTrack.author;
@@ -197,6 +198,7 @@ class TrackUtils {
                 if (sameDuration) {
                     sameDuration.uri = unresolvedTrack.uri;
                     if(TrackUtils.manager.options.useUnresolvedData) {
+                        console.log("TrackUtils.manager.options.useUnresolvedData");
                         if(unresolvedTrack.thumbnail?.length) sameDuration.thumbnail = unresolvedTrack.thumbnail;
                         if(unresolvedTrack.thumbnail?.title) sameDuration.title = unresolvedTrack.title;
                         if(unresolvedTrack.thumbnail?.author) sameDuration.author = unresolvedTrack.author;
@@ -210,6 +212,7 @@ class TrackUtils {
             }
             res.tracks[0].uri = unresolvedTrack.uri;
             if(TrackUtils.manager.options.useUnresolvedData) {
+                console.log("TrackUtils.manager.options.useUnresolvedData");
                 if(unresolvedTrack.thumbnail?.length) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
                 if(unresolvedTrack.thumbnail?.title) res.tracks[0].title = unresolvedTrack.title;
                 if(unresolvedTrack.thumbnail?.author) res.tracks[0].author = unresolvedTrack.author;
