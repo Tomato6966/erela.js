@@ -181,10 +181,9 @@ class TrackUtils {
                 if (originalAudio) {
                     originalAudio.uri = unresolvedTrack.uri;
                     if(TrackUtils.manager.options.useUnresolvedData) {
-                        console.log("TrackUtils.manager.options.useUnresolvedData");
                         if(unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
-                        if(unresolvedTrack.thumbnail?.title) originalAudio.title = unresolvedTrack.title;
-                        if(unresolvedTrack.thumbnail?.author) originalAudio.author = unresolvedTrack.author;
+                        if(unresolvedTrack.title?.length) originalAudio.title = unresolvedTrack.title;
+                        if(unresolvedTrack.author?.length) originalAudio.author = unresolvedTrack.author;
                     } else {
                         if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
                         if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
@@ -198,10 +197,9 @@ class TrackUtils {
                 if (sameDuration) {
                     sameDuration.uri = unresolvedTrack.uri;
                     if(TrackUtils.manager.options.useUnresolvedData) {
-                        console.log("TrackUtils.manager.options.useUnresolvedData");
                         if(unresolvedTrack.thumbnail?.length) sameDuration.thumbnail = unresolvedTrack.thumbnail;
-                        if(unresolvedTrack.thumbnail?.title) sameDuration.title = unresolvedTrack.title;
-                        if(unresolvedTrack.thumbnail?.author) sameDuration.author = unresolvedTrack.author;
+                        if(unresolvedTrack.title?.length) sameDuration.title = unresolvedTrack.title;
+                        if(unresolvedTrack.author?.length) sameDuration.author = unresolvedTrack.author;
                     } else {
                         if((sameDuration.title == 'Unknown title' || sameDuration.title == "Unspecified description") && sameDuration.title != unresolvedTrack.title) sameDuration.title = unresolvedTrack.title;
                         if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
@@ -212,10 +210,9 @@ class TrackUtils {
             }
             res.tracks[0].uri = unresolvedTrack.uri;
             if(TrackUtils.manager.options.useUnresolvedData) {
-                console.log("TrackUtils.manager.options.useUnresolvedData");
                 if(unresolvedTrack.thumbnail?.length) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
-                if(unresolvedTrack.thumbnail?.title) res.tracks[0].title = unresolvedTrack.title;
-                if(unresolvedTrack.thumbnail?.author) res.tracks[0].author = unresolvedTrack.author;
+                if(unresolvedTrack.title?.length) res.tracks[0].title = unresolvedTrack.title;
+                if(unresolvedTrack.author?.length) res.tracks[0].author = unresolvedTrack.author;
             } else {
                 if((res.tracks[0].title == 'Unknown title' || res.tracks[0].title == "Unspecified description") && unresolvedTrack.title != res.tracks[0].title) res.tracks[0].title = unresolvedTrack.title;
                 if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
