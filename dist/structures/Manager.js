@@ -193,17 +193,20 @@ class Manager extends Events.EventEmitter {
      * @returns The search result.
      */
     search(query, requester, customNode) {
+        const _query = typeof query === "string" ? { query } : query;
+        _query.query = _query?.query?.trim?.();
+
+        const link = this.getValidUrlOfQuery(_query.query);
         if(this.allowedLinksRegexes.length || this.allowedLinks.length) {
-            const _query = typeof query === "string" ? { query } : query;
-            const link = this.getValidUrlOfQuery(_query.query);
             if(link && !this.allowedLinksRegexes.some(regex => regex.test(link)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
         }
+        if(link && this.options.forceSearchLinkQueries) return this.searchLink(link, requester, customNode);
+
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const node = customNode || this.leastUsedNodes.first();
             if(!this.initiated) throw new Error("Manager not initiated yet");
             if (!node) throw new Error("No available nodes.");
-            const _query = typeof query === "string" ? { query } : query;
             const _source = (_b = Manager.DEFAULT_SOURCES[(_a = _query.source) !== null && _a !== void 0 ? _a : this.options.defaultSearchPlatform]) !== null && _b !== void 0 ? _b : _query.source;
             let search = _query.query;
             if (!/^https?:\/\//.test(search)) {
@@ -211,6 +214,51 @@ class Manager extends Events.EventEmitter {
             }
             const res = yield node
                 .makeRequest(`/loadtracks?identifier=${encodeURIComponent(search)}`)
+                .catch(err => reject(err));
+            if (!res) {
+                return reject(new Error("Query not found."));
+            }
+            const result = {
+                loadType: res.loadType,
+                exception: (_c = res.exception) !== null && _c !== void 0 ? _c : null,
+                tracks: res.tracks.map((track) => Utils.TrackUtils.build(track, requester)),
+            };
+            if (result.loadType === "PLAYLIST_LOADED") {
+                result.playlist = {
+                    name: res.playlistInfo.name,
+                    selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
+                        Utils.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
+                    duration: result.tracks
+                        .reduce((acc, cur) => acc + (cur.duration || 0), 0),
+                };
+            }
+            return resolve(result);
+        }));
+    }
+    
+    /**
+     * Searches the a link directly without any source
+     * @param query
+     * @param requester
+     * @returns The search result.
+     */
+     searchLink(query, requester, customNode) {
+        const _query = typeof query === "string" ? { query } : query;
+        _query.query = _query?.query?.trim?.();
+        const link = this.getValidUrlOfQuery(_query.query);
+        if(!link) return this.search(query, requester, customNode);
+
+        if(this.allowedLinksRegexes.length || this.allowedLinks.length) {
+            if(link && !this.allowedLinksRegexes.some(regex => regex.test(link)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
+        }
+        
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
+            const node = customNode || this.leastUsedNodes.first();
+            if(!this.initiated) throw new Error("Manager not initiated yet");
+            if (!node) throw new Error("No available nodes.");
+            const res = yield node
+                .makeRequest(`/loadtracks?identifier=${encodeURIComponent(link)}`)
                 .catch(err => reject(err));
             if (!res) {
                 return reject(new Error("Query not found."));

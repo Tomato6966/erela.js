@@ -90,7 +90,7 @@ class TrackUtils {
                 isSeekable: data.info.isSeekable,
                 isStream: data.info.isStream,
                 uri: data.info.uri,
-                isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")),
+                isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && data.info.identifier?.includes?.("soundcloud")),
                 thumbnail: data.info.uri.includes("youtube")
                     ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
                     : null,

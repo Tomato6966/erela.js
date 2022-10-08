@@ -172,7 +172,14 @@ export declare class Manager extends EventEmitter {
      * @param requester
      * @returns The search result.
      */
-    search(query: string | SearchQuery, requester?: unknown): Promise<SearchResult>;
+    search(query: string | SearchQuery, requester?: unknown, searchNode?: Node): Promise<SearchResult>;
+    /**
+     * Searches a Link based on data
+     * @param query ( should optimally be just the "link" or: {query: "link"} )
+     * @param requester
+     * @returns The search result.
+     */
+    search(query: string | SearchQuery, requester?: unknown, searchNode?: Node): Promise<SearchResult>;
     /**
      * Decodes the base64 encoded tracks and returns a TrackData array.
      * @param tracks
@@ -251,6 +258,8 @@ export interface ManagerOptions {
     forceLoadPlugin?: boolean;
     /** RegExpressions for all Valid Links, default allowed ones are for youtube, youtubemusic, and soundcloud, mp3Url, m3uUrl, m3u8Url, mp4Url, m4aUrl, wavUrl */
     allowedLinksRegexes?: RegExp[];
+    /** If it should forceSearch a link via Manager#searchLink then set this to true! */
+    forceSearchLinkQueries?: boolean;
     /**
      * Function to send data to the websocket.
      * @param id

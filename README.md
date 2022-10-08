@@ -52,6 +52,20 @@ player.search(query, requester);
 
 *When using regioning, you must SEARCH on the same NODE as you play the TRACK on, best practice can be found in the JS script above for the search() method, just provide the correct node (the node the player is using)*
 
+## Added Manager#searchLink
+```js
+// directly request the link:   node.makeRequest(`/loadtracks?identifier=encodeURIComponent("https://open.spotify.com/playlist/37i9dQZF1DXc6IFF23C9jj")`);
+client.musicManager.searchLink("https://open.spotify.com/playlist/37i9dQZF1DXc6IFF23C9jj", requester, player.node);
+```
+
+If you want it to use searchLink() when u do search() then do this:
+```js
+new Manager({
+  forceSearchLinkQueries: true,
+})
+```
+
+
 ## Added Support for latest Versions of Lavalink (common known plugin searches)
 
 ```js

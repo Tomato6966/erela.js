@@ -29,14 +29,13 @@ export declare abstract class TrackUtils {
      * @param requester
      */
     static build(data: TrackData, requester?: unknown): Track;
-    static async customBuild(data: TrackData, requester?: unknown): Promise<Track>;
     /**
      * Builds a UnresolvedTrack to be resolved before being played  .
      * @param query
      * @param requester
      */
     static buildUnresolved(query: string | UnresolvedQuery, requester?: unknown): UnresolvedTrack;
-    static getClosestTrack(unresolvedTrack: UnresolvedTrack): Promise<Track>;
+    static getClosestTrack(unresolvedTrack: UnresolvedTrack, searchNode?: Node): Promise<Track>;
 }
 /** Gets or extends structures to extend the built in, or already extended, classes to add more functionality. */
 export declare abstract class Structure {
