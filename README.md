@@ -20,14 +20,14 @@ When creating the node(s) pass the variable regions, to auto-select the right re
 
 ```js
 const nodes = [
-   {
-     identifier: "USA_NODE", host, password, port
-     regions: ["us-east", "us-central", "us-south", "us-west", "brazil"],
-   },
-   {
-     identifier: "GERMANY_NODE", host, password, port
-     regions: ["rotterdam", "russia"],
-   },
+  {
+    identifier: "USA_NODE", host, password, port
+    regions: ["us-east", "us-central", "us-south", "us-west", "brazil"],
+  },
+  {
+    identifier: "GERMANY_NODE", host, password, port
+    regions: ["rotterdam", "russia"],
+  },
 ]
 ```
 

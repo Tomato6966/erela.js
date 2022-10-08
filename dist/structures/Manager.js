@@ -352,31 +352,45 @@ class Manager extends Events.EventEmitter {
 }
 exports.Manager = Manager;
 Manager.DEFAULT_SOURCES = {
+    // youtubemusic
     "youtube music": "ytmsearch",
-    "youtube": "ytsearch",
-    "soundcloud": "scsearch",
     "ytmsearch": "ytmsearch",
-    "ytsearch": "ytsearch",
-    "scsearch": "scsearch",
-    "amsearch": "amsearch",
-    "spsearch": "spsearch",
-    "yt": "ytsearch",
     "ytm": "ytmsearch",
-    "sp": "spsearch",
+    // youtube
+    "youtube": "ytsearch",
+    "yt": "ytsearch",
+    "ytsearch": "ytsearch",
+    // soundcloud
+    "soundcloud": "scsearch",
+    "scsearch": "scsearch",
     "sc": "scsearch",
-    "am": "amsearch"
+    // apple music
+    "amsearch": "amsearch",
+    "am": "amsearch",
+    // spotify 
+    "spsearch": "spsearch",
+    "sp": "spsearch",
+    "sprec": "sprec",
+    "spsuggestion": "sprec",
+    // deezer
+    "dz": "dzsearch",
+    "deezer": "dzsearch",
+    "ds": "dzsearch",
+    "dzsearch": "dzsearch",
+    "dzisrc": "dzisrc",
 };
 Manager.regex = {
-    YoutubeRegex: /^https?:\/\/?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
-    YoutubeMusicRegex: /^https?:\/\/?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+    YoutubeRegex: /https?:\/\/?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
+    YoutubeMusicRegex: /https?:\/\/?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
     
-    SoundCloudRegex: /^https?:\/\/(soundcloud\.com)\/(.*)$/,
-    SoundCloudMobileRegex: /^https?:\/\/(soundcloud\.app\.goo\.gl)\/(.*)$/,
+    SoundCloudRegex: /https?:\/\/(soundcloud\.com)\/(\S+)/,
+    SoundCloudMobileRegex: /https?:\/\/(soundcloud\.app\.goo\.gl)\/(\S+)/,
 
-    DeezerTrackRegex: /^(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/,
-    DeezerPlaylistRegex: /^(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?playlist\/(\d+)/,
-    DeezerAlbumRegex: /^(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
-    AllDeezerRegex: /^(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)/,
+    DeezerTrackRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/,
+    DeezerPageLinkRegex: /(https?:\/\/|)?(?:www\.)?deezer\.page\.link\/(\S+)/,
+    DeezerPlaylistRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?playlist\/(\d+)/,
+    DeezerAlbumRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
+    AllDeezerRegex: /((https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)|(https?:\/\/|)?(?:www\.)?deezer\.page\.link\/(\S+))/,
     
     SpotifySongRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)track[\/:]([A-Za-z0-9]+)/,
     SpotifyPlaylistRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
@@ -386,16 +400,16 @@ Manager.regex = {
     SpotifyAlbumRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)album[\/:]([A-Za-z0-9]+)/,
     AllSpotifyRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)?(track|playlist|artist|episode|show|album)[\/:]([A-Za-z0-9]+)/,
 
-    mp3Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
-    m3uUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
-    m3u8Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u8)$/,
-    mp4Url: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
-    m4aUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
-    wavUrl: /^(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
+    mp3Url: /(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
+    m3uUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
+    m3u8Url: /(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u8)$/,
+    mp4Url: /(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
+    m4aUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
+    wavUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
     
-    radiohost: /^https?:\/\/[^.\s]+\.radiohost\.de\/?(.*)/,
-    bandcamp: /^https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/?.*/,
-    appleMusic: /^https?:\/\/?(?:www\.)?music\.apple\.com\/?(.*)/,
-    TwitchTv: /^https?:\/\/?(?:www\.)?twitch\.tv\/\w+/,
-    vimeo: /^https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|)(\d+)(?:|\/\?)/,
+    radiohost: /https?:\/\/[^.\s]+\.radiohost\.de\/(\S+)/,
+    bandcamp: /https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/(\S+)/,
+    appleMusic: /https?:\/\/?(?:www\.)?music\.apple\.com\/(\S+)/,
+    TwitchTv: /https?:\/\/?(?:www\.)?twitch\.tv\/\w+/,
+    vimeo: /https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|)(\d+)(?:|\/\?)/,
 }
