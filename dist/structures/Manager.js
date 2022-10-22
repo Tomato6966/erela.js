@@ -457,6 +457,7 @@ Manager.regex = {
 
     tiktok: /https:\/\/www\.tiktok\.com\//,
     mixcloud: /https:\/\/www\.mixcloud\.com\//,
+    musicYandex: /https:\/\/music\.yandex\.ru\//, 
     radiohost: /https?:\/\/[^.\s]+\.radiohost\.de\/(\S+)/,
     bandcamp: /https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/(\S+)/,
     appleMusic: /https?:\/\/?(?:www\.)?music\.apple\.com\/(\S+)/,
