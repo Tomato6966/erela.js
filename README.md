@@ -111,6 +111,7 @@ player.filters.rotating // READONLY - {Boolean} if it's enabled or not
 player.filters.tremolo // READONLY - {Boolean} if it's enabled or not
 player.filters.vibrato // READONLY - {Boolean} if it's enabled or not
 player.filters.lowPass // READONLY - {Boolean} if it's enabled or not 
+player.filters.karaoke // READONLY - {Boolean} if it's enabled or not 
 player.filters.audioOutput // READONLY - {"stereo"|"mono"|"right"|"left"} how the audio is getting outputted
 
 // only available with lavalink-filter-plugin
