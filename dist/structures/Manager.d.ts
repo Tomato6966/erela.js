@@ -267,7 +267,9 @@ export interface ManagerOptions {
      */
     send(id: string, payload: Payload): void;
 }
-export declare type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "amsearch" | "spsearch" | "scsearch" | "ytmsearch";
+
+export declare type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "ytmsearch" | "ytm" | "yt" | "sc" | "am" | "amsearch" | "sp" | "sprec" | "spsuggestion" | "spsearch" | "scsearch" | "ytmsearch" | "dzisrc" | "dzsearch" | "ds" | "dz" | "deezer";
+
 export interface SearchQuery {
     /** The source to search from. */
     source?: SearchPlatform | string;
