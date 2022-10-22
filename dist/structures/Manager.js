@@ -454,7 +454,10 @@ Manager.regex = {
     mp4Url: /(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
     m4aUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
     wavUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
-    
+
+    tiktok: /https:\/\/www\.tiktok\.com\//,
+    mixcloud: /https:\/\/www\.mixcloud\.com\//,
+    musicYandex: /https:\/\/music\.yandex\.ru\//, 
     radiohost: /https?:\/\/[^.\s]+\.radiohost\.de\/(\S+)/,
     bandcamp: /https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/(\S+)/,
     appleMusic: /https?:\/\/?(?:www\.)?music\.apple\.com\/(\S+)/,
