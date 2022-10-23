@@ -97,7 +97,7 @@ class TrackUtils {
                 displayThumbnail(size = "mqdefault") {
                     var _a;
                     const finalSize = (_a = SIZES.find((s) => s === size)) !== null && _a !== void 0 ? _a : "mqdefault";
-                    return this.uri.includes("youtube")
+                    return this.uri?.includes("youtube")
                         ? `https://img.youtube.com/vi/${data.info.identifier}/${finalSize}.jpg`
                         : null;
                 },
