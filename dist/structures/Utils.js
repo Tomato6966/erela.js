@@ -103,7 +103,7 @@ class TrackUtils {
                     ? `https://img.youtube.com/vi/${data.info.identifier}/${finalSize}.jpg`
                     : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
                     ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
-                    :  data.info?.thumbnail || data.info?.image,
+                    :  data.info?.thumbnail || data.info?.image
                 },
                 requester,
             };
@@ -188,7 +188,7 @@ class TrackUtils {
                         if(unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
                         if(unresolvedTrack.title?.length) originalAudio.title = unresolvedTrack.title;
                         if(unresolvedTrack.author?.length) originalAudio.author = unresolvedTrack.author;
-                        for(key of Object.keys(unresolvedTrack)) if(!originalAudio][key]) originalAudio[key] = unresolvedTrack[key];
+                        for(key of Object.keys(unresolvedTrack)) if(!originalAudio[key]) originalAudio[key] = unresolvedTrack[key];
                     } else {
                         if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
                         if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
