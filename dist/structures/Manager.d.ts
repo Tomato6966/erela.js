@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import Collection from "@discordjs/collection";
+import { Collection } from "@discordjs/collection";
 import { EventEmitter } from "events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
@@ -132,9 +132,9 @@ export declare class Manager extends EventEmitter {
     /** Object of Link Regexes */
     static readonly regex : regexObject;
     /** The map of players. */
-    readonly players: Collection<string, Player>;
+    readonly players = new Collection<string, Player>();
     /** The map of nodes. */
-    readonly nodes: Collection<string, Node>;
+    readonly nodes = new Collection<string, Node>();
     /** The options that were set. */
     readonly options: ManagerOptions;
     /** Array of valid links; */
