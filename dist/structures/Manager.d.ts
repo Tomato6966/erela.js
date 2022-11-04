@@ -132,9 +132,9 @@ export declare class Manager extends EventEmitter {
     /** Object of Link Regexes */
     static readonly regex : regexObject;
     /** The map of players. */
-    readonly players = new Collection<string, Player>();
+    readonly players: Collection<string, Player>;
     /** The map of nodes. */
-    readonly nodes = new Collection<string, Node>();
+    readonly nodes: Collection<string, Node>;
     /** The options that were set. */
     readonly options: ManagerOptions;
     /** Array of valid links; */
