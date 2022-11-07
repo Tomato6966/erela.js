@@ -213,7 +213,7 @@ class Manager extends Events.EventEmitter {
                 search = `${_source}:${search}`;
             }
             const res = yield node
-                .makeRequest(`/loadtracks?identifier=${encodeURIComponent(search)}`)
+                .makeRequest(`/v3/loadtracks?identifier=${encodeURIComponent(search)}`)
                 .catch(err => reject(err));
             if (!res) {
                 return reject(new Error("Query not found."));
@@ -258,7 +258,7 @@ class Manager extends Events.EventEmitter {
             if(!this.initiated) throw new Error("Manager not initiated yet");
             if (!node) throw new Error("No available nodes.");
             const res = yield node
-                .makeRequest(`/loadtracks?identifier=${encodeURIComponent(link)}`)
+                .makeRequest(`/v3/loadtracks?identifier=${encodeURIComponent(link)}`)
                 .catch(err => reject(err));
             if (!res) {
                 return reject(new Error("Query not found."));
@@ -290,7 +290,7 @@ class Manager extends Events.EventEmitter {
             const node = this.nodes.first();
             if (!node)
                 throw new Error("No available nodes.");
-            const res = yield node.makeRequest(`/decodetracks`, r => {
+            const res = yield node.makeRequest(`/v3/decodetracks`, r => {
                 r.method = "POST";
                 r.body = JSON.stringify(tracks);
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
