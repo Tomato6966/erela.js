@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import Collection from "@discordjs/collection";
+import { Collection } from "@discordjs/collection";
 import { EventEmitter } from "events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
