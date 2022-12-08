@@ -153,11 +153,11 @@ class Manager extends Events.EventEmitter {
         return this.nodes
             .filter((node) => node.connected)
             .sort((a, b) => {
-            const aload = a.stats.cpu
-                ? (a.stats.cpu.systemLoad / a.stats.cpu.cores) * 100
+            const aload = a.stats.memory?.used
+                ? a.stats.memory.used
                 : 0;
-            const bload = b.stats.cpu
-                ? (b.stats.cpu.systemLoad / b.stats.cpu.cores) * 100
+            const bload = b.stats.memory?.used
+                ? b.stats.memory.used
                 : 0;
             return aload - bload;
         });
