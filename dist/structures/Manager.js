@@ -128,7 +128,9 @@ class Manager extends Events.EventEmitter {
     get leastUsedNodes() {
         return this.nodes
             .filter((node) => node.connected)
-            .sort((a, b) => b.calls - a.calls);
+            // .sort((a, b) => b.calls - a.calls); // client sided sorting
+            //.sort((a, b) => (b.stats?.memory?.used || 0) - (a.stats?.memory?.used || 0)) // sort after memory
+            .sort((a, b) => (b.stats?.players || 0) - (a.stats?.players || 0))
     }
     /** Get FIRST valid LINK QUERY out of a string query, if it's not a valid link, then it will return undefined */
     getValidUrlOfQuery(query) {
