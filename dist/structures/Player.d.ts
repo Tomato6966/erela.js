@@ -2,17 +2,41 @@ import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
 import { Sizes, State, VoiceState } from "./Utils";
+export type AudioOutputs = "mono" | "stereo" | "left" | "right";
+export declare const validAudioOutputs: {
+    mono: {
+        leftToLeft: number;
+        leftToRight: number;
+        rightToLeft: number;
+        rightToRight: number;
+    };
+    stereo: {
+        leftToLeft: number;
+        leftToRight: number;
+        rightToLeft: number;
+        rightToRight: number;
+    };
+    left: {
+        leftToLeft: number;
+        leftToRight: number;
+        rightToLeft: number;
+        rightToRight: number;
+    };
+    right: {
+        leftToLeft: number;
+        leftToRight: number;
+        rightToLeft: number;
+        rightToRight: number;
+    };
+};
 export interface PlayerUpdatePayload {
-    state: { 
-        connected: boolean, 
-        ping: number, 
-        position: number, 
-        time: number
-    },
-    guildId: string
-}
-export enum AudioOutputs {
-    mono, stereo, left, right
+    state: {
+        connected: boolean;
+        ping: number;
+        position: number;
+        time: number;
+    };
+    guildId: string;
 }
 export declare class Player {
     options: PlayerOptions;
@@ -46,99 +70,84 @@ export declare class Player {
     voiceState: VoiceState;
     /** The Manager. */
     manager: Manager;
-    /** If filters should be instantupdated */
-    instaUpdateFiltersFix: boolean;
+    private static _manager;
+    private readonly data;
+    /** Checker if filters should be updated or not! */
+    filterUpdated: number;
     /** When the player was created [Date] (from lavalink) */
-    createdAt: Date|null;
+    createdAt: Date | null;
     /** When the player was created [Timestamp] (from lavalink) */
     createdTimeStamp: number;
     /** If lavalink says it's connected or not */
-    connected: boolean|undefined;
+    connected: boolean | undefined;
     /** Last sent payload from lavalink */
-    payload: PlayerUpdatePayload;
+    payload: Partial<PlayerUpdatePayload>;
+    /** A Voice-Region for voice-regioned based - Node identification(s) */
+    region: string;
     /** The Ping to the Lavalink Client in ms | < 0 == not connected | undefined == not defined yet. */
-    ping: number|undefined;
+    ping: number | undefined;
     /** The Voice Connection Ping from Lavalink in ms | < 0 == not connected | null == lavalinkversion is < 3.5.1 in where there is no ping info. | undefined == not defined yet. */
-    wsPing: number|null|undefined;
+    wsPing: number | null | undefined;
     /** All States of a Filter, however you can manually overwrite it with a string, if you need so */
     filters: {
-        nightcore: boolean|string,
-        echo: boolean|string,
-        rotating: boolean|string, 
-        karaoke: boolean|string,
-        tremolo: boolean|string,
-        vibrato: boolean|string,
-        lowPass: boolean|string,
+        nightcore: boolean | string;
+        echo: boolean | string;
+        rotating: boolean | string;
+        karaoke: boolean | string;
+        tremolo: boolean | string;
+        vibrato: boolean | string;
+        lowPass: boolean | string;
         /** audio Output (default stereo, mono sounds the fullest and best for not-stereo tracks) */
-        audioOutput: AudioOutputs,
+        audioOutput: AudioOutputs;
     };
     /** The Current Filter Data(s) */
-    filterData: { 
+    filterData: {
         channelMix?: {
-            leftToLeft: number,
-            leftToRight: number,
-            rightToLeft: number,
-            rightToRight: number,
-        },
+            leftToLeft: number;
+            leftToRight: number;
+            rightToLeft: number;
+            rightToRight: number;
+        };
         lowPass: {
-            smoothing: number
-        },
+            smoothing: number;
+        };
         karaoke: {
-            level: number,
-            monoLevel: number,
-            filterBand: number,
-            filterWidth: number
-        },
+            level: number;
+            monoLevel: number;
+            filterBand: number;
+            filterWidth: number;
+        };
         timescale: {
-            speed: number, // 0 = x
-            pitch: number, // 0 = x
-            rate: number // 0 = x
-        },
+            speed: number;
+            pitch: number;
+            rate: number;
+        };
         echo: {
-            delay: number
-            decay: number
-        },
+            delay: number;
+            decay: number;
+        };
         rotating: {
-            rotationHz: number
-        },
+            rotationHz: number;
+        };
         tremolo: {
-            frequency: number, // 0 < x
-            depth: number // 0 < x = 1
-        },
+            frequency: number;
+            depth: number;
+        };
         vibrato: {
-            frequency: number, // 0 < x = 14
-            depth: number     // 0 < x = 1
-        },
+            frequency: number;
+            depth: number;
+        };
         distortion?: {
-            sinOffset: number,
-            sinScale: number,
-            cosOffset: number,
-            cosScale: number,
-            tanOffset: number,
-            tanScale: number,
-            offset: number,
-            scale: number
-        } 
+            sinOffset: number;
+            sinScale: number;
+            cosOffset: number;
+            cosScale: number;
+            tanOffset: number;
+            tanScale: number;
+            offset: number;
+            scale: number;
+        };
     };
-    /** Update the filters to the lavalink node */
-    updatePlayerFilters():void;
-    /** Reset the filters */
-    resetFilters():any; 
-    /** Set an audio output type left/right/stereo/mono */
-    setAudioOutput(type:AudioOutputs): boolean;
-    /** set a rotating filter effect */
-    toggleRotating(rotationHz?:number): boolean;
-    /** Set a vibrato filter effect */
-    toggleVibrato(frequency?:number, depth?:number): boolean;
-    /** Set a tremolo filter effect */
-    toggleTremolo(frequency?:number, depth?:number): boolean;
-    toggleLowPass(smoothing?:number): boolean;
-    toggleEcho(delay?:number, decay?:number): boolean;
-    toggleNightcore(speed?:number, pitch?:number, rate?:number): boolean;
-    toggleKaraoke(level?:number, monoLevel?:number, filterBand?:number, filterWidth?:number): boolean;
-
-    private static _manager;
-    private readonly data;
     /**
      * Set custom data.
      * @param key
@@ -157,6 +166,20 @@ export declare class Player {
      * @param options
      */
     constructor(options: PlayerOptions);
+    resetFilters(): Promise<this>;
+    /**
+     *
+     * @param {AudioOutputs} type
+     */
+    setAudioOutput(type: any): AudioOutputs;
+    toggleRotating(rotationHz?: number): boolean;
+    toggleVibrato(frequency?: number, depth?: number): boolean;
+    toggleTremolo(frequency?: number, depth?: number): boolean;
+    toggleLowPass(smoothing?: number): boolean;
+    toggleEcho(delay?: number, decay?: number): boolean;
+    toggleNightcore(speed?: number, pitch?: number, rate?: number): boolean;
+    toggleKaraoke(level?: number, monoLevel?: number, filterBand?: number, filterWidth?: number): boolean;
+    updatePlayerFilters(): Promise<this>;
     /**
      * Same as Manager#search() but a shortcut on the player itself.
      * @param query
@@ -249,33 +272,35 @@ export interface PlayerOptions {
     selfDeafen?: boolean;
     /** Voice-Region */
     region?: string;
+    /** If filters should be instantupdated */
+    instaUpdateFiltersFix: boolean;
 }
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {
     /** The base64 encoded track. */
     readonly track: string;
     /** The title of the track. */
-    readonly title: string;
+    title: string;
     /** The identifier of the track. */
-    readonly identifier: string;
+    identifier: string;
     /** The author of the track. */
-    readonly author: string;
+    author: string;
     /** The duration of the track. */
-    readonly duration: number;
+    duration: number;
     /** If the track is seekable. */
-    readonly isSeekable: boolean;
+    isSeekable: boolean;
     /** If the track is a stream.. */
-    readonly isStream: boolean;
+    isStream: boolean;
     /** The uri of the track. */
-    readonly uri: string;
+    uri: string;
     /** The thumbnail of the track or null if it's a unsupported source. */
-    readonly thumbnail: string | null;
+    thumbnail: string | null;
     /** The user that requested the track. */
-    readonly requester: unknown | null;
+    requester: unknown | null;
     /** Displays the track thumbnail with optional size or null if it's a unsupported source. */
     displayThumbnail(size?: Sizes): string;
     /** If the Track is a preview */
-    readonly isPreview: boolean;
+    isPreview: boolean;
 }
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
 export interface UnresolvedTrack extends Partial<Track> {
@@ -298,11 +323,11 @@ export interface PlayOptions {
     /** The position to end the track. */
     readonly endTime?: number;
     /** Whether to not replace the track if a play payload is sent. */
-    readonly noReplace?: boolean;    
+    readonly noReplace?: boolean;
     /** If to start "paused" */
-    pause?: boolean;
+    readonly pause?: boolean;
     /** The Volume to start with */
-    volume?: number;
+    readonly volume?: number;
 }
 export interface EqualizerBand {
     /** The band number being 0 to 14. */

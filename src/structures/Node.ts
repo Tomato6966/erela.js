@@ -1,8 +1,8 @@
 /* eslint-disable no-case-declarations */
-import WebSocket from "node:ws";
+import WebSocket from "ws";
 import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
-import { Player, Track, UnresolvedTrack } from "./Player";
+import { Player, PlayerOptions, PlayOptions, Track, UnresolvedTrack } from "./Player";
 import {
   PlayerEvent,
   PlayerEvents,
@@ -53,7 +53,7 @@ export class Node {
   public stats: NodeStats;
   public manager: Manager
 
-  private regions: string[];
+  public regions: string[];
   private static _manager: Manager;
   private reconnectTimeout?: NodeJS.Timeout;
   private reconnectAttempts = 1;
@@ -270,7 +270,7 @@ export class Node {
               player.createdAt = new Date(player.createdTimeStamp);
           }
           
-          let interValSelfCounter = player.get("position_update_interval") || 250;
+          let interValSelfCounter = (player.get("position_update_interval") || 250) as number;
           if(interValSelfCounter < 25) interValSelfCounter = 25;
 
           player.set("updateInterval", setInterval(() => {
@@ -278,17 +278,15 @@ export class Node {
               player.set("lastposition", player.position);
               if(player.filterUpdated >= 1) {
                   player.filterUpdated++;
-
                   const maxMins = 8;
                   const currentDuration = player?.queue?.current?.duration || 0;
-                  
                   if(currentDuration <= maxMins*60_000) {
-                      if(player.filterUpdated >= 3) {
-                          player.filterUpdated = 0;
-                          player.seek(player.position);
-                      }
+                    if(player.filterUpdated >= 3) {
+                        player.filterUpdated = 0;
+                        player.seek(player.position);
+                    }
                   } else {
-                      player.filterUpdated = 0;
+                    player.filterUpdated = 0;
                   }
               }
           }, interValSelfCounter));
@@ -298,11 +296,7 @@ export class Node {
         this.handleEvent(payload);
         break;
       default:
-        this.manager.emit(
-          "nodeError",
-          this,
-          new Error(`Unexpected op "${payload.op}" with data: ${payload}`)
-        );
+        this.manager.emit("nodeError", this, new Error(`Unexpected op "${payload.op}" with data: ${payload}`));
         return;
     }
   }
@@ -333,7 +327,7 @@ export class Node {
   }
 
   protected trackStart(player: Player, track: Track, payload: TrackStartEvent): void {
-    const finalOptions = player.get("finalOptions");
+    const finalOptions = player.get("finalOptions") as PlayOptions | undefined;
     if(finalOptions) {
         if(finalOptions.pause) {
             player.playing = !finalOptions.pause;

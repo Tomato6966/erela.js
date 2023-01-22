@@ -114,8 +114,8 @@ export class Player {
   public manager: Manager;
   private static _manager: Manager;
   private readonly data: Record<string, unknown> = {};
-  /** If filters should be instantupdated */
-  private instaUpdateFiltersFix: boolean;
+  /** Checker if filters should be updated or not! */
+  public filterUpdated: number;
   /** When the player was created [Date] (from lavalink) */
   public createdAt: Date|null;
   /** When the player was created [Timestamp] (from lavalink) */
@@ -123,7 +123,9 @@ export class Player {
   /** If lavalink says it's connected or not */
   public connected: boolean|undefined;
   /** Last sent payload from lavalink */
-  public payload: PlayerUpdatePayload;
+  public payload: Partial<PlayerUpdatePayload>;
+  /** A Voice-Region for voice-regioned based - Node identification(s) */
+  public region: string;
   /** The Ping to the Lavalink Client in ms | < 0 == not connected | undefined == not defined yet. */
   public ping: number|undefined;
   /** The Voice Connection Ping from Lavalink in ms | < 0 == not connected | null == lavalinkversion is < 3.5.1 in where there is no ping info. | undefined == not defined yet. */
@@ -260,7 +262,6 @@ export class Player {
 
     if (!this.node) throw new RangeError("No available nodes.");
 
-    this.instaUpdateFiltersFix = options?.instaUpdateFiltersFix ?? true;
         
     this.filters = {
       nightcore: false,
@@ -809,27 +810,27 @@ export interface Track {
   /** The base64 encoded track. */
   readonly track: string;
   /** The title of the track. */
-  readonly title: string;
+  title: string;
   /** The identifier of the track. */
-  readonly identifier: string;
+  identifier: string;
   /** The author of the track. */
-  readonly author: string;
+  author: string;
   /** The duration of the track. */
-  readonly duration: number;
+  duration: number;
   /** If the track is seekable. */
-  readonly isSeekable: boolean;
+  isSeekable: boolean;
   /** If the track is a stream.. */
-  readonly isStream: boolean;
+  isStream: boolean;
   /** The uri of the track. */
-  readonly uri: string;
+  uri: string;
   /** The thumbnail of the track or null if it's a unsupported source. */
-  readonly thumbnail: string | null;
+  thumbnail: string | null;
   /** The user that requested the track. */
-  readonly requester: unknown | null;
+  requester: unknown | null;
   /** Displays the track thumbnail with optional size or null if it's a unsupported source. */
   displayThumbnail(size?: Sizes): string;
   /** If the Track is a preview */
-  readonly isPreview: boolean;
+  isPreview: boolean;
 }
 
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
@@ -868,7 +869,7 @@ export interface EqualizerBand {
   gain: number;
 }
 
-function getOptions(opts?:any): Partial<PlayOptions> {
+function getOptions(opts?:any): Partial<PlayOptions> | false {
   const valids = ["startTime", "endTime", "noReplace", "volume", "pause"];
   const returnObject = {}
   if(!opts) return false;

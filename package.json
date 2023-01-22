@@ -4,7 +4,9 @@
   "description": "An easy-to-use Lavalink client for NodeJS.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [  "dist" ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "lint": "eslint --ext .ts ./src",
@@ -34,19 +36,21 @@
   },
   "bugs": "https://github.com/Tomato6966/erela.js",
   "devDependencies": {
-    "@types/node": "^16.6.1",
-    "@types/ws": "^7.4.7",
-    "@typescript-eslint/eslint-plugin": "^4.29.2",
-    "@typescript-eslint/parser": "^4.29.2",
+    "@discordjs/collection": "^1.3.0",
+    "@types/node": "^18.11.18",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
     "dts-bundle": "^0.7.3",
-    "eslint": "^7.7.0",
-    "typedoc": "^0.21.5",
-    "typedoc-plugin-no-inherit": "^1.2.0",
-    "typescript": "^4.3.5"
+    "eslint": "^8.32.0",
+    "typedoc": "^0.23.24",
+    "typedoc-plugin-no-inherit": "^1.4.0",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
-    "undici": "^5.10.0",
-    "ws": "^8.1.0"
+    "tslib": "^2.4.1",
+    "undici": "^5.15.2",
+    "ws": "^8.12.0"
   },
   "engines": {
     "node": ">=16.0.0"

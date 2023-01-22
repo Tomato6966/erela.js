@@ -1,38 +1,10 @@
 /// <reference types="node" />
 import { Collection } from "@discordjs/collection";
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
 import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
-interface regexObject {
-
-        YoutubeRegex: RegExp,
-        YoutubeMusicRegex: RegExp,
-        SoundCloudRegex: RegExp,
-        SoundCloudMobileRegex: RegExp,
-
-        DeezerTrackRegex: RegExp,
-        DeezerPlaylistRegex: RegExp,
-        DeezerAlbumRegex: RegExp,
-        AllDeezerRegex: RegExp,
-        
-        SpotifySongRegex: RegExp,
-        SpotifyPlaylistRegex: RegExp,
-        SpotifyArtistRegex: RegExp,
-        SpotifyEpisodeRegex: RegExp,
-        SpotifyShowRegex: RegExp,
-        SpotifyAlbumRegex: RegExp,
-        AllSpotifyRegex: RegExp,
-
-        mp3Url: RegExp,
-        m3uUrl: RegExp,
-        m3u8Url: RegExp,
-        mp4Url: RegExp,
-        m4aUrl: RegExp,
-        wavUrl: RegExp,
-    
-}
 export interface Manager {
     /**
      * Emitted when a Node is created.
@@ -129,33 +101,30 @@ export interface Manager {
  */
 export declare class Manager extends EventEmitter {
     static readonly DEFAULT_SOURCES: Record<SearchPlatform, string>;
-    /** Object of Link Regexes */
-    static readonly regex : regexObject;
+    static readonly regex: Record<SourcesRegex, RegExp>;
     /** The map of players. */
     readonly players: Collection<string, Player>;
     /** The map of nodes. */
     readonly nodes: Collection<string, Node>;
     /** The options that were set. */
     readonly options: ManagerOptions;
-    /** Array of valid links; */
-    private allowedLinks?: String[];
-    /** used to decrement the volume to a % */
-    readonly volumeDecrementer?: number; 
-    /** used to change the position_update_interval from 250ms to X ms */
-    readonly position_update_interval?: number;
-    /** The default search platform to use, can be "youtube", "youtube music", or "soundcloud". */
-    readonly defaultSearchPlatform?: SearchPlatform;
-    /** Extra Uris which are allowed to be saved as a unresolved from URI (only provide ones which can be handled by LAVALINK) */
-    readonly validUnresolvedUris?: string[];
-    /** If the plugin should force-load plugins */
-    readonly forceLoadPlugin?: boolean;
-    /** RegExpressions for all Valid Links, default allowed ones are for youtube, youtubemusic, and soundcloud, mp3Url, m3uUrl, m3u8Url, mp4Url, m4aUrl, wavUrl */
-    readonly allowedLinksRegexes?: RegExp[];
-    readonly initiated;
+    /** If the Manager got initiated */
+    initiated: boolean;
     /** Returns the least used Nodes. */
     get leastUsedNodes(): Collection<string, Node>;
+    /** Returns the least used Nodes sorted by amount of calls. */
+    get leastUsedNodesCalls(): Collection<string, Node>;
+    /** Returns the least used Nodes sorted by amount of players. */
+    get leastUsedNodesPlayers(): Collection<string, Node>;
+    /** Returns the least used Nodes sorted by amount of memory usage. */
+    get leastUsedNodesMemory(): Collection<string, Node>;
     /** Returns the least system load Nodes. */
     get leastLoadNodes(): Collection<string, Node>;
+    get leastLoadNodesMemory(): Collection<string, Node>;
+    /** Returns the least system load Nodes. */
+    get leastLoadNodesCpu(): Collection<string, Node>;
+    /** Get FIRST valid LINK QUERY out of a string query, if it's not a valid link, then it will return undefined */
+    private getValidUrlOfQuery;
     /**
      * Initiates the Manager class.
      * @param options
@@ -163,23 +132,30 @@ export declare class Manager extends EventEmitter {
     constructor(options: ManagerOptions);
     /**
      * Initiates the Manager.
-     * @param clientId
+     * @param {string} clientID
+     * @param {{ clientId?: string, clientName?: string, shards?: number }} objectClientData
      */
-    init(clientId?: string): this;
+    init(clientID?: string, objectClientData?: {
+        clientId?: string;
+        clientName?: string;
+        shards?: number;
+    }): this;
     /**
      * Searches the enabled sources based off the URL or the `source` property.
      * @param query
      * @param requester
+     * @param customNode
      * @returns The search result.
      */
-    search(query: string | SearchQuery, requester?: unknown, searchNode?: Node): Promise<SearchResult>;
+    search(query: string | SearchQuery, requester?: unknown, customNode?: Node): Promise<SearchResult>;
     /**
-     * Searches a Link based on data
-     * @param query ( should optimally be just the "link" or: {query: "link"} )
-     * @param requester
-     * @returns The search result.
-     */
-    search(query: string | SearchQuery, requester?: unknown, searchNode?: Node): Promise<SearchResult>;
+       * Searches the a link directly without any source
+       * @param query
+       * @param requester
+       * @param customNode
+       * @returns The search result.
+       */
+    searchLink(query: string | SearchQuery, requester?: unknown, customNode?: Node): Promise<SearchResult>;
     /**
      * Decodes the base64 encoded tracks and returns a TrackData array.
      * @param tracks
@@ -240,26 +216,34 @@ export interface ManagerOptions {
     clientName?: string;
     /** The shard count. */
     shards?: number;
-    /** used to decrement the volume to a % */
-    volumeDecrementer?: number; 
-    /** used to change the position_update_interval from 250ms to X ms */
-    position_update_interval?: number;
     /** A array of plugins to use. */
     plugins?: Plugin[];
     /** Whether players should automatically play the next song. */
     autoPlay?: boolean;
     /** An array of track properties to keep. `track` will always be present. */
     trackPartial?: string[];
-    /** The default search platform to use, can be "youtube", "youtube music", or "soundcloud". */
+    /** @default "youtube" The default search platform to use, can be "youtube", "youtube music", "soundcloud", "deezer", "spotify", ... */
     defaultSearchPlatform?: SearchPlatform;
+    /** used to decrement the volume to a % */
+    volumeDecrementer?: number;
+    /** used to change the position_update_interval from 250ms to X ms */
+    position_update_interval?: number;
     /** Extra Uris which are allowed to be saved as a unresolved from URI (only provide ones which can be handled by LAVALINK) */
     validUnresolvedUris?: string[];
     /** If the plugin should force-load plugins */
     forceLoadPlugin?: boolean;
-    /** RegExpressions for all Valid Links, default allowed ones are for youtube, youtubemusic, and soundcloud, mp3Url, m3uUrl, m3u8Url, mp4Url, m4aUrl, wavUrl */
+    /** Array of valid link-Strings; */
+    allowedLinks?: String[];
+    /** RegExpressions for all Valid Links, default allowed ones are gotten from Manager#regex, aka for: youtube, spotify, soundcloud, deezer, mp3 urls of any kind, ... */
     allowedLinksRegexes?: RegExp[];
+    /** @default "players" the default sort type to retrieve the least used node */
+    defaultLeastUsedNodeSortType?: leastUsedNodeSortType;
+    /** @default "memory" the default sort type to retrieve the least load node */
+    defaultLeastLoadNodeSortType?: leastLoadNodeSortType;
     /** If it should forceSearch a link via Manager#searchLink then set this to true! */
     forceSearchLinkQueries?: boolean;
+    /** If it should use the unresolved Data of unresolved Tracks */
+    useUnresolvedData?: boolean;
     /**
      * Function to send data to the websocket.
      * @param id
@@ -267,9 +251,10 @@ export interface ManagerOptions {
      */
     send(id: string, payload: Payload): void;
 }
-
-export declare type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "ytmsearch" | "ytm" | "yt" | "sc" | "am" | "amsearch" | "sp" | "sprec" | "spsuggestion" | "spsearch" | "scsearch" | "ytmsearch" | "dzisrc" | "dzsearch" | "ds" | "dz" | "deezer";
-
+export type leastUsedNodeSortType = "memory" | "calls" | "players";
+export type leastLoadNodeSortType = "cpu" | "memory";
+export type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "ytmsearch" | "ytm" | "yt" | "sc" | "am" | "amsearch" | "sp" | "sprec" | "spsuggestion" | "spsearch" | "scsearch" | "ytmsearch" | "dzisrc" | "dzsearch" | "ds" | "dz" | "deezer" | "ymsearch" | "speak" | "tts";
+export type SourcesRegex = "YoutubeRegex" | "YoutubeMusicRegex" | "SoundCloudRegex" | "SoundCloudMobileRegex" | "DeezerTrackRegex" | "DeezerPageLinkRegex" | "DeezerPlaylistRegex" | "DeezerAlbumRegex" | "AllDeezerRegex" | "SpotifySongRegex" | "SpotifyPlaylistRegex" | "SpotifyArtistRegex" | "SpotifyEpisodeRegex" | "SpotifyShowRegex" | "SpotifyAlbumRegex" | "AllSpotifyRegex" | "mp3Url" | "m3uUrl" | "m3u8Url" | "mp4Url" | "m4aUrl" | "wavUrl" | "tiktok" | "mixcloud" | "musicYandex" | "radiohost" | "bandcamp" | "appleMusic" | "TwitchTv" | "vimeo";
 export interface SearchQuery {
     /** The source to search from. */
     source?: SearchPlatform | string;

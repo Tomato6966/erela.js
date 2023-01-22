@@ -15,6 +15,7 @@ export declare class Node {
     /** The stats for the node. */
     stats: NodeStats;
     manager: Manager;
+    regions: string[];
     private static _manager;
     private reconnectTimeout?;
     private reconnectAttempts;
@@ -59,7 +60,7 @@ export declare class Node {
     protected socketClosed(player: Player, payload: WebSocketClosedEvent): void;
 }
 /** Modifies any outgoing REST requests. */
-export declare type ModifyRequest = (options: Dispatcher.RequestOptions) => void;
+export type ModifyRequest = (options: Dispatcher.RequestOptions) => void;
 export interface NodeOptions {
     /** The host for the node. */
     host: string;
@@ -77,10 +78,10 @@ export interface NodeOptions {
     retryDelay?: number;
     /** The timeout used for api calls */
     requestTimeout?: number;
-    /** Regions for region sort */
-    regions?: string[];
     /** Options for the undici http pool used for http requests */
     poolOptions?: Pool.Options;
+    /** Regions for region sort */
+    regions?: string[];
 }
 export interface NodeStats {
     /** The amount of players on the node. */

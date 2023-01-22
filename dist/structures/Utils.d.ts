@@ -35,7 +35,7 @@ export declare abstract class TrackUtils {
      * @param requester
      */
     static buildUnresolved(query: string | UnresolvedQuery, requester?: unknown): UnresolvedTrack;
-    static getClosestTrack(unresolvedTrack: UnresolvedTrack, searchNode?: Node): Promise<Track>;
+    static getClosestTrack(unresolvedTrack: UnresolvedTrack, customNode?: Node): Promise<Track>;
 }
 /** Gets or extends structures to extend the built in, or already extended, classes to add more functionality. */
 export declare abstract class Structure {
@@ -60,22 +60,16 @@ export interface UnresolvedQuery {
     title: string;
     /** The author of the unresolved track. If provided it will have a more precise search. */
     author?: string;
-    /** The uri of the unresolved track. If provided it will have a more precise search. */
-    uri?: string;
     /** The duration of the unresolved track. If provided it will have a more precise search. */
     duration?: number;
-    /** Thumbnail of the track */
-    thumbnail?: string;
-    /** Identifier of the track */
-    identifier?: string;
 }
-export declare type Sizes = "0" | "1" | "2" | "3" | "default" | "mqdefault" | "hqdefault" | "maxresdefault";
-export declare type LoadType = "TRACK_LOADED" | "PLAYLIST_LOADED" | "SEARCH_RESULT" | "LOAD_FAILED" | "NO_MATCHES";
-export declare type State = "CONNECTED" | "CONNECTING" | "DISCONNECTED" | "DISCONNECTING" | "DESTROYING";
-export declare type PlayerEvents = TrackStartEvent | TrackEndEvent | TrackStuckEvent | TrackExceptionEvent | WebSocketClosedEvent;
-export declare type PlayerEventType = "TrackStartEvent" | "TrackEndEvent" | "TrackExceptionEvent" | "TrackStuckEvent" | "WebSocketClosedEvent";
-export declare type TrackEndReason = "FINISHED" | "LOAD_FAILED" | "STOPPED" | "REPLACED" | "CLEANUP";
-export declare type Severity = "COMMON" | "SUSPICIOUS" | "FAULT";
+export type Sizes = "0" | "1" | "2" | "3" | "default" | "mqdefault" | "hqdefault" | "maxresdefault";
+export type LoadType = "TRACK_LOADED" | "PLAYLIST_LOADED" | "SEARCH_RESULT" | "LOAD_FAILED" | "NO_MATCHES";
+export type State = "CONNECTED" | "CONNECTING" | "DISCONNECTED" | "DISCONNECTING" | "DESTROYING";
+export type PlayerEvents = TrackStartEvent | TrackEndEvent | TrackStuckEvent | TrackExceptionEvent | WebSocketClosedEvent;
+export type PlayerEventType = "TrackStartEvent" | "TrackEndEvent" | "TrackExceptionEvent" | "TrackStuckEvent" | "WebSocketClosedEvent";
+export type TrackEndReason = "FINISHED" | "LOAD_FAILED" | "STOPPED" | "REPLACED" | "CLEANUP";
+export type Severity = "COMMON" | "SUSPICIOUS" | "FAULT";
 export interface TrackData {
     track: string;
     info: TrackDataInfo;
@@ -88,6 +82,12 @@ export interface TrackDataInfo {
     isSeekable: boolean;
     isStream: boolean;
     uri: string;
+    /** Only via my deezer package */
+    md5_image?: string;
+    /** Only via my deezer package */
+    thumbnail?: string;
+    /** Only via my deezer package */
+    image?: string;
 }
 export interface Extendable {
     Player: typeof Player;

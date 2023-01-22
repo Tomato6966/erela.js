@@ -24,55 +24,31 @@ const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
 function check(options: ManagerOptions) {
   if (!options) throw new TypeError("ManagerOptions must not be empty.");
 
-  if (typeof options.send !== "function")
+  if (typeof options.send !== "function") 
     throw new TypeError('Manager option "send" must be present and a function.');
 
-  if (
-    typeof options.clientId !== "undefined" &&
-    !/^\d+$/.test(options.clientId)
-  )
+  if (typeof options.clientId !== "undefined" && !/^\d+$/.test(options.clientId))
     throw new TypeError('Manager option "clientId" must be a non-empty string.');
 
-  if (
-    typeof options.nodes !== "undefined" &&
-    !Array.isArray(options.nodes)
-  )
+  if (typeof options.nodes !== "undefined" && !Array.isArray(options.nodes))
     throw new TypeError('Manager option "nodes" must be a array.');
 
-  if (
-    typeof options.shards !== "undefined" &&
-    typeof options.shards !== "number"
-  )
+  if (typeof options.shards !== "undefined" && typeof options.shards !== "number")
     throw new TypeError('Manager option "shards" must be a number.');
 
-  if (
-    typeof options.plugins !== "undefined" &&
-    !Array.isArray(options.plugins)
-  )
+  if (typeof options.plugins !== "undefined" && !Array.isArray(options.plugins))
     throw new TypeError('Manager option "plugins" must be a Plugin array.');
 
-  if (
-    typeof options.autoPlay !== "undefined" &&
-    typeof options.autoPlay !== "boolean"
-  )
+  if (typeof options.autoPlay !== "undefined" &&typeof options.autoPlay !== "boolean")
     throw new TypeError('Manager option "autoPlay" must be a boolean.');
 
-  if (
-    typeof options.trackPartial !== "undefined" &&
-    !Array.isArray(options.trackPartial)
-  )
+  if (typeof options.trackPartial !== "undefined" && !Array.isArray(options.trackPartial))
     throw new TypeError('Manager option "trackPartial" must be a string array.');
 
-  if (
-    typeof options.clientName !== "undefined" &&
-    typeof options.clientName !== "string"
-  )
+  if (typeof options.clientName !== "undefined" && typeof options.clientName !== "string")
     throw new TypeError('Manager option "clientName" must be a string.');
   
-  if (
-    typeof options.defaultSearchPlatform !== "undefined" &&
-    typeof options.defaultSearchPlatform !== "string"
-  )
+  if (typeof options.defaultSearchPlatform !== "undefined" && typeof options.defaultSearchPlatform !== "string")
     throw new TypeError('Manager option "defaultSearchPlatform" must be a string.');
 }
 
@@ -247,8 +223,11 @@ export class Manager extends EventEmitter {
     "ds": "dzsearch",
     "dzsearch": "dzsearch",
     "dzisrc": "dzisrc",
+    // yandexmusic
     "ymsearch": "ymsearch",
-    "speak": "speak"
+    // speak
+    "speak": "speak",
+    "tts": "tts",
   }
   public static readonly regex: Record<SourcesRegex, RegExp> = {
     YoutubeRegex: /https?:\/\/?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
@@ -294,15 +273,16 @@ export class Manager extends EventEmitter {
   public readonly nodes = new Collection<string, Node>();
   /** The options that were set. */
   public readonly options: ManagerOptions;
-  private initiated = false;
+  /** If the Manager got initiated */
+  public initiated = false;
 
 
 
   /** Returns the least used Nodes. */
   public get leastUsedNodes(): Collection<string, Node> {
-    if(this.options.defaultLeastUsedNodeSortType === "memory") return this.leastUsedNodesMemory();
-    else if(this.options.defaultLeastUsedNodeSortType === "calls")  return this.leastUsedNodesCalls();
-    else return this.leastUsedNodesPlayers(); // this.options.defaultLeastUsedNodeSortType === "players"
+    if(this.options.defaultLeastUsedNodeSortType === "memory") return this.leastUsedNodesMemory;
+    else if(this.options.defaultLeastUsedNodeSortType === "calls")  return this.leastUsedNodesCalls;
+    else return this.leastUsedNodesPlayers; // this.options.defaultLeastUsedNodeSortType === "players"
   }
   /** Returns the least used Nodes sorted by amount of calls. */
   public get leastUsedNodesCalls(): Collection<string, Node> {
@@ -325,8 +305,8 @@ export class Manager extends EventEmitter {
 
   /** Returns the least system load Nodes. */
   public get leastLoadNodes(): Collection<string, Node> {
-    if(this.options.defaultLeastLoadNodeSortType === "cpu") return this.leastLoadNodesCpu();
-    else return this.leastLoadNodesMemory(); // this.options.defaultLeastLoadNodeSortType === "memory"
+    if(this.options.defaultLeastLoadNodeSortType === "cpu") return this.leastLoadNodesCpu;
+    else return this.leastLoadNodesMemory; // this.options.defaultLeastLoadNodeSortType === "memory"
   }
 
 
@@ -419,15 +399,16 @@ export class Manager extends EventEmitter {
 
   /**
    * Initiates the Manager.
-   * @param {string} clientId
+   * @param {string} clientID
    * @param {{ clientId?: string, clientName?: string, shards?: number }} objectClientData 
    */
-  public init(clientId?: string, { clientId, clientName, shards }: { clientId?: string, clientName?: string, shards?: number } = {}): this {
+  public init(clientID?: string, objectClientData: { clientId?: string, clientName?: string, shards?: number } = {}): this {
+    const { clientId, clientName, shards } = objectClientData;
     if (this.initiated) return this;
     if (typeof clientId !== "undefined") this.options.clientId = clientId;
-    if (typeof clientIdString !== "undefined") this.options.clientId = clientIdString;
+    if (typeof clientID !== "undefined") this.options.clientId = clientID;
     if (typeof clientId !== "undefined") this.options.clientId = clientId;
-    if (typeof clientName !== "undefined") this.options.clientName = clientName || `Unknown Name - ${clientId||clientIdString}`;
+    if (typeof clientName !== "undefined") this.options.clientName = clientName || `Unknown Name - ${clientId||clientID}`;
     if (typeof shards !== "undefined") this.options.shards = shards;
     
     if (typeof this.options.clientId !== "string") throw new Error('"clientId" set is not type of "string"');
@@ -471,14 +452,14 @@ export class Manager extends EventEmitter {
       _query.query = _query?.query?.trim?.();
 
       const link = this.getValidUrlOfQuery(_query.query);
-      if(this.options.allowedLinksRegexes.length || this.options.allowedLinks.length) {
-          if(link && !this.options.allowedLinksRegexes.some(regex => regex.test(link)) && !this.options.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
+      if(this.options.allowedLinksRegexes?.length || this.options.allowedLinks?.length) {
+          if(link && !this.options.allowedLinksRegexes?.some(regex => regex.test(link)) && !this.options.allowedLinks?.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
       }
       if(link && this.options.forceSearchLinkQueries) return this.searchLink(link, requester, customNode);
 
       
-      // only set the source, if it's not a link
-      const search = !/^https?:\/\//.test(search) ? `${_source}:${_query.query}` : `${_query.query}`;
+      // only set the source, if it's not a link 
+      const search = `${!/^https?:\/\//.test(_query.query) ? `${_source}:` : ""}${_query.query}`;
       
       const res = await node
         .makeRequest<LavalinkResult>(`/loadtracks?identifier=${encodeURIComponent(search)}`)
@@ -525,17 +506,19 @@ export class Manager extends EventEmitter {
     return new Promise(async (resolve, reject) => {
       const node = customNode || this.leastUsedNodes.first();
       if (!node) throw new Error("No available nodes.");
-      if (!node)
+
       const _query = typeof query === "string" ? { query } : query;
       _query.query = _query?.query?.trim?.();
+
       const link = this.getValidUrlOfQuery(_query.query);
       if(!link) return this.search(query, requester, customNode);
 
-      if(this.options.allowedLinksRegexes.length || this.options.allowedLinks.length) {
-          if(link && !this.options.allowedLinksRegexes.some(regex => regex.test(link)) && !this.allowedLinks.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
+      if(this.options.allowedLinksRegexes?.length || this.options.allowedLinks?.length) {
+          if(link && !this.options.allowedLinksRegexes?.some(regex => regex.test(link)) && !this.options.allowedLinks?.includes(link)) throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
       }
+      
       const res = await node
-          .makeRequest<LavalinkResult>(`/loadtracks?identifier=${encodeURIComponent(search)}`)
+          .makeRequest<LavalinkResult>(`/loadtracks?identifier=${encodeURIComponent(_query.query)}`)
           .catch(err => reject(err));
 
       if (!res) return reject(new Error("Query not found."));
@@ -745,7 +728,7 @@ export interface ManagerOptions {
 export type leastUsedNodeSortType = "memory" | "calls" | "players";
 export type leastLoadNodeSortType = "cpu" | "memory";
 
-export type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "ytmsearch" | "ytm" | "yt" | "sc" | "am" | "amsearch" | "sp" | "sprec" | "spsuggestion" | "spsearch" | "scsearch" | "ytmsearch" | "dzisrc" | "dzsearch" | "ds" | "dz" | "deezer" | "ymsearch" | "speak";
+export type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "ytmsearch" | "ytm" | "yt" | "sc" | "am" | "amsearch" | "sp" | "sprec" | "spsuggestion" | "spsearch" | "scsearch" | "ytmsearch" | "dzisrc" | "dzsearch" | "ds" | "dz" | "deezer" | "ymsearch" | "speak" | "tts";
 
 export type SourcesRegex = "YoutubeRegex" | "YoutubeMusicRegex" | "SoundCloudRegex" | "SoundCloudMobileRegex" | "DeezerTrackRegex" | "DeezerPageLinkRegex" | "DeezerPlaylistRegex" | "DeezerAlbumRegex" | "AllDeezerRegex" | "SpotifySongRegex" | "SpotifyPlaylistRegex" | "SpotifyArtistRegex" | "SpotifyEpisodeRegex" | "SpotifyShowRegex" | "SpotifyAlbumRegex" | "AllSpotifyRegex" | "mp3Url" | "m3uUrl" | "m3u8Url" | "mp4Url" | "m4aUrl" | "wavUrl" | "tiktok" | "mixcloud" | "musicYandex" | "radiohost" | "bandcamp" | "appleMusic" | "TwitchTv" | "vimeo"
 

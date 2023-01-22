@@ -1,23 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Queue = void 0;
-const Utils = require("./Utils");
+const Utils_1 = require("./Utils");
 /**
  * The player's queue, the `current` property is the currently playing track, think of the rest as the up-coming tracks.
  * @noInheritDoc
  */
 class Queue extends Array {
-    constructor() {
-        super(...arguments);
-        /** The current track */
-        this.current = null;
-        /** The previous track */
-        this.previous = null;
-    }
     /** The total duration of the queue. */
     get duration() {
-        var _a, _b;
-        const current = (_b = (_a = this.current) === null || _a === void 0 ? void 0 : _a.duration) !== null && _b !== void 0 ? _b : 0;
+        const current = this.current?.duration ?? 0;
         return this
             .reduce((acc, cur) => acc + (cur.duration || 0), current);
     }
@@ -29,13 +21,17 @@ class Queue extends Array {
     get size() {
         return this.length;
     }
+    /** The current track */
+    current = null;
+    /** The previous track */
+    previous = null;
     /**
      * Adds a track to the queue.
      * @param track
      * @param [offset=null]
      */
     add(track, offset) {
-        if (!Utils.TrackUtils.validate(track)) {
+        if (!Utils_1.TrackUtils.validate(track)) {
             throw new RangeError('Track must be a "Track" or "Track[]".');
         }
         if (!this.current) {

@@ -189,7 +189,7 @@ export abstract class TrackUtils {
       if(valids.some(x => str.includes(x.toLowerCase()))) return true;
       return false
     }
-    const res = isvalidUri(unresolvedTrack.uri) ? yield TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+    const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
 
     if (res.loadType !== "SEARCH_RESULT") throw res.exception ?? {
       message: "No tracks found.",
@@ -208,21 +208,21 @@ export abstract class TrackUtils {
 
       if (originalAudio) {
         originalAudio.uri = unresolvedTrack.uri;
-        if(TrackUtils.manager.options.useUnresolvedData) {
+        if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if(unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
             if(unresolvedTrack.title?.length) originalAudio.title = unresolvedTrack.title;
             if(unresolvedTrack.author?.length) originalAudio.author = unresolvedTrack.author;
-            for(const key of Object.keys(unresolvedTrack)) if(!originalAudio[key]) originalAudio[key] = unresolvedTrack[key];
-        } else {
+        } else { // only overwrite if undefined / invalid
             if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
             if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
             if(originalAudio.thumbnail != unresolvedTrack.thumbnail) originalAudio.thumbnail = unresolvedTrack.thumbnail;    
         }
+        for(const key of Object.keys(unresolvedTrack)) if(!originalAudio[key]) originalAudio[key] = unresolvedTrack[key]; // add non-existing values
         return originalAudio;
       }
     }
 
-    if (unresolvedTrack.duration) {
+    if (unresolvedTrack.duration) { 
       const sameDuration = res.tracks.find(track =>
         (track.duration >= (unresolvedTrack.duration - 1500)) &&
         (track.duration <= (unresolvedTrack.duration + 1500))
@@ -230,34 +230,30 @@ export abstract class TrackUtils {
 
       if (sameDuration) {
         sameDuration.uri = unresolvedTrack.uri;
-        if(TrackUtils.manager.options.useUnresolvedData) {
+        if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if(unresolvedTrack.thumbnail?.length) sameDuration.thumbnail = unresolvedTrack.thumbnail;
             if(unresolvedTrack.title?.length) sameDuration.title = unresolvedTrack.title;
             if(unresolvedTrack.author?.length) sameDuration.author = unresolvedTrack.author;
-            if(unresolvedTrack.authorUri?.length) sameDuration.authorUri = unresolvedTrack.authorUri;
-            if(unresolvedTrack.authorImage?.length) sameDuration.authorImage = unresolvedTrack.authorImage;
-            for(const key of Object.keys(unresolvedTrack)) if(!sameDuration[key]) sameDuration[key] = unresolvedTrack[key];
-        } else {
+        } else { // only overwrite if undefined / invalid
             if((sameDuration.title == 'Unknown title' || sameDuration.title == "Unspecified description") && sameDuration.title != unresolvedTrack.title) sameDuration.title = unresolvedTrack.title;
             if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
             if(sameDuration.thumbnail != unresolvedTrack.thumbnail) sameDuration.thumbnail = unresolvedTrack.thumbnail;
         }
+        for(const key of Object.keys(unresolvedTrack)) if(!sameDuration[key]) sameDuration[key] = unresolvedTrack[key]; // add non-existing values
         return sameDuration;
       }
     }
     res.tracks[0].uri = unresolvedTrack.uri;
-    if(TrackUtils.manager.options.useUnresolvedData) {
+    if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
         if(unresolvedTrack.thumbnail?.length) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
         if(unresolvedTrack.title?.length) res.tracks[0].title = unresolvedTrack.title;
         if(unresolvedTrack.author?.length) res.tracks[0].author = unresolvedTrack.author;
-        if(unresolvedTrack.authorUri?.length) res.tracks[0].authorUri = unresolvedTrack.authorUri;
-        if(unresolvedTrack.authorImage?.length) res.tracks[0].authorImage = unresolvedTrack.authorImage;
-        for(const key of Object.keys(unresolvedTrack)) if(!res.tracks[0][key]) res.tracks[0][key] = unresolvedTrack[key];
-    } else {
+    } else { // only overwrite if undefined / invalid
         if((res.tracks[0].title == 'Unknown title' || res.tracks[0].title == "Unspecified description") && unresolvedTrack.title != res.tracks[0].title) res.tracks[0].title = unresolvedTrack.title;
         if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
         if(unresolvedTrack.thumbnail != res.tracks[0].thumbnail) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
     }
+    for(const key of Object.keys(unresolvedTrack)) if(!res.tracks[0][key]) res.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
     return res.tracks[0];
   }
 }
@@ -297,9 +293,9 @@ export class Plugin {
 }
 
 const structures = {
-  Player: require("./Player").Player,
-  Queue: require("./Queue").Queue,
-  Node: require("./Node").Node,
+  Player: Player,
+  Queue: Queue,
+  Node: Node,
 };
 
 export interface UnresolvedQuery {
@@ -371,6 +367,12 @@ export interface TrackDataInfo {
   isSeekable: boolean;
   isStream: boolean;
   uri: string;
+  /** Only via my deezer package */
+  md5_image?: string;
+  /** Only via my deezer package */
+  thumbnail?: string;
+  /** Only via my deezer package */
+  image?: string;
 }
 
 export interface Extendable {
