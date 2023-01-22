@@ -660,8 +660,10 @@ export class Manager extends EventEmitter {
 
     if ("token" in update) {
       player.voiceState.event = update;
-      if(!player.node.sessionId) return;
-      
+      if (!player.node.sessionId) {
+        if (REQUIRED_KEYS.every(key => key in player.voiceState)) await player.node.send(player.voiceState);
+        return;
+      }
       await player.node.updatePlayer({
         guildId: player.guild,
         playerOptions: {

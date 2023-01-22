@@ -452,8 +452,11 @@ class Manager extends node_events_1.EventEmitter {
             return;
         if ("token" in update) {
             player.voiceState.event = update;
-            if (!player.node.sessionId)
+            if (!player.node.sessionId) {
+                if (REQUIRED_KEYS.every(key => key in player.voiceState))
+                    await player.node.send(player.voiceState);
                 return;
+            }
             await player.node.updatePlayer({
                 guildId: player.guild,
                 playerOptions: {

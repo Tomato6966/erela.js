@@ -87,9 +87,9 @@ class Node {
             return this.manager.nodes.get(options.identifier || options.host);
         }
         check(options);
-        if (this.options.version)
+        if (typeof this.options.version === "string")
             this.version = this.options.version;
-        if (this.options.useVersionPath)
+        if (typeof this.options.useVersionPath === "boolean")
             this.useVersionPath = this.options.useVersionPath;
         this.options = {
             port: 2333,
@@ -396,7 +396,6 @@ class Node {
                 break;
             case "ready": // payload: { resumed: false, sessionId: 'ytva350aevn6n9n8', op: 'ready' }
                 this.sessionId = payload.sessionId;
-                console.log("set session id to:", this.sessionId);
                 // this.state = "CONNECTED";
                 break;
             default:
