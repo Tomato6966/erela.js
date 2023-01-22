@@ -57,7 +57,7 @@ class Node {
         this._manager = manager;
     }
     get poolAddress() {
-        return `http${this.options.secure ? "s" : ""}://${this.address}/v4`;
+        return `http${this.options.secure ? "s" : ""}://${this.address}`;
     }
     /**
      * Creates an instance of Node.
@@ -84,7 +84,7 @@ class Node {
         if (this.options.secure) {
             this.options.port = 443;
         }
-        this.http = new undici_1.Pool(this.address, this.options.poolOptions);
+        this.http = new undici_1.Pool(this.poolAddress, this.options.poolOptions);
         this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
         this.options.identifier = options.identifier || options.host;
         this.stats = {
@@ -133,7 +133,7 @@ class Node {
             r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
             r.body = JSON.stringify(data.playerOptions);
             if (data.noReplace) {
-                const url = new URL(`${this.poolAddress}/sessions/${this.sessionId}/players/${data.guildId}`);
+                const url = new URL(`${this.poolAddress}${r.path}`);
                 url.search = new URLSearchParams({ noReplace: data.noReplace?.toString() || 'false' }).toString();
                 r.path = url.toString().replace(this.poolAddress, "");
             }
@@ -222,7 +222,7 @@ class Node {
      */
     async makeRequest(endpoint, modify) {
         const options = {
-            path: `/${endpoint.replace(/^\//gm, "")}`,
+            path: `/v4/${endpoint.replace(/^\//gm, "")}`,
             method: "GET",
             headers: {
                 Authorization: this.options.password
