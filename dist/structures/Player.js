@@ -522,7 +522,7 @@ class Player {
         this.node.updatePlayer({
             guildId: this.guild,
             playerOptions: {
-                filters: { volume: this.volume }
+                volume: this.volume
             }
         });
         return this;
