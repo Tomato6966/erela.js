@@ -214,6 +214,7 @@ class Manager extends node_events_1.EventEmitter {
             restTimeout: 5000,
             ...options,
             allowedLinksRegexes: [...Object.values(Manager.regex)],
+            onlyAllowAllowedLinks: true,
             defaultLeastLoadNodeSortType: "memory",
             defaultLeastUsedNodeSortType: "players",
             forceSearchLinkQueries: true,

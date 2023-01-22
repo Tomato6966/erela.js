@@ -712,19 +712,22 @@ export class Player {
     if (isNaN(volume)) throw new TypeError("Volume must be a number.");
     this.volume = Math.max(Math.min(volume, 500), 0);
     
+    let vol = this.volume;
+    if(this.manager.options.volumeDecrementer) vol *= this.manager.options.volumeDecrementer;
+
     const now = Date.now();
     if(!this.node.sessionId) {
       console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
       await this.node.send({
         op: "volume",
         guildId: this.guild,
-        volume: this.volume,
+        volume: vol,
       });
     } else {
       await this.node.updatePlayer({
         guildId: this.guild,
         playerOptions: {
-          volume: this.volume
+          volume: vol
         }
       });
     }

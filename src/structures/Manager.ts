@@ -388,6 +388,7 @@ export class Manager extends EventEmitter {
       restTimeout: 5000,
       ...options,
       allowedLinksRegexes: [...Object.values(Manager.regex)],
+      onlyAllowAllowedLinks: true,
       defaultLeastLoadNodeSortType: "memory",
       defaultLeastUsedNodeSortType: "players",
       forceSearchLinkQueries: true,
@@ -737,6 +738,8 @@ export interface ManagerOptions {
   allowedLinks?: String[];
   /** RegExpressions for all Valid Links, default allowed ones are gotten from Manager#regex, aka for: youtube, spotify, soundcloud, deezer, mp3 urls of any kind, ... */
   allowedLinksRegexes?: RegExp[];
+  /** If it should only allow setupped Links */
+  onlyAllowAllowedLinks?: boolean;
   /** @default "players" the default sort type to retrieve the least used node */
   defaultLeastUsedNodeSortType?: leastUsedNodeSortType;
   /** @default "memory" the default sort type to retrieve the least load node */
