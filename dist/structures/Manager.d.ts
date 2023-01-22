@@ -195,7 +195,7 @@ export declare class Manager extends EventEmitter {
      * Sends voice data to the Lavalink server.
      * @param data
      */
-    updateVoiceState(data: VoicePacket | VoiceServer | VoiceState): void;
+    updateVoiceState(data: VoicePacket | VoiceServer | VoiceState): Promise<void>;
 }
 export interface Payload {
     /** The OP code */

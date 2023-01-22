@@ -649,7 +649,7 @@ export class Manager extends EventEmitter {
    * Sends voice data to the Lavalink server.
    * @param data
    */
-  public updateVoiceState(data: VoicePacket | VoiceServer | VoiceState): void {
+  public async updateVoiceState(data: VoicePacket | VoiceServer | VoiceState): Promise<void> {
     if ("t" in data && !["VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"].includes(data.t)) return;
 
     const update: VoiceServer | VoiceState = "d" in data ? data.d : data;
@@ -660,7 +660,9 @@ export class Manager extends EventEmitter {
 
     if ("token" in update) {
       player.voiceState.event = update;
-      player.node.updatePlayer({
+      if(!player.node.sessionId) return;
+      
+      await player.node.updatePlayer({
         guildId: player.guild,
         playerOptions: {
           voice: {
@@ -670,25 +672,26 @@ export class Manager extends EventEmitter {
           }
         }
       });
-    } else {
-      /* voice state update */
-      if (update.user_id !== this.options.clientId) return;      
-      
-      if (update.channel_id) {
-        if (player.voiceChannel !== update.channel_id) {
-          this.emit("playerMove", player, player.voiceChannel, update.channel_id);
-        }
-        player.voiceState.sessionId = update.session_id;
-        player.voiceChannel = update.channel_id;
-      } else {
-        this.emit("playerDisconnect", player, player.voiceChannel);
-        player.voiceChannel = null;
-        player.voiceState = Object.assign({});
-        player.pause(true);
-      }
-      if (REQUIRED_KEYS.every(key => key in player.voiceState)) player.node.send(player.voiceState);
-      else console.log("NO VOICE STATE UPDATE")
+      return;
     }
+    /* voice state update */
+    if (update.user_id !== this.options.clientId) return;      
+    
+    if (update.channel_id) {
+      if (player.voiceChannel !== update.channel_id) {
+        this.emit("playerMove", player, player.voiceChannel, update.channel_id);
+      }
+      player.voiceState.sessionId = update.session_id;
+      player.voiceChannel = update.channel_id;
+    } else {
+      this.emit("playerDisconnect", player, player.voiceChannel);
+      player.voiceChannel = null;
+      player.voiceState = Object.assign({});
+      await player.pause(true);
+    }
+
+    if (REQUIRED_KEYS.every(key => key in player.voiceState)) await player.node.send(player.voiceState);
+    return;
   }
 }
 
