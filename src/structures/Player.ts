@@ -249,7 +249,8 @@ export class Player {
 
     if (options.voiceChannel) this.voiceChannel = options.voiceChannel;
     if (options.textChannel) this.textChannel = options.textChannel;
-
+    if(typeof options.instaUpdateFiltersFix === "undefined") this.options.instaUpdateFiltersFix = true;
+    
     if(!this.manager.leastUsedNodes?.size) {
       if(this.manager.initiated) this.manager.initiated = false; 
       this.manager.init(this.manager.options?.clientId);

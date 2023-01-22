@@ -316,6 +316,20 @@ class Node {
                     let interValSelfCounter = (player.get("position_update_interval") || 250);
                     if (interValSelfCounter < 25)
                         interValSelfCounter = 25;
+                    if (player.filterUpdated >= 1) {
+                        player.filterUpdated++;
+                        const maxMins = 8;
+                        const currentDuration = player?.queue?.current?.duration || 0;
+                        if (currentDuration <= maxMins * 60000) {
+                            if (player.filterUpdated >= 3) {
+                                player.filterUpdated = 0;
+                                player.seek(player.position);
+                            }
+                        }
+                        else {
+                            player.filterUpdated = 0;
+                        }
+                    }
                     player.set("updateInterval", setInterval(() => {
                         player.position += interValSelfCounter;
                         player.set("lastposition", player.position);
