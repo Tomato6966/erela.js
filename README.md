@@ -1,5 +1,5 @@
 **NEW** - REST SUPPORT!
--> Up to date with latest Lavalink's Version!
+-> Up to date with latest Lavalink's Version! (Note: It also works with old versions!)
 -> Docs soon
 -> Resume-Key soon
 
