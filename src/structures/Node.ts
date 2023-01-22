@@ -109,7 +109,6 @@ export class Node {
     if (this.options.secure) {
       this.options.port = 443;
     }
-    console.log(this.poolAddress);
     this.http = new Pool(this.poolAddress, this.options.poolOptions);
     this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
         
