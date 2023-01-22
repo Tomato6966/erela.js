@@ -351,11 +351,11 @@ class Player {
         if (this.filters.audioOutput === "stereo")
             delete sendData.channelMix;
         const now = Date.now();
-        await this.node.send({
-            op: "filters",
+        await this.node.updatePlayer({
             guildId: this.guild,
-            equalizer: this.bands.map((gain, band) => ({ band, gain })),
-            ...sendData
+            playerOptions: {
+                filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })), ...sendData },
+            }
         });
         this.ping = Date.now() - now;
         if (this.options.instaUpdateFiltersFix === true)
@@ -374,7 +374,7 @@ class Player {
      * Sets the players equalizer band on-top of the existing ones.
      * @param bands
      */
-    setEQ(...bands) {
+    async setEQ(...bands) {
         // Hacky support for providing an array
         if (Array.isArray(bands[0]))
             bands = bands[0];
@@ -382,20 +382,22 @@ class Player {
             throw new TypeError("Bands must be a non-empty object array containing 'band' and 'gain' properties.");
         for (const { band, gain } of bands)
             this.bands[band] = gain;
-        this.node.send({
-            op: "equalizer",
+        await this.node.updatePlayer({
             guildId: this.guild,
-            bands: this.bands.map((gain, band) => ({ band, gain })),
+            playerOptions: {
+                filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
+            }
         });
         return this;
     }
     /** Clears the equalizer bands. */
-    clearEQ() {
+    async clearEQ() {
         this.bands = new Array(15).fill(0.0);
-        this.node.send({
-            op: "equalizer",
+        await this.node.updatePlayer({
             guildId: this.guild,
-            bands: this.bands.map((gain, band) => ({ band, gain })),
+            playerOptions: {
+                filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
+            }
         });
         return this;
     }
@@ -436,15 +438,12 @@ class Player {
         return this;
     }
     /** Destroys the player. */
-    destroy(disconnect = true) {
+    async destroy(disconnect = true) {
         this.state = "DESTROYING";
         if (disconnect) {
             this.disconnect();
         }
-        this.node.send({
-            op: "destroy",
-            guildId: this.guild,
-        });
+        await this.node.destroyPlayer(this.guild);
         this.manager.emit("playerDestroy", this);
         this.manager.players.delete(this.guild);
     }
@@ -495,15 +494,21 @@ class Player {
             }
         }
         const options = {
-            op: "play",
             guildId: this.guild,
-            track: this.queue.current.track,
+            encodedTrack: this.queue.current.track,
             ...finalOptions,
         };
-        if (typeof options.track !== "string") {
-            options.track = options.track.track;
+        if (typeof options.encodedTrack !== "string") {
+            options.encodedTrack = options.encodedTrack.track;
         }
-        await this.node.send(options);
+        const now = Date.now();
+        await this.node.updatePlayer({
+            guildId: this.guild,
+            noReplace: finalOptions.noReplace ?? false,
+            playerOptions: options,
+        });
+        this.ping = Date.now() - now;
+        return;
     }
     /**
      * Sets the player volume.
@@ -514,10 +519,11 @@ class Player {
         if (isNaN(volume))
             throw new TypeError("Volume must be a number.");
         this.volume = Math.max(Math.min(volume, 1000), 0);
-        this.node.send({
-            op: "volume",
+        this.node.updatePlayer({
             guildId: this.guild,
-            volume: this.volume,
+            playerOptions: {
+                filters: { volume: this.volume }
+            }
         });
         return this;
     }
@@ -556,42 +562,45 @@ class Player {
         return this;
     }
     /** Stops the current track, optionally give an amount to skip to, e.g 5 would play the 5th song. */
-    stop(amount) {
+    async stop(amount) {
         if (typeof amount === "number" && amount > 1) {
             if (amount > this.queue.length)
                 throw new RangeError("Cannot skip more than the queue length.");
             this.queue.splice(0, amount - 1);
         }
-        this.node.send({
-            op: "stop",
+        const now = Date.now();
+        await this.node.updatePlayer({
             guildId: this.guild,
+            playerOptions: { encodedTrack: null }
         });
+        this.ping = Date.now() - now;
         return this;
     }
     /**
      * Pauses the current track.
      * @param pause
      */
-    pause(pause) {
-        if (typeof pause !== "boolean")
+    async pause(paused) {
+        if (typeof paused !== "boolean")
             throw new RangeError('Pause can only be "true" or "false".');
         // If already paused or the queue is empty do nothing https://github.com/MenuDocs/erela.js/issues/58
-        if (this.paused === pause || !this.queue.totalSize)
+        if (this.paused === paused || !this.queue.totalSize)
             return this;
-        this.playing = !pause;
-        this.paused = pause;
-        this.node.send({
-            op: "pause",
+        this.playing = !paused;
+        this.paused = paused;
+        const now = Date.now();
+        await this.node.updatePlayer({
             guildId: this.guild,
-            pause,
+            playerOptions: { paused },
         });
+        this.ping = Date.now() - now;
         return this;
     }
     /**
      * Seeks to the position in the current track.
      * @param position
      */
-    seek(position) {
+    async seek(position) {
         if (!this.queue.current)
             return undefined;
         position = Number(position);
@@ -601,11 +610,12 @@ class Player {
         if (position < 0 || position > this.queue.current.duration)
             position = Math.max(Math.min(position, this.queue.current.duration), 0);
         this.position = position;
-        this.node.send({
-            op: "seek",
+        const now = Date.now();
+        await this.node.updatePlayer({
             guildId: this.guild,
-            position,
+            playerOptions: { position }
         });
+        this.ping = Date.now() - now;
         return this;
     }
 }

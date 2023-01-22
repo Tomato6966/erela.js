@@ -354,8 +354,96 @@ export type TrackEndReason =
 
 export type Severity = "COMMON" | "SUSPICIOUS" | "FAULT";
 
+export interface LavalinkPlayerVoice {
+  token: string;
+  endpoint: string;
+  sessionId: string;
+  connected?: boolean;
+  ping?: number
+}
+
+export interface LavalinkPlayerVoiceOptions extends Omit<LavalinkPlayerVoice, 'connected'|'ping'> {}
+
+export interface PlayerUpdateOptions {
+  encodedTrack?: string|null;
+  identifier?: string;
+  position?: number;
+  endTime?: number;
+  volume?: number;
+  paused?: boolean;
+  filters?: any;
+  voice?: LavalinkPlayerVoiceOptions;
+}
+
+export interface PlayerUpdateInfo {
+  guildId: string;
+  playerOptions: PlayerUpdateOptions;
+  noReplace?: boolean;
+}
+export interface LavalinkPlayer {
+  guildId: string,
+  track?: Track,
+  volume: number;
+  paused: boolean;
+  voice: LavalinkPlayerVoice
+  filters: any
+}
+
+export interface FetchOptions {
+  endpoint: string;
+  options: {
+      headers?: Record<string, string>;
+      params?: Record<string, string>;
+      method?: string;
+      body?: Record<string, unknown>;
+      [key: string]: unknown;
+  };
+}
+export interface UsedFetchOptions {
+  method: string;
+  headers: Record<string, string>;
+  signal: AbortSignal;
+  body?: string;
+}
+
+export interface Address {
+  address: string;
+  failingTimestamp: number;
+  failingTime: string;
+}
+
+export interface RoutePlanner {
+  class?: string;
+  details?: {
+      ipBlock: {
+          type: string;
+          size: string;
+      },
+      failingAddresses: Address[]
+  }
+  rotateIndex?: string;
+  ipIndex?: string;
+  currentAddress?: string;
+  blockIndex?: string;
+  currentAddressIndex?: string;
+}
+
+export interface Session {
+  resumingKey?: string;
+  timeout: number;
+}
+
+export interface LavalinkPlayerVoice {
+  token: string;
+  endpoint: string;
+  sessionId: string;
+  connected?: boolean;
+  ping?: number
+}
+
 export interface TrackData {
   track: string;
+  encoded: string;
   info: TrackDataInfo;
 }
 
@@ -367,12 +455,14 @@ export interface TrackDataInfo {
   isSeekable: boolean;
   isStream: boolean;
   uri: string;
+  sourceName: string;
   /** Only via my deezer package */
   md5_image?: string;
   /** Only via my deezer package */
   thumbnail?: string;
   /** Only via my deezer package */
   image?: string;
+
 }
 
 export interface Extendable {

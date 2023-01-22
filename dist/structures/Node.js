@@ -37,6 +37,7 @@ class Node {
     /** The stats for the node. */
     stats;
     manager;
+    sessionId = null;
     regions;
     static _manager;
     reconnectTimeout;
@@ -54,6 +55,9 @@ class Node {
     /** @hidden */
     static init(manager) {
         this._manager = manager;
+    }
+    get poolAddress() {
+        return `http${this.options.secure ? "s" : ""}://${this.address}/v4`;
     }
     /**
      * Creates an instance of Node.
@@ -80,7 +84,7 @@ class Node {
         if (this.options.secure) {
             this.options.port = 443;
         }
-        this.http = new undici_1.Pool(`http${this.options.secure ? "s" : ""}://${this.address}`, this.options.poolOptions);
+        this.http = new undici_1.Pool(this.poolAddress, this.options.poolOptions);
         this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
         this.options.identifier = options.identifier || options.host;
         this.stats = {
@@ -107,6 +111,78 @@ class Node {
         this.manager.nodes.set(this.options.identifier, this);
         this.manager.emit("nodeCreate", this);
     }
+    /**
+     * Gets all Players of a Node
+     */
+    async getPlayers() {
+        const players = await this.makeRequest(`/sessions/${this.sessionId}/players`);
+        if (!Array.isArray(players))
+            return [];
+        else
+            return players;
+    }
+    /**
+     * Gets specific Player Information
+     */
+    getPlayer(guildId) {
+        return this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
+    }
+    updatePlayer(data) {
+        return this.makeRequest(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
+            r.method = "PATCH";
+            r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
+            r.body = JSON.stringify(data.playerOptions);
+            if (data.noReplace) {
+                const url = new URL(`${this.poolAddress}/sessions/${this.sessionId}/players/${data.guildId}`);
+                url.search = new URLSearchParams({ noReplace: data.noReplace?.toString() || 'false' }).toString();
+                r.path = url.toString().replace(this.poolAddress, "");
+            }
+        });
+    }
+    /**
+     * Deletes a Lavalink Player (from Lavalink)
+     * @param guildId
+     */
+    async destroyPlayer(guildId) {
+        await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`, r => {
+            r.method = "DELETE";
+        });
+    }
+    /**
+     * Updates the session with a resuming key and timeout
+     * @param resumingKey
+     * @param timeout
+     */
+    updateSession(resumingKey, timeout) {
+        return this.makeRequest(`/sessions/${this.sessionId}`, r => {
+            r.method = "PATCH";
+            r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
+            r.body = JSON.stringify({ resumingKey, timeout });
+        });
+    }
+    /**
+     * Gets the stats of this node
+     */
+    fetchStats() {
+        return this.makeRequest(`/stats`);
+    }
+    /**
+     * Get routplanner Info from Lavalink
+     */
+    getRoutePlannerStatus() {
+        return this.makeRequest(`/routeplanner/status`);
+    }
+    /**
+     * Release blacklisted IP address into pool of IPs
+     * @param address IP address
+     */
+    async unmarkFailedAddress(address) {
+        await this.makeRequest(`/routeplanner/free/address`, r => {
+            r.method = "POST";
+            r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
+            r.body = JSON.stringify({ address });
+        });
+    }
     /** Connects to the Node. */
     connect() {
         if (this.connected)
@@ -117,7 +193,7 @@ class Node {
             "User-Id": this.manager.options.clientId,
             "Client-Name": this.manager.options.clientName,
         };
-        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
+        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}/v4/websocket`, { headers });
         this.socket.on("open", this.open.bind(this));
         this.socket.on("close", this.close.bind(this));
         this.socket.on("message", this.message.bind(this));

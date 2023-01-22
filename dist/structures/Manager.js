@@ -69,13 +69,17 @@ class Manager extends node_events_1.EventEmitter {
     static regex = {
         YoutubeRegex: /https?:\/\/?(?:www\.)?(?:(m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
         YoutubeMusicRegex: /https?:\/\/?(?:www\.)?(?:(music|m|www)\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts|playlist\?|watch\?v=|watch\?.+(?:&|&#38;);v=))([a-zA-Z0-9\-_]{11})?(?:(?:\?|&|&#38;)index=((?:\d){1,3}))?(?:(?:\?|&|&#38;)?list=([a-zA-Z\-_0-9]{34}))?(?:\S+)?/,
-        SoundCloudRegex: /https?:\/\/(on\.)?(soundcloud\.com)\/(\S+)/,
+        SoundCloudRegex: /https?:\/\/(soundcloud\.com)\/(\S+)/,
         SoundCloudMobileRegex: /https?:\/\/(soundcloud\.app\.goo\.gl)\/(\S+)/,
         DeezerTrackRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?track\/(\d+)/,
         DeezerPageLinkRegex: /(https?:\/\/|)?(?:www\.)?deezer\.page\.link\/(\S+)/,
         DeezerPlaylistRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?playlist\/(\d+)/,
         DeezerAlbumRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?album\/(\d+)/,
-        AllDeezerRegex: /((https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album)\/(\d+)|(https?:\/\/|)?(?:www\.)?deezer\.page\.link\/(\S+))/,
+        DeezerArtistRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?artist\/(\d+)/,
+        DeezerMixesRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?mixes\/genre\/(\d+)/,
+        DeezerEpisodeRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?episode\/(\d+)/,
+        // DeezerPodcastRegex: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?podcast\/(\d+)/,
+        AllDeezerRegex: /((https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album|artist|mixes\/genre|episode)\/(\d+)|(https?:\/\/|)?(?:www\.)?deezer\.page\.link\/(\S+))/,
         SpotifySongRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)track[\/:]([A-Za-z0-9]+)/,
         SpotifyPlaylistRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)playlist[\/:]([A-Za-z0-9]+)/,
         SpotifyArtistRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(?:.+)artist[\/:]([A-Za-z0-9]+)/,
@@ -201,12 +205,21 @@ class Manager extends node_events_1.EventEmitter {
         }
         this.options = {
             plugins: [],
-            nodes: [{ identifier: "default", host: "localhost" }],
+            nodes: [{ identifier: "default", host: "localhost", port: 2333, password: "youshallnotpass" }],
             shards: 1,
             autoPlay: true,
             clientName: "erela.js",
             defaultSearchPlatform: "youtube",
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 OPR/93.0.0.0",
+            restTimeout: 5000,
             ...options,
+            allowedLinksRegexes: [...Object.values(Manager.regex)],
+            defaultLeastLoadNodeSortType: "memory",
+            defaultLeastUsedNodeSortType: "players",
+            forceSearchLinkQueries: true,
+            position_update_interval: 250,
+            useUnresolvedData: true,
+            volumeDecrementer: 1,
         };
         if (this.options.plugins) {
             for (const [index, plugin] of this.options.plugins.entries()) {
@@ -439,6 +452,16 @@ class Manager extends node_events_1.EventEmitter {
             return;
         if ("token" in update) {
             player.voiceState.event = update;
+            player.node.updatePlayer({
+                guildId: player.guild,
+                playerOptions: {
+                    voice: {
+                        token: update.token,
+                        endpoint: update.endpoint,
+                        sessionId: player.voiceState.sessionId,
+                    }
+                }
+            });
         }
         else {
             /* voice state update */
@@ -457,9 +480,11 @@ class Manager extends node_events_1.EventEmitter {
                 player.voiceState = Object.assign({});
                 player.pause(true);
             }
+            if (REQUIRED_KEYS.every(key => key in player.voiceState))
+                player.node.send(player.voiceState);
+            else
+                console.log("NO VOICE STATE UPDATE");
         }
-        if (REQUIRED_KEYS.every(key => key in player.voiceState))
-            player.node.send(player.voiceState);
     }
 }
 exports.Manager = Manager;

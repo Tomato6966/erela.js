@@ -190,15 +190,15 @@ export declare class Player {
      * Sets the players equalizer band on-top of the existing ones.
      * @param bands
      */
-    setEQ(...bands: EqualizerBand[]): this;
+    setEQ(...bands: EqualizerBand[]): Promise<this>;
     /** Clears the equalizer bands. */
-    clearEQ(): this;
+    clearEQ(): Promise<this>;
     /** Connect to the voice channel. */
     connect(): this;
     /** Disconnect from the voice channel. */
     disconnect(): this;
     /** Destroys the player. */
-    destroy(disconnect?: boolean): void;
+    destroy(disconnect?: boolean): Promise<void>;
     /**
      * Sets the player voice channel.
      * @param channel
@@ -243,17 +243,17 @@ export declare class Player {
      */
     setQueueRepeat(repeat: boolean): this;
     /** Stops the current track, optionally give an amount to skip to, e.g 5 would play the 5th song. */
-    stop(amount?: number): this;
+    stop(amount?: number): Promise<this>;
     /**
      * Pauses the current track.
      * @param pause
      */
-    pause(pause: boolean): this;
+    pause(paused: boolean): Promise<this>;
     /**
      * Seeks to the position in the current track.
      * @param position
      */
-    seek(position: number): this;
+    seek(position: number): Promise<this>;
 }
 export interface PlayerOptions {
     /** The guild the Player belongs to. */

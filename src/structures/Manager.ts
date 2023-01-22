@@ -379,12 +379,21 @@ export class Manager extends EventEmitter {
 
     this.options = {
       plugins: [],
-      nodes: [{ identifier: "default", host: "localhost" }],
+      nodes: [{ identifier: "default", host: "localhost", port: 2333, password: "youshallnotpass" }],
       shards: 1,
       autoPlay: true,
       clientName: "erela.js",
       defaultSearchPlatform: "youtube",
+      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 OPR/93.0.0.0",
+      restTimeout: 5000,
       ...options,
+      allowedLinksRegexes: [...Object.values(Manager.regex)],
+      defaultLeastLoadNodeSortType: "memory",
+      defaultLeastUsedNodeSortType: "players",
+      forceSearchLinkQueries: true,
+      position_update_interval: 250,
+      useUnresolvedData: true,
+      volumeDecrementer: 1,
     };
 
     if (this.options.plugins) {
@@ -651,6 +660,16 @@ export class Manager extends EventEmitter {
 
     if ("token" in update) {
       player.voiceState.event = update;
+      player.node.updatePlayer({
+        guildId: player.guild,
+        playerOptions: {
+          voice: {
+            token: update.token,
+            endpoint: update.endpoint,
+            sessionId: player.voiceState.sessionId,
+          }
+        }
+      });
     } else {
       /* voice state update */
       if (update.user_id !== this.options.clientId) return;      
@@ -667,9 +686,9 @@ export class Manager extends EventEmitter {
         player.voiceState = Object.assign({});
         player.pause(true);
       }
+      if (REQUIRED_KEYS.every(key => key in player.voiceState)) player.node.send(player.voiceState);
+      else console.log("NO VOICE STATE UPDATE")
     }
-    if (REQUIRED_KEYS.every(key => key in player.voiceState)) player.node.send(player.voiceState);
-    
   }
 }
 
@@ -721,6 +740,10 @@ export interface ManagerOptions {
   forceSearchLinkQueries?: boolean;
   /** If it should use the unresolved Data of unresolved Tracks */
   useUnresolvedData?: boolean;
+  /** Custom Useragent */
+  userAgent?: string;
+  /** Rest max request time */
+  restTimeout?: number;
   /**
    * Function to send data to the websocket.
    * @param id

@@ -3,7 +3,7 @@ import WebSocket from "ws";
 import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
 import { Player, Track, UnresolvedTrack } from "./Player";
-import { PlayerEvent, PlayerEvents, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
+import { LavalinkPlayer, PlayerEvent, PlayerEvents, PlayerUpdateInfo, RoutePlanner, Session, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
 export declare class Node {
     options: NodeOptions;
     /** The socket for the node. */
@@ -15,6 +15,7 @@ export declare class Node {
     /** The stats for the node. */
     stats: NodeStats;
     manager: Manager;
+    sessionId?: string | null;
     regions: string[];
     private static _manager;
     private reconnectTimeout?;
@@ -25,11 +26,45 @@ export declare class Node {
     get address(): string;
     /** @hidden */
     static init(manager: Manager): void;
+    get poolAddress(): string;
     /**
      * Creates an instance of Node.
      * @param options
      */
     constructor(options: NodeOptions);
+    /**
+     * Gets all Players of a Node
+     */
+    getPlayers(): Promise<LavalinkPlayer[]>;
+    /**
+     * Gets specific Player Information
+     */
+    getPlayer(guildId: string): Promise<LavalinkPlayer | {}>;
+    updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer | {}>;
+    /**
+     * Deletes a Lavalink Player (from Lavalink)
+     * @param guildId
+     */
+    destroyPlayer(guildId: string): Promise<void>;
+    /**
+     * Updates the session with a resuming key and timeout
+     * @param resumingKey
+     * @param timeout
+     */
+    updateSession(resumingKey?: string, timeout?: number): Promise<Session | {}>;
+    /**
+     * Gets the stats of this node
+     */
+    fetchStats(): Promise<NodeStats | {}>;
+    /**
+     * Get routplanner Info from Lavalink
+     */
+    getRoutePlannerStatus(): Promise<RoutePlanner>;
+    /**
+     * Release blacklisted IP address into pool of IPs
+     * @param address IP address
+     */
+    unmarkFailedAddress(address: string): Promise<void>;
     /** Connects to the Node. */
     connect(): void;
     /** Destroys the Node and all players connected with it. */
