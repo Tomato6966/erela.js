@@ -222,7 +222,7 @@ class Node {
      */
     async makeRequest(endpoint, modify) {
         const options = {
-            path: `/v4/${endpoint.replace(/^\//gm, "")}`,
+            path: `/v3/${endpoint.replace(/^\//gm, "")}`,
             method: "GET",
             headers: {
                 Authorization: this.options.password
@@ -232,6 +232,8 @@ class Node {
         modify?.(options);
         const request = await this.http.request(options);
         this.calls++;
+        if (options.method === "DELETE")
+            return;
         return await request.body.json();
     }
     /**
@@ -337,8 +339,13 @@ class Node {
             case "event":
                 this.handleEvent(payload);
                 break;
+            case "ready": // payload: { resumed: false, sessionId: 'ytva350aevn6n9n8', op: 'ready' }
+                this.sessionId = payload.sessionId;
+                console.log("set session id to:", this.sessionId);
+                // this.state = "CONNECTED";
+                break;
             default:
-                this.manager.emit("nodeError", this, new Error(`Unexpected op "${payload.op}" with data: ${payload}`));
+                this.manager.emit("nodeError", this, new Error(`Unexpected op "${payload.op}" with data: ${JSON.stringify(payload)}`));
                 return;
         }
     }
@@ -455,12 +462,12 @@ class Node {
         this.manager.emit("queueEnd", player, track, payload);
     }
     trackStuck(player, track, payload) {
-        player.stop();
         this.manager.emit("trackStuck", player, track, payload);
+        player.stop();
     }
     trackError(player, track, payload) {
-        player.stop();
         this.manager.emit("trackError", player, track, payload);
+        player.stop();
     }
     socketClosed(player, payload) {
         this.manager.emit("socketClosed", player, payload);

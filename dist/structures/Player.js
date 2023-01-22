@@ -518,7 +518,7 @@ class Player {
         volume = Number(volume);
         if (isNaN(volume))
             throw new TypeError("Volume must be a number.");
-        this.volume = Math.max(Math.min(volume, 1000), 0);
+        this.volume = Math.max(Math.min(volume, 500), 0);
         this.node.updatePlayer({
             guildId: this.guild,
             playerOptions: {

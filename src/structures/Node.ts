@@ -173,7 +173,7 @@ export class Node {
   public async destroyPlayer(guildId: string): Promise<void> {
     await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`, r => {
       r.method = "DELETE";
-    });
+    })
   }
 
   /**
@@ -260,7 +260,7 @@ export class Node {
    */
   public async makeRequest<T>(endpoint: string, modify?: ModifyRequest): Promise<T> {
     const options: Dispatcher.RequestOptions = {
-      path: `/v4/${endpoint.replace(/^\//gm, "")}`,
+      path: `/v3/${endpoint.replace(/^\//gm, "")}`,
       method: "GET",
       headers: {
         Authorization: this.options.password
@@ -272,6 +272,8 @@ export class Node {
 
     const request = await this.http.request(options);
     this.calls++;
+
+    if(options.method === "DELETE") return;
 
     return await request.body.json();
   }
@@ -380,8 +382,13 @@ export class Node {
       case "event":
         this.handleEvent(payload);
         break;
+      case "ready":  // payload: { resumed: false, sessionId: 'ytva350aevn6n9n8', op: 'ready' }
+          this.sessionId = payload.sessionId;
+          console.log("set session id to:", this.sessionId);
+          // this.state = "CONNECTED";
+          break;
       default:
-        this.manager.emit("nodeError", this, new Error(`Unexpected op "${payload.op}" with data: ${payload}`));
+        this.manager.emit("nodeError", this, new Error(`Unexpected op "${payload.op}" with data: ${JSON.stringify(payload)}`));
         return;
     }
   }
@@ -500,8 +507,8 @@ export class Node {
   }
 
   protected trackStuck(player: Player, track: Track, payload: TrackStuckEvent): void {
-    player.stop();
     this.manager.emit("trackStuck", player, track, payload);
+    player.stop();
   }
 
   protected trackError(
@@ -509,8 +516,8 @@ export class Node {
     track: Track | UnresolvedTrack,
     payload: TrackExceptionEvent
   ): void {
-    player.stop();
     this.manager.emit("trackError", player, track, payload);
+    player.stop();
   }
 
   protected socketClosed(player: Player, payload: WebSocketClosedEvent): void {
