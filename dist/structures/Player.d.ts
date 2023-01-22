@@ -231,7 +231,7 @@ export declare class Player {
      * Sets the player volume.
      * @param volume
      */
-    setVolume(volume: number): this;
+    setVolume(volume: number): Promise<this>;
     /**
      * Sets the track repeat.
      * @param repeat

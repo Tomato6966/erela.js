@@ -4,6 +4,7 @@ import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
 import { Player, Track, UnresolvedTrack } from "./Player";
 import { LavalinkPlayer, PlayerEvent, PlayerEvents, PlayerUpdateInfo, RoutePlanner, Session, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
+export type LavalinkVersion = "v2" | "v3";
 export declare class Node {
     options: NodeOptions;
     /** The socket for the node. */
@@ -15,11 +16,14 @@ export declare class Node {
     /** The stats for the node. */
     stats: NodeStats;
     manager: Manager;
+    version: LavalinkVersion;
+    initialized: boolean;
     sessionId?: string | null;
     regions: string[];
     private static _manager;
     private reconnectTimeout?;
     private reconnectAttempts;
+    useVersionPath: boolean;
     /** Returns if connected to the Node. */
     get connected(): boolean;
     /** Returns the address for this node. */
@@ -117,6 +121,10 @@ export interface NodeOptions {
     poolOptions?: Pool.Options;
     /** Regions for region sort */
     regions?: string[];
+    /** Lavalink-Version */
+    version?: LavalinkVersion;
+    /** If it should use the version in the request Path(s) */
+    useVersionPath?: boolean;
 }
 export interface NodeStats {
     /** The amount of players on the node. */

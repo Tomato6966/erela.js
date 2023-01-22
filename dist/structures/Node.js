@@ -20,11 +20,22 @@ function check(options) {
     if (typeof options.identifier !== "undefined" && typeof options.identifier !== "string")
         throw new TypeError('Node option "identifier" must be a non-empty string.');
     if (typeof options.retryAmount !== "undefined" && typeof options.retryAmount !== "number")
-        throw new TypeError('Node option "retryAmount" must be a number.');
+        throw new TypeError('Node option "retryAmount" must be a positive number.');
     if (typeof options.retryDelay !== "undefined" && typeof options.retryDelay !== "number")
-        throw new TypeError('Node option "retryDelay" must be a number.');
+        throw new TypeError('Node option "retryDelay" must be a positive number.');
     if (typeof options.requestTimeout !== "undefined" && typeof options.requestTimeout !== "number")
-        throw new TypeError('Node option "requestTimeout" must be a number.');
+        throw new TypeError('Node option "requestTimeout" must be a positive number.');
+    if (typeof options.poolOptions !== "undefined" && typeof options.poolOptions !== "object")
+        throw new TypeError("Node option 'poolOptions' must be a correct undicie Http pool options-Object!");
+    if (typeof options.regions !== "undefined" && !Array.isArray(options.regions))
+        throw new TypeError("Node option 'regions' must an Array of Strings: string[]");
+    if (typeof options.regions !== "undefined" && !options.regions.every(region => typeof region === "string"))
+        throw new TypeError("Node option 'regions' must an Array of Strings: string[]");
+    if (typeof options.version !== "undefined" && typeof options.version !== "string" && !["v2", "v3"].includes(options.version))
+        throw new TypeError("Node Option 'version' must be either v2 or v3");
+    if (typeof options.useVersionPath !== "undefined" && typeof options.useVersionPath !== "boolean")
+        throw new TypeError("Node Option 'useVersionPath' must be a Boolean");
+    return true;
 }
 class Node {
     options;
@@ -37,11 +48,14 @@ class Node {
     /** The stats for the node. */
     stats;
     manager;
+    version = "v3";
+    initialized = false;
     sessionId = null;
     regions;
     static _manager;
     reconnectTimeout;
     reconnectAttempts = 1;
+    useVersionPath = true;
     /** Returns if connected to the Node. */
     get connected() {
         if (!this.socket)
@@ -73,6 +87,10 @@ class Node {
             return this.manager.nodes.get(options.identifier || options.host);
         }
         check(options);
+        if (this.options.version)
+            this.version = this.options.version;
+        if (this.options.useVersionPath)
+            this.useVersionPath = this.options.useVersionPath;
         this.options = {
             port: 2333,
             password: "youshallnotpass",
@@ -115,6 +133,8 @@ class Node {
      * Gets all Players of a Node
      */
     async getPlayers() {
+        if (!this.sessionId)
+            throw new Error("The Lavalink-Node is either not ready, or not up to date!");
         const players = await this.makeRequest(`/sessions/${this.sessionId}/players`);
         if (!Array.isArray(players))
             return [];
@@ -125,9 +145,13 @@ class Node {
      * Gets specific Player Information
      */
     getPlayer(guildId) {
+        if (!this.sessionId)
+            throw new Error("The Lavalink-Node is either not ready, or not up to date!");
         return this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
     }
     updatePlayer(data) {
+        if (!this.sessionId)
+            throw new Error("The Lavalink-Node is either not ready, or not up to date!");
         return this.makeRequest(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
             r.method = "PATCH";
             r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
@@ -144,9 +168,18 @@ class Node {
      * @param guildId
      */
     async destroyPlayer(guildId) {
+        if (!this.sessionId) {
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            await this.send({
+                op: "destroy",
+                guildId: guildId
+            });
+            return;
+        }
         await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`, r => {
             r.method = "DELETE";
         });
+        return;
     }
     /**
      * Updates the session with a resuming key and timeout
@@ -154,6 +187,8 @@ class Node {
      * @param timeout
      */
     updateSession(resumingKey, timeout) {
+        if (!this.sessionId)
+            throw new Error("the Lavalink-Node is either not ready, or not up to date!");
         return this.makeRequest(`/sessions/${this.sessionId}`, r => {
             r.method = "PATCH";
             r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
@@ -170,6 +205,8 @@ class Node {
      * Get routplanner Info from Lavalink
      */
     getRoutePlannerStatus() {
+        if (!this.sessionId)
+            throw new Error("the Lavalink-Node is either not ready, or not up to date!");
         return this.makeRequest(`/routeplanner/status`);
     }
     /**
@@ -177,6 +214,8 @@ class Node {
      * @param address IP address
      */
     async unmarkFailedAddress(address) {
+        if (!this.sessionId)
+            throw new Error("the Lavalink-Node is either not ready, or not up to date!");
         await this.makeRequest(`/routeplanner/free/address`, r => {
             r.method = "POST";
             r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
@@ -193,6 +232,8 @@ class Node {
             "User-Id": this.manager.options.clientId,
             "Client-Name": this.manager.options.clientName,
         };
+        if (!this.initialized)
+            this.initialized = true;
         this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
         this.socket.on("open", this.open.bind(this));
         this.socket.on("close", this.close.bind(this));
@@ -222,7 +263,7 @@ class Node {
      */
     async makeRequest(endpoint, modify) {
         const options = {
-            path: `/v3/${endpoint.replace(/^\//gm, "")}`,
+            path: `${this.useVersionPath && this.version ? `/${this.version}` : ""}/${endpoint.replace(/^\//gm, "")}`,
             method: "GET",
             headers: {
                 Authorization: this.options.password

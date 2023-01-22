@@ -2,7 +2,7 @@
 import WebSocket from "ws";
 import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
-import { Player, PlayerOptions, PlayOptions, Track, UnresolvedTrack } from "./Player";
+import { Player, PlayOptions, Track, UnresolvedTrack } from "./Player";
 import {
   LavalinkPlayer,
   PlayerEvent,
@@ -37,14 +37,33 @@ function check(options: NodeOptions) {
     throw new TypeError('Node option "identifier" must be a non-empty string.');
 
   if (typeof options.retryAmount !== "undefined" && typeof options.retryAmount !== "number")
-    throw new TypeError('Node option "retryAmount" must be a number.');
+    throw new TypeError('Node option "retryAmount" must be a positive number.');
 
   if (typeof options.retryDelay !== "undefined" && typeof options.retryDelay !== "number")
-    throw new TypeError('Node option "retryDelay" must be a number.');
+    throw new TypeError('Node option "retryDelay" must be a positive number.');
 
   if (typeof options.requestTimeout !== "undefined" && typeof options.requestTimeout !== "number")
-    throw new TypeError('Node option "requestTimeout" must be a number.');
+    throw new TypeError('Node option "requestTimeout" must be a positive number.');
+
+  if(typeof options.poolOptions !== "undefined" && typeof options.poolOptions !== "object") 
+    throw new TypeError("Node option 'poolOptions' must be a correct undicie Http pool options-Object!");
+
+  if(typeof options.regions !== "undefined" && !Array.isArray(options.regions))
+    throw new TypeError("Node option 'regions' must an Array of Strings: string[]");
+
+  if(typeof options.regions !== "undefined" && !options.regions.every(region => typeof region === "string"))
+    throw new TypeError("Node option 'regions' must an Array of Strings: string[]");
+
+  if(typeof options.version !== "undefined" && typeof options.version !== "string" && !["v2", "v3"].includes(options.version))
+    throw new TypeError("Node Option 'version' must be either v2 or v3");
+
+  if(typeof options.useVersionPath !== "undefined" && typeof options.useVersionPath !== "boolean") 
+    throw new TypeError("Node Option 'useVersionPath' must be a Boolean");
+
+  return true;
 }
+
+export type LavalinkVersion = "v2" | "v3";
 
 export class Node {
   /** The socket for the node. */
@@ -57,12 +76,17 @@ export class Node {
   public stats: NodeStats;
   public manager: Manager
 
+  public version: LavalinkVersion = "v3";
+  public initialized: boolean = false;
+
   public sessionId?: string|null = null;
 
   public regions: string[];
   private static _manager: Manager;
   private reconnectTimeout?: NodeJS.Timeout;
   private reconnectAttempts = 1;
+  
+  public useVersionPath = true;
 
   /** Returns if connected to the Node. */
   public get connected(): boolean {
@@ -96,6 +120,9 @@ export class Node {
     }
 
     check(options);
+
+    if(this.options.version) this.version = this.options.version;
+    if(this.options.useVersionPath) this.useVersionPath = this.options.useVersionPath
 
     this.options = {
       port: 2333,
@@ -143,6 +170,7 @@ export class Node {
    * Gets all Players of a Node
    */
   public async getPlayers(): Promise<LavalinkPlayer[]> {
+    if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
     const players = await this.makeRequest(`/sessions/${this.sessionId}/players`);
     if (!Array.isArray(players)) return [];
     else return players;
@@ -151,9 +179,11 @@ export class Node {
    * Gets specific Player Information
    */
   public getPlayer(guildId: string): Promise<LavalinkPlayer|{}> {
+    if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
       return this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
   }
   public updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer|{}> {
+    if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
     return this.makeRequest<LavalinkPlayer>(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
       r.method = "PATCH";
       r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
@@ -171,9 +201,18 @@ export class Node {
    * @param guildId
    */
   public async destroyPlayer(guildId: string): Promise<void> {
+    if(!this.sessionId) {
+      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+      await this.send({
+        op: "destroy",
+        guildId: guildId
+      });
+      return;
+    }
     await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`, r => {
       r.method = "DELETE";
     })
+    return;
   }
 
   /**
@@ -182,24 +221,26 @@ export class Node {
    * @param timeout
    */
   public updateSession(resumingKey?: string, timeout?: number): Promise<Session|{}> {
-      return this.makeRequest(`/sessions/${this.sessionId}`, r => {
-        r.method = "PATCH";
-        r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' }
-        r.body = JSON.stringify({ resumingKey, timeout });
-      });
+    if(!this.sessionId) throw new Error("the Lavalink-Node is either not ready, or not up to date!");
+    return this.makeRequest(`/sessions/${this.sessionId}`, r => {
+      r.method = "PATCH";
+      r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' }
+      r.body = JSON.stringify({ resumingKey, timeout });
+    });
   }
 
   /**
    * Gets the stats of this node
    */
   public fetchStats(): Promise<NodeStats|{}> {
-      return this.makeRequest(`/stats`);
+    return this.makeRequest(`/stats`);
   }
 
   /**
    * Get routplanner Info from Lavalink
    */
   public getRoutePlannerStatus(): Promise<RoutePlanner> {
+    if(!this.sessionId) throw new Error("the Lavalink-Node is either not ready, or not up to date!");
       return this.makeRequest(`/routeplanner/status`);
   }
 
@@ -208,6 +249,7 @@ export class Node {
    * @param address IP address
    */
   public async unmarkFailedAddress(address: string): Promise<void> {
+    if(!this.sessionId) throw new Error("the Lavalink-Node is either not ready, or not up to date!");
       await this.makeRequest(`/routeplanner/free/address`, r => {
         r.method = "POST";
         r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
@@ -226,6 +268,7 @@ export class Node {
       "Client-Name": this.manager.options.clientName,
     };
 
+    if(!this.initialized) this.initialized = true;
 
     this.socket = new WebSocket(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
     this.socket.on("open", this.open.bind(this));
@@ -260,7 +303,7 @@ export class Node {
    */
   public async makeRequest<T>(endpoint: string, modify?: ModifyRequest): Promise<T> {
     const options: Dispatcher.RequestOptions = {
-      path: `/v3/${endpoint.replace(/^\//gm, "")}`,
+      path: `${this.useVersionPath && this.version ? `/${this.version}` : ""}/${endpoint.replace(/^\//gm, "")}`,
       method: "GET",
       headers: {
         Authorization: this.options.password
@@ -562,6 +605,10 @@ export interface NodeOptions {
   poolOptions?: Pool.Options;
   /** Regions for region sort */
   regions?: string[];
+  /** Lavalink-Version */
+  version?: LavalinkVersion;
+  /** If it should use the version in the request Path(s) */
+  useVersionPath?: boolean;
 }
 
 export interface NodeStats {

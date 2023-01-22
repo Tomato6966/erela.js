@@ -1,3 +1,8 @@
+**NEW** - REST SUPPORT!
+-> Up to date with latest Lavalink's Version!
+-> Docs soon
+-> Resume-Key soon
+
 # What's different / better
 
 - [Click here to see an example of the new Manager creation](https://github.com/Tomato6966/erela.js/blob/main/README.md#examplemanager)
