@@ -81,7 +81,7 @@ export class Node {
   }
 
   public get poolAddress() {
-    return `http${this.options.secure ? "s" : ""}://${this.address}/v4`;
+    return `http${this.options.secure ? "s" : ""}://${this.address}`;
   }
   /**
    * Creates an instance of Node.
@@ -159,7 +159,7 @@ export class Node {
       r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
       r.body = JSON.stringify(data.playerOptions);
       if(data.noReplace) {
-        const url = new URL(`${this.poolAddress}/sessions/${this.sessionId}/players/${data.guildId}`);
+        const url = new URL(`${this.poolAddress}${r.path}`);
         url.search = new URLSearchParams({ noReplace: data.noReplace?.toString() || 'false' }).toString();
         r.path = url.toString().replace(this.poolAddress, "");
       }
@@ -260,7 +260,7 @@ export class Node {
    */
   public async makeRequest<T>(endpoint: string, modify?: ModifyRequest): Promise<T> {
     const options: Dispatcher.RequestOptions = {
-      path: `/${endpoint.replace(/^\//gm, "")}`,
+      path: `/v4/${endpoint.replace(/^\//gm, "")}`,
       method: "GET",
       headers: {
         Authorization: this.options.password

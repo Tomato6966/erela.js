@@ -84,8 +84,7 @@ class Node {
         if (this.options.secure) {
             this.options.port = 443;
         }
-        console.log(this.poolAddress)
-        this.http = new undici_1.Pool(this.poolAddress, this.options.poolOptions);
+        this.http = new undici_1.Pool(this.address, this.options.poolOptions);
         this.regions = options.regions?.map?.(x => x?.toLowerCase?.()) || [];
         this.options.identifier = options.identifier || options.host;
         this.stats = {
