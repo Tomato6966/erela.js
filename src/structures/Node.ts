@@ -227,7 +227,7 @@ export class Node {
     };
 
 
-    this.socket = new WebSocket(`ws${this.options.secure ? "s" : ""}://${this.address}/v4/websocket`, { headers });
+    this.socket = new WebSocket(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
     this.socket.on("open", this.open.bind(this));
     this.socket.on("close", this.close.bind(this));
     this.socket.on("message", this.message.bind(this));
