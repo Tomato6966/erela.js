@@ -317,7 +317,6 @@ class Player {
             if(this.instaUpdateFiltersFix === true) this.filterUpdated = 1;
             return this;
         });
-        
     }
 
     /**
