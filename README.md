@@ -15,43 +15,74 @@ yarn:
 yarn add Tomato6966/erela.js
 ```
 
+# **Overview** - Table of Contents
 
+## New features - Tutorials
+See how specific features work!
 
-## Docs:
+- [Auto Node selection: Region-System](#regioning-system)
+- [How to use custom Request-Sources](#how-to-use-custom-sources)
+- [How to make filters apply instantly](#how-to-make-filters-apply-instantly)
 
-### class Manager([ManagerOptions](#manageroptions))
+## [Docs:](#erelajs-docs)
+
+- [**Music-Manager**](#class-managermanageroptions)
+  - [Creating a Manager](#class-managermanageroptions)
+  - [Manager-Create-Options](#manageroptions)
+  - [Manager Methods & Properties](#manager-methods--properties)
+  - [All Events, listened on the Manager](#manager-events)
+- [**Lavalink-Nodes**](#everything-about-nodes)
+  - [Creating Nodes / a Node afterwards](#creating-a-node)
+  - [Node-Create-Options](#nodeoptions)
+  - [example Default-Node-Data](#defaultnode)
+  - [Node Methods & Properties](#node-methods--properties)
+- [**Music-Player**](#everything-about-the-player)
+  - [Creating a Player](#creating-a-player)
+  - [Player-Create-Options](#player-create-options)
+  - [Player Methods & Properties](#player-methods--properties)
+- [**Utils**](#everything-about-the-utils)
+  - []
+  - []
+
+## Examples
+- **
+
+# erela.js-Docs
+
+## class Manager([ManagerOptions](#manageroptions))
 
 ```js
 client.musicManager = new Manager(ManagerOptions)
 ```
 
-#### ManagerOptions:
+### ManagerOptions:
 | Variable Name                | Value                                 | Default                                                                                                                        | Description                                                                                                                                                           |
 | ---------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nodes                        | [NodeOptions[]](#NodeOptions)                           | [DefaultNode](#defaultnode)                                                                                                    | What Nodes to use for this Manager                                                                                                                                    |
-| clientId                     | string                                | -                                                                                                                              | the Bot-Client Id (Snowflake) / any                                                                                                                                   |
-| clientName                   | string                                | "erela.js"                                                                                                                     | Value for the Lavalink Client-Name header                                                                                                                             |
-| shards                       | number                                | 1                                                                                                                              | The Shard count                                                                                                                                                       |
-| plugins                      | Plugin[]                              | -                                                                                                                              | Array of erela.js Plugins                                                                                                                                             |
-| forceLoadPlugin              | boolean                               | true                                                                                                                           | If Plugins should be loaded, no matter which class they extend                                                                                                        |
-| autoPlay                     | boolean                               | true                                                                                                                           | Wheter it should skip to the next song in the queue on Errors, songFinish, etc.                                                                                       |
-| trackPartial                 | string[]                              | -                                                                                                                              | an array of track Properties to keep                                                                                                                                  |
-| defaultSearchPlatform        | SearchPlatform                        | "youtube"                                                                                                                      | What Searchplatform to use, when searching without a source                                                                                                           |
-| volumeDecrementer            | number                                | 1                                                                                                                              | how much % the Volume should decrement, when sending the volume, e.g. u do setVolume(100) with a decrementer of 0.75 and lavalink gets told to set the volume to: 75% |
-| position_update_interval     | number                                | 250                                                                                                                            | in how many ms interval steps, the player-position should be incremented client sided ( Lavalink sends it every N seconds [defualt configuration is 5s] )             |
-| validUnresolvedUris          | string[]                              | ["www.youtu", "music.youtu", "soundcloud.com"]                                                                                 | What Urls are allowed to be directly used from lavalink, when resolving unresolved tracks                                                                             |
-| allowedLinks                 | string[]                              | -                                                                                                                              | Array of URLS to allow which you are too lazy to write REGEXes of (must be 1:1)                                                                                       |
-| allowedLinksRegexes          | RegExp[]                              | Manager#regex                                                                                                                  | all regexes which allow URLS   (if 1 regex matches a given url, the url will be used)                                                                                 |
-| onlyAllowAllowedLinks        | boolean                               | true                                                                                                                           | if it should only allow urls, from allowedLinksRegexes or allowedLinks                                                                                                |
-| defaultLeastUsedNodeSortType | "memory" / "calls" / "players"        | "players"                                                                                                                      | How it should sort the NODES on Manager#leastUsedNode() (Before it was calls, now it's players)                                                                       |
-| defaultLeastLoadNodeSortType | "cpu" / "memory"                      | "memory"                                                                                                                       | How it should sort the NODES on Manager#leastLoadNode() (Before it was cpu, now it's memory)                                                                          |
-| forceSearchLinkQueries       | boolean                               | true                                                                                                                           | If it should force-load links via Manager#searchLink (which should happen automatically, but this forces it)                                                          |
-| useUnresolvedData            | boolean                               | true                                                                                                                           | If it should use unresolved Tracks Data uppon their resolved ones                                                                                                     |
-| userAgent                    | string                                | "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 OPR/93.0.0.0" | What user Agent to use when doing Requests to Lavalink                                                                                                                |
-| restTimeout                  | number                                | -                                                                                                                              | Amount of time to wait until the Rest Methods are rejected                                                                                                            |
-| send                         | Function(id: string, payload:Payload) | -                                                                                                                              | The function to send payload to discord..                                                                                                                             |                             |                                       |                                                                                                                                |                                                                                                                                                                       |
+| `clientId`                     | string                                | -                                                                                                                              | the Bot-Client Id (Snowflake) / any                                                                                                                                   |
+| `clientName`                   | string                                | "erela.js"                                                                                                                     | Value for the Lavalink Client-Name header                                                                                                                             |
+| `shards`                       | number                                | 1                                                                                                                              | The Shard count                                                                                                                                                       |
+| `plugins`                      | Plugin[]                              | -                                                                                                                              | Array of erela.js Plugins                                                                                                                                             |
+| `forceLoadPlugin`              | boolean                               | true                                                                                                                           | If Plugins should be loaded, no matter which class they extend                                                                                                        |
+| `autoPlay`                     | boolean                               | true                                                                                                                           | Wheter it should skip to the next song in the queue on Errors, songFinish, etc.                                                                                       |
+| `trackPartial`                 | string[]                              | -                                                                                                                              | an array of track Properties to keep                                                                                                                                  |
+| `defaultSearchPlatform`        | SearchPlatform                        | "youtube"                                                                                                                      | What Searchplatform to use, when searching without a source                                                                                                           |
+| `volumeDecrementer`            | number                                | 1                                                                                                                              | how much % the Volume should decrement, when sending the volume, e.g. u do setVolume(100) with a decrementer of 0.75 and lavalink gets told to set the volume to: 75% |
+| `position_update_interval`     | number                                | 250                                                                                                                            | in how many ms interval steps, the player-position should be incremented client sided ( Lavalink sends it every N seconds [defualt configuration is 5s] )             |
+| `validUnresolvedUris`          | string[]                              | ["www.youtu", "music.youtu", "soundcloud.com"]                                                                                 | What Urls are allowed to be directly used from lavalink, when resolving unresolved tracks                                                                             |
+| `allowedLinks`                 | string[]                              | -                                                                                                                              | Array of URLS to allow which you are too lazy to write REGEXes of (must be 1:1)                                                                                       |
+| `allowedLinksRegexes`          | RegExp[]                              | Manager#regex                                                                                                                  | all regexes which allow URLS   (if 1 regex matches a given url, the url will be used)                                                                                 |
+| `onlyAllowAllowedLinks`        | boolean                               | true                                                                                                                           | if it should only allow urls, from allowedLinksRegexes or allowedLinks                                                                                                |
+| `defaultLeastUsedNodeSortType` | "memory" / "calls" / "players"        | "players"                                                                                                                      | How it should sort the NODES on Manager#leastUsedNode() (Before it was calls, now it's players)                                                                       |
+| `defaultLeastLoadNodeSortType` | "cpu" / "memory"                      | "memory"                                                                                                                       | How it should sort the NODES on Manager#leastLoadNode() (Before it was cpu, now it's memory)                                                                          |
+| `forceSearchLinkQueries`       | boolean                               | true                                                                                                                           | If it should force-load links via Manager#searchLink (which should happen automatically, but this forces it)                                                          |
+| `useUnresolvedData`            | boolean                               | true                                                                                                                           | If it should use unresolved Tracks Data uppon their resolved ones                                                                                                     |
+| `userAgent`                    | string                                | "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 OPR/93.0.0.0" | What user Agent to use when doing Requests to Lavalink                                                                                                                |
+| `restTimeout`                  | number                                | -                                                                                                                              | Amount of time to wait until the Rest Methods are rejected                                                                                                            |
+| send                         | Function(id: string, payload:Payload) | - | The function to send payload to discord... | 
 
-#### Manager-Methods / Properties
+
+### Manager-Methods / Properties
 | Method-Name / Variable-Name                                                            | returnData                              | Description                                                                                                         |     |
 | -------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --- |
 | `regex`                                                                                | Record<SourcesRegex, RegExp>            | An Object of all default Source Regexes, which you may use too!                                                     |     |
@@ -78,45 +109,127 @@ client.musicManager = new Manager(ManagerOptions)
 | `destroyNode(NodeIdentifier:string)`                                                   | void                                    | Destroy a Node                                                                                                      |     |
 | `updateVoiceState(data)`                                                                | Promise\<void>                          | update the Voice State to Lavalink                                                                                  |     |
 
-#### Manager-Events
+### Manager-Events
 
 | Event-Names      | Parameters                                      | Description                                          |
 |------------------|-------------------------------------------------|------------------------------------------------------|
-| nodeCreate       | node                                            | Emitted once a node gets Created                     |
-| nodeConnect      | node                                            | Emits when a node Connects                           |
-| nodeReconnect    | node                                            | Emits when a node attempts a reconnect               |
-| nodeDisconnect   | node, reason: { code?: number, reason?: string} | Emits when a node disconnects                        |
-| nodeError        | node, error                                     | Emits when a node throws errors                      |
-| nodeRaw          | payload                                         | Emits every payload from a Node                      |
-| playerCreate     | player                                          | Emits when a player gets created                     |
-| playerDestroy    | player                                          | Emits when a player get's destroyed                  |
-| queueEnd         | player, track, payload                          | Emits when the queue End                             |
-| playerMove       | player, initChannel, newChannel                 | Emits when the player moves from a VC to another one |
-| playerDisconnect | player, oldChannel                              | Emits when the player Leaves the VC                  |
-| trackStart       | player, track, payload                          | Emits when a track starts to play                    |
-| trackEnd         | player, track, payload                          | Emits when a track ends playing                      |
-| trackStuck       | player, track, payload                          | Emits when a track gets stucked and skips the track  |
-| trackError       | player, track, payload                          | Emits when a track errors and skips it               |
-| socketClosed     | player, payload                                 | Emits when a connection gets closed                  |
+| `nodeCreate`       | node                                            | Emitted once a node gets Created                     |
+| `nodeConnect`      | node                                            | Emits when a node Connects                           |
+| `nodeReconnect`    | node                                            | Emits when a node attempts a reconnect               |
+| `nodeDisconnect`   | node, reason: { code?: number, reason?: string} | Emits when a node disconnects                        |
+| `nodeError`        | node, error                                     | Emits when a node throws errors                      |
+| `nodeRaw`          | payload                                         | Emits every payload from a Node                      |
+| `playerCreate`     | player                                          | Emits when a player gets created                     |
+| `playerDestroy`    | player                                          | Emits when a player get's destroyed                  |
+| `queueEnd`         | player, track, payload                          | Emits when the queue End                             |
+| `playerMove`       | player, initChannel, newChannel                 | Emits when the player moves from a VC to another one |
+| `playerDisconnect` | player, oldChannel                              | Emits when the player Leaves the VC                  |
+| `trackStart`       | player, track, payload                          | Emits when a track starts to play                    |
+| `trackEnd`         | player, track, payload                          | Emits when a track ends playing                      |
+| `trackStuck`       | player, track, payload                          | Emits when a track gets stucked and skips the track  |
+| `trackError`       | player, track, payload                          | Emits when a track errors and skips it               |
+| `socketClosed`     | player, payload                                 | Emits when a connection gets closed                  |
 
+*** 
 
 ## Everything about Nodes:
 
-## NodeOptions
+### Creating a Node
+
+You tell the Manager in it's [ManagerOptions](#manageroptions), which Nodes it shall use: 
+```js
+client.musicManager = new Manager({
+    ...ManagerOptions,
+    nodes: [ { identifier: "MyNode1", host: "localhost", port: 2333, password: "youshallnotpass", version: "v3", useVersionPath: true, secure: false, } ]
+})
+```
+You can pass multiple Nodes too, if you do so the **identifier** Property is very Important!
+**How to create a Node after Manager-Creation?**
+```js
+client.musicManager.createNode({ identifier: "MyNode3", host: "localhost", port: 2333, password: "youshallnotpass", version: "v3", useVersionPath: true, secure: false });
+```
+
+### NodeOptions
+
+| Variable-Name   | Value               | Default           | Description                                                                                       |
+|-----------------|---------------------|-------------------|---------------------------------------------------------------------------------------------------|
+| host            | string              | -                 | The Hostname / Ipaddress of your Lavalink-Node                                                    |
+| port            | number              | 2333              | The Port of the Node                                                                              |
+| password        | string              | "youshallnotpass" | The Authentication Creditentals aka Password                                                      |
+| secure          | boolean             | false             | If it shall use Port 443 and https                                                                |
+| identifier      | string              | -                 | The identifier of the Node (for your manager#nodes Collection key)                                |
+| retryAmount     | number              | 5                 | How often it shall retry to connect on fails                                                      |
+| retryDelay      | number              | 30e3              | How long to wait between each retry                                                               |
+| requestTimeout  | number              | 10e3              | How long to wait until a REST-Request gets rejected                                               |
+| poolOptions     | undici.Pool.Options | -                 | The Undici Pool Options                                                                           |
+| regions         | string[]            | -                 | Discord Voice Regions array (for that node) to support regioning                                  |
+| version         | "v2" | "v3"         | -                 | Lavalink Version (use v3 for REST API)                                                            |
+| useVersionPath  | boolean             | -                 | If it should use the path while making Requests (if your lavalink node is on v2 make it on false) |
+
+### defaultnode
+The Default Node is beeing used, when no node is provided while creating the Manager
+-> You can also see it as an "example" of Node Data
+```js
+{
+    identifier: "default",
+    host: "localhost",
+    port: 2333,
+    password: "youshallnotpass",
+    secure: false,
+    retryAmount: 5,
+    retryDelay: 30e3,
+    requestTimeout: 10e3,
+    version: "v3",
+    useVersionPath: true, // should be set on true, to use the latest rest api correctly!
+}
+```
+
+### Node-Methods / Properties
 
 SOON
-## defaultnode
 
-SOON
+*** 
 
-## Node-Methods
+## Everything about the Player
 
-SOON
+### Creating a Player
+```js
+const player = client.musicManager.create({
+    guild: voiceChannel.guild.id,
+    voiceChannel: voiceChannel.id,
+    textChannel: message.channel.id,
+    selfMute: false,
+    selfDeafen: true,
+    region: voiceChannel?.rtcRegion || undefined, // region
+    instaUpdateFiltersFix: true, // to disable it (and save resources) set it to false
+})
+```
+
+### Player-Create-Options
 
 
-# Tutorials
-Down below you see how what works!
+| Variable-Name         | Value   | Default | Description                                             |
+|-----------------------|---------|---------|---------------------------------------------------------|
+| guild                 | string  | -       | The Guild-ID of the Player                              |
+| voiceChannel          | string  | -       | The VOICE-CHANNEl-ID of the Player                      |
+| textChannel           | string  | -       | The TEXT-CHANNEl-ID of the Player                       |
+| selfMute              | boolean | false   | If the Player shall join self-muted                     |
+| selfDeafen            | boolean | true    | If the Player shall join self-Deafend                   |
+| region                | string  | -       | In What VC-Region this Player is in (regioning support) |
+| instaUpdateFiltersFix | boolean | true    | If it should update Filters instantly, when applying    |
 
+
+### Player-Methods / Properties
+
+***
+
+## Everything about the Utils
+
+### Utils
+
+***
+
+# Examples & Tutorials
 
 ## Regioning System:
 
@@ -126,16 +239,15 @@ When creating the node(s) pass the variable regions, to auto-select the right re
 ```js
 const nodes = [
   {
-    identifier: "USA_NODE", host, password, port
+    identifier: "USA_NODE", host, password, port, version: "v3", useVersionPath: true,
     regions: ["us-east", "us-central", "us-south", "us-west", "brazil"],
   },
   {
-    identifier: "GERMANY_NODE", host, password, port
+    identifier: "GERMANY_NODE", host, password, port, version: "v3", useVersionPath: true,
     regions: ["rotterdam", "russia"],
   },
 ]
 ```
-
   
 When creating the Player, pass the rtcRegion like that:
 
@@ -161,8 +273,8 @@ player.search(query, requester);
 **IMPORTANT NOTE!**
 > *When using regioning, you must SEARCH on the same NODE as you play the TRACK on, best practice can be found in the JS script above for the search() method, just provide the correct node (the node the player is using)*
 
+***
   
-
 ### How to use custom Sources
 
 > Lavalink provides default sources from: `scsearch`, `ytsearch`, `ytmsearch`, so that you don't need to type these weird names, you can simply type `soundcloud` or `youtube` or `youtube music`.
@@ -178,15 +290,16 @@ client.musicManager.search({query, source}, requester, player.node);
 // e.g. search on spotify
 client.musicManager.search({
    query: "Adele - Hello",
-   source: "sp", // "spsearch" / "sprec" / etc. check out: 
+   source: "spotify", // "sp"/ "spsearch" / "sprec" / etc. check out: SearchPlatforms on what you can all use!
    // or for deezer: source: "dz" / "deezer"
 }, interaction.user, player.node);
-
 ```
 
-  
+***
 
-## Added `instaUpdateFiltersFix` Player#Property. - Default: true 
+## How to make filters apply instantly
+
+**Added the Player-Create-Property** `#instaUpdateFiltersFix`
 Updates filters and Equalizers almost instantly, by seeking to the same player position after a filter/eq got applied
 -> On default it's set to: `true` aka enabled, if your system is not able to handle the extra load, disable it!
 
