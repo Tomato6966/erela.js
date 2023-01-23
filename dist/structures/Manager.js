@@ -205,7 +205,18 @@ class Manager extends node_events_1.EventEmitter {
         }
         this.options = {
             plugins: [],
-            nodes: [{ identifier: "default", host: "localhost", port: 2333, password: "youshallnotpass" }],
+            nodes: [{
+                    identifier: "default",
+                    host: "localhost",
+                    port: 2333,
+                    password: "youshallnotpass",
+                    secure: false,
+                    retryAmount: 5,
+                    retryDelay: 30e3,
+                    requestTimeout: 10e3,
+                    version: "v3",
+                    useVersionPath: true, // should be set on true, to use the latest rest api correctly!
+                }],
             shards: 1,
             autoPlay: true,
             clientName: "erela.js",

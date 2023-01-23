@@ -97,6 +97,7 @@ class Node {
             secure: false,
             retryAmount: 5,
             retryDelay: 30e3,
+            requestTimeout: 10e3,
             ...options,
         };
         if (this.options.secure) {
