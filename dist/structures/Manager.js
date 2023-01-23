@@ -303,10 +303,10 @@ class Manager extends node_events_1.EventEmitter {
             const link = this.getValidUrlOfQuery(_query.query);
             if (this.options.allowedLinksRegexes?.length || this.options.allowedLinks?.length) {
                 if (link && !this.options.allowedLinksRegexes?.some(regex => regex.test(link)) && !this.options.allowedLinks?.includes(link))
-                    throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
+                    reject(new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`));
             }
             if (link && this.options.forceSearchLinkQueries)
-                return this.searchLink(link, requester, customNode);
+                return await this.searchLink(link, requester, customNode).then(data => resolve(data)).catch(err => reject(err));
             // only set the source, if it's not a link 
             const search = `${!/^https?:\/\//.test(_query.query) ? `${_source}:` : ""}${_query.query}`;
             const res = await node
@@ -350,7 +350,7 @@ class Manager extends node_events_1.EventEmitter {
                 return this.search(query, requester, customNode);
             if (this.options.allowedLinksRegexes?.length || this.options.allowedLinks?.length) {
                 if (link && !this.options.allowedLinksRegexes?.some(regex => regex.test(link)) && !this.options.allowedLinks?.includes(link))
-                    throw new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`);
+                    reject(new Error(`Query ${_query.query} Contains link: ${link}, which is not an allowed / valid Link`));
             }
             const res = await node
                 .makeRequest(`/loadtracks?identifier=${encodeURIComponent(_query.query)}`)
