@@ -4,6 +4,7 @@ import { EventEmitter } from "node:events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
+import { PluginDataInfo } from "./Utils";
 import {
   LoadType,
   Plugin,
@@ -501,16 +502,29 @@ export class Manager extends EventEmitter {
       };
 
       if (result.loadType === "PLAYLIST_LOADED") {
-        result.playlist = {
-          name: res.playlistInfo.name,
-          selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-            TrackUtils.build(
-              res.tracks[res.playlistInfo.selectedTrack],
-              requester
-            ),
-          duration: result.tracks
-            .reduce((acc: number, cur: Track) => acc + (cur.duration || 0), 0),
-        };
+        if(typeof res.playlistInfo === "object") {
+          result.playlist = {
+            ...result.playlist,
+            // transform other Data(s)
+            name: res.playlistInfo.name,
+            selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
+              TrackUtils.build(
+                res.tracks[res.playlistInfo.selectedTrack],
+                requester
+              ),
+            duration: result.tracks
+              .reduce((acc: number, cur: Track) => acc + (cur.duration || 0), 0),
+          }
+        }
+        if(typeof res.pluginInfo === "object") {
+          result.pluginInfo = { ...result.pluginInfo };
+        }
+        if(result.playlist || result.pluginInfo) {
+          result.tracks.forEach(track => {
+            if(result.playlist) track.playlist = result.playlist;
+            if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
+          });
+        }
       }
 
       return resolve(result);
@@ -557,16 +571,29 @@ export class Manager extends EventEmitter {
       };
 
       if (result.loadType === "PLAYLIST_LOADED") {
-        result.playlist = {
-          name: res.playlistInfo.name,
-          selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-            TrackUtils.build(
-              res.tracks[res.playlistInfo.selectedTrack],
-              requester
-            ),
-          duration: result.tracks
-            .reduce((acc: number, cur: Track) => acc + (cur.duration || 0), 0),
-        };
+        if(typeof res.playlistInfo === "object") {
+          result.playlist = {
+            ...result.playlist,
+            // transform other Data(s)
+            name: res.playlistInfo.name,
+            selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
+              TrackUtils.build(
+                res.tracks[res.playlistInfo.selectedTrack],
+                requester
+              ),
+            duration: result.tracks
+              .reduce((acc: number, cur: Track) => acc + (cur.duration || 0), 0),
+          }
+        }
+        if(typeof res.pluginInfo === "object") {
+          result.pluginInfo = { ...result.pluginInfo };
+        }
+        if(result.playlist || result.pluginInfo) {
+          result.tracks.forEach(track => {
+            if(result.playlist) track.playlist = result.playlist;
+            if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
+          });
+        }
       }
 
       return resolve(result);
@@ -792,6 +819,8 @@ export interface SearchResult {
   tracks: Track[];
   /** The playlist info if the load type is PLAYLIST_LOADED. */
   playlist?: PlaylistInfo;
+  /** The plugin info if the load type is PLAYLIST_LOADED. */
+  pluginInfo?: Partial<PluginDataInfo> | Record<string, string|number>;
   /** The exception when searching if one. */
   exception?: {
     /** The message for the exception. */
@@ -822,5 +851,6 @@ export interface LavalinkResult {
   playlistInfo: {
     name: string;
     selectedTrack?: number;
-  };
+  } | null;
+  pluginInfo: Partial<PluginDataInfo> | Record<string, string|number> | null;
 }

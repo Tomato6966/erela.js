@@ -91,7 +91,9 @@ export abstract class TrackUtils {
 
     try {
       const track: Track = {
+        ...data.info,
         track: data.track,
+        encodedTrack: data.encoded,
         title: data.info.title,
         identifier: data.info.identifier,
         author: data.info.author,
@@ -114,6 +116,7 @@ export abstract class TrackUtils {
           :  data.info?.thumbnail || data.info?.image
         },
         requester,
+        pluginInfo: data.pluginInfo,
       };
 
       track.displayThumbnail = track.displayThumbnail.bind(track);
@@ -445,8 +448,10 @@ export interface TrackData {
   track: string;
   encoded: string;
   info: TrackDataInfo;
+  pluginInfo: Partial<PluginDataInfo> | Record<string, string|number>;
 }
 
+/** Data from Lavalink */
 export interface TrackDataInfo {
   title: string;
   identifier: string;
@@ -456,13 +461,14 @@ export interface TrackDataInfo {
   isStream: boolean;
   uri: string;
   sourceName: string;
-  /** Only via my deezer package */
-  md5_image?: string;
-  /** Only via my deezer package */
-  thumbnail?: string;
-  /** Only via my deezer package */
-  image?: string;
-
+  artworkUrl: string | null;
+  isrc: string | null;
+}
+export interface PluginDataInfo {
+  type?: string;
+  identifier?: string;
+  artworkURL?: string;
+  author?: string;
 }
 
 export interface Extendable {

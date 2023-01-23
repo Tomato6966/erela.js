@@ -1,6 +1,8 @@
+import { PlaylistInfo } from "./Manager";
 import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
+import { PluginDataInfo } from "./Utils";
 import { Sizes, State, Structure, TrackUtils, VoiceState } from "./Utils";
 
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
@@ -917,6 +919,14 @@ export interface Track {
   displayThumbnail(size?: Sizes): string;
   /** If the Track is a preview */
   isPreview: boolean;
+  /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
+  artworkURL: string | null;
+  /** ISRC if available */
+  isrc: string | null;
+  /** If of a Playlist */
+  playlist: PlaylistInfo;
+  /** If of a Playlist */
+  pluginInfo: Partial<PluginDataInfo> | Record<string, string|number>;
 }
 
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
@@ -929,6 +939,8 @@ export interface UnresolvedTrack extends Partial<Track> {
   duration?: number;
   /** Thumbnail of the track */
   thumbnail?: string;
+  /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
+  artworkURL: string | null;
   /** Identifier of the track */
   identifier?: string;
   /** Resolves into a Track. */
