@@ -1,9 +1,20 @@
-### Maintained + improved Fork from the official [menudocs/erela.js repository](https://github.com/menudocs/erela.js)!
+# erela.js - Updated & Improved by Tomato6966
+
+An up to date Lavalink Wrapper, which makes it easy to use Lavalink within your Discord Bot!
+- Works in Typescript, CommonJS and ModuleJS
+- Made for discord.js, but works in [discordeno (example)](#discordeno), eris, oceanic and many other libraries too!
+- Supports Regioning (e.g: Picking a USA Node for USA Voice Channel Regions)
+- Supports Latest [Lavalink Version (v3.7)](https://github.com/freyacodes/Lavalink/releases/) [REST API] 
+- Inbuilt Filters
+- Many Settings like: instaFilterFix, volumeDecrementer, etc. which makes using it way easier!
+
+## Maintained + improved Fork from the official [menudocs/erela.js repository](https://github.com/menudocs/erela.js)!
+
 Within this Repository, I did:
 - updated erela.js to support Latest Lavalink Features (Sessions, REST-API, etc.)
 - Added new [Features](#features)
 
-### Install my Version:
+## Install my Version:
 
 npm:
 ```bash
@@ -14,6 +25,21 @@ yarn:
 ```bash
 yarn add Tomato6966/erela.js
 ```
+
+***
+
+### You need a Lavalink Server!
+
+Check [here](https://github.com/Tomato6966/Debian-Cheat-Sheet-Setup/wiki/6-lavalink-tutorial) how to set one up!
+- I made a dedicated cheatsheet for that including how to setup the new Lavalink Plugins!
+
+Or shortly said here:
+1. Download the latest .jar File-Release from [the releases page](https://github.com/freyacodes/Lavalink/releases/) of the Lavalink Repository
+2. Download the example Application.yml file from [the official Example](https://github.com/freyacodes/Lavalink/blob/master/LavalinkServer/application.yml.example) and put it in the same directory as your Lavalink.jar file (note it __must be__ named: `application.yml`)
+3. Adjust the settings of your Lavalink Server in the file called: `application.yml`: Port, Password are the most important ones! (they are used to connect to it via erela.js)
+4. Start the Lavalink-Server with a terminal by typing: `java -jar Lavalink.jar` within that directory!
+
+***
 
 # **Overview** - Table of Contents
 
@@ -45,7 +71,23 @@ See how specific features work!
   - []
 
 ## Examples
-- **
+- [**Example Manager + Usage**](#example-manager--usage)
+- [**How to use the Regioning System!**](#regioning-system) - select the nearest Node based the Voice-Channel-region
+- [**How to use the Link-Query-Validation!**](#added-link-url-query-validation)
+- [**How to use a volume decrementer**](#added-managerproperty-volumedecrementer)
+- [**Improve your unresolved Tracks resolving!**](#added-managervalidunresolveduris-for-unresolved-tracks)
+- [**More Player Parameters 😎**](#added-more-player-parameters)
+- [**Can't load plugins? Check this force load option!**](#added-managerforceloadplugin-for-forcing-plugin-loadings)
+- [**All Filter Functions & Properties!**](#inbuilt-filters)
+- [**How to make Filters apply instantly**](#how-to-make-filters-apply-instantly)
+- [**Update the `player#position` faster & client sided!**](#update-the-player-position-way-faster)
+- [**My own erela.js Plugins and recommendations!**](#self-made-plugins)
+
+## Contributers and Credits
+
+[Click here to jump](#contributors--credits) to the credits and contributers! ❤
+
+***
 
 # erela.js-Docs
 
@@ -129,6 +171,7 @@ client.musicManager = new Manager(ManagerOptions)
 | `trackStuck`       | player, track, payload                          | Emits when a track gets stucked and skips the track  |
 | `trackError`       | player, track, payload                          | Emits when a track errors and skips it               |
 | `socketClosed`     | player, payload                                 | Emits when a connection gets closed                  |
+
 
 *** 
 
@@ -428,9 +471,9 @@ Like clientName or shards Count, you should init the manager either way, once it
  - `player.payload` Last payload from playerUpdate Event lavalink sent
  - `player.ping` Ping in ms from Lavalink server. if it's less then 0, it means player is not connected yet
  - `player.wsPing` Ping in ms from Lavalink server. if it's less then 0, it means player is not connected yet
+
 ## Added Link (Url) Query Validation:
-
-
+ - `Manager#onlyAllowAllowedLinks` --> must be true to make it work (default: true)
  - `Manager#allowedLinks` Array of Strings of Urls which are allowed
  - `Manager#allowedLinksRegexes` Array of Regexes which must match the link
     - `Manager#regex` --> Default Regexes applied to allowedLinksRegexes, if not Set (except spotify and deezer links)
@@ -664,327 +707,279 @@ Note: These are the only ones shown before being published, check the GitHub rep
   
   
 
-# Discordeno
-
-  
+## Discordeno
 
 > Script for discordeno (sending data to shards)
 
-  
-
 ```js
-
-  
-
 bot.musicManager = new Manager({
-
     volumeDecrementer: 0.75,
-
     position_update_interval: 100,
-
     nodes: [
-
         {
-
             identifier: `Node_1`,
-
             host: "localhost",
-
             port: 2333,
-
             password: "youshallnotpass"
-
         }
-
     ],
 
     // A send method to send data to the Discord WebSocket using your library.
-
     // Getting the shard for the guild and sending the data to the WebSocket.
-
     send(id, payload) {
-
         const shardId = bot.utils.calculateShardId(bot.gateway, BigInt(id));
-
         // somehow get the shard
-
         const shard = bot.gateway.shards.get(shardId);
-
         shard.send(payload);
-
         // if your rest is hosted seperately then just do your typical shard request(s)
 
     },
 
 });
 
-  
 
 // in raw event
-
 import { VoiceState, VoicePacket, VoiceServer } from "erela.js";
-
 // code...
-
 switch (data.t) {
-
   case "VOICE_SERVER_UPDATE":
-
   case "VOICE_STATE_UPDATE":
-
     bot.musicManager.updateVoiceState(data.d as VoiceState | VoiceServer | VoicePacket)
-
   break;
-
 }
-
 // code ...
-
 ```
 
-  
-  
-
-## Contributors
-
-  
-
-👤 **Solaris**
-
-  
-
-- Author
-
-- Website: <https://solaris.codes/>
-
-- Github: [@Solaris9](https://github.com/Solaris9)
-
-  
-
-👤 **Anish Shobith**
-
-  
-
-- Contributor
-
-- Github: [@Anish-Shobith](https://github.com/Anish-Shobith)
-
-  
-
-👤 **ayntee**
-
-  
-
-- Contributor
-
-- Github: [@ayntee](https://github.com/ayntee)
-
-  
-
-## exampleManager
-
-  
+ 
+### Example Manager + Usage
 
 ```js
-
 const { Manager } = require("erela.js"); // npm i Tomato6966/erela.js
-
-  
-
 const Deezer = require("better-erela.js-deezer"); // npm i Tomato6966/better-erela.js-deezer
-
 const BandCampSearch = require("erela.js-bandcamp-search"); // npm i Tomato6966/erela.js-bandcamp-search"
-
   
 
 // creation
 
 client.musicManager = new Manager({
-
     defaultSearchPlatform: "ytsearch", // "ytmsearch" / "ytsearch" / "deezer" / "scsearch" // etc. etc. deezer only valid if you have MY better-erela.js-deezer plugin installed!
-
     handleError: false, // if true, you have to handle what happens when an Error happens, if false it auto skips!
-
     handleStuck: false, // if true, you have to handle what happens when an track gets stucked happens, if false it auto skips!
-
     volumeDecrementer: 0.75, // instead of sending 100% it sends 75%
-
     position_update_interval: 100, // update the player.position every 100ms
-
     nodes: [
-
         {
-
             identifier: `Use_Node_1`,
-
             port: 2333,  host: "localhost", // ip.address. e.g. 127.0.0.1
-
             regions: ["us-east", "us-central", "us-south", "us-west", "brazil"], // example regions
-
             password: "youshallnotpass",
-
             retryAmount: 10,
-
             retryDelay: 7500,
-
+            version: "v3",
+            useVersionPath: true,
         },
-
         {
-
             identifier: `GERMANY_Node_1`,
-
             port: 2333, host: "localhost", // ip.address. e.g. 127.0.0.1
-
             regions: ["rotterdam", "russia"],
-
             password: "milrato_pass_3569",
-
             retryAmount: 10, retryDelay: 7500,
-
+            version: "v2",
+            useVersionPath: false,
         }
-
     ],
-
     // every base-url provided in here, will be resolved once the track is beeing tryed to play, aka fetched by lavalink.
-
     validUnresolvedUris: [
-
         "spotify.com",  // only if your lavalink has spotify plugin
-
         "twitch.com",
-
         "twitch.tv",
-
         "vimeo.com",
-
         "bandcamp.com",
-
         "music.apple.com", // only if your lavalink has apple music plugin
-
     ],
-
     plugins: [
-
-        new Deezer(),
-
+        new Deezer(), // not needed if your lavalink has the deezer plugin
         new BandCampSearch({
-
             querySource: ["bandcamp", "bc"],
-
         }),
-
     ],
-
     shards: client.ws.totalShards || 1,
-
     clientName: client.user?.username,
-
     clientId: client.user?.id || client.id,
-
     send(id, payload) {
-
         const guild = client.guilds.cache.get(id);
-
         if(!guild) return;
-
         guild.shard.send(payload);
-
     },
-
 });
 
-  
+// listen to the manager events:
+client.musicManager
+    .on("nodeCreate", (node) => {
+        console.log(`Created the Node: ${node.options.identifier} on host: ${node.options.host}`);
+    })
+    .on("nodeConnect", (node) => {
+        console.log(`Connection to the Node: ${node.options.identifier} on host: ${node.options.host} was successful`);
+    })
+    .on("nodeReconnect", (node) => {
+        console.log(`The Node: ${node.options.identifier} on host: ${node.options.host} is now attempting a reconnect`);
+    })
+    .on("nodeDisconnect", (node) => {
+        console.error(`Connection of the Node: ${node.options.identifier} on host: ${node.options.host}, disconnected`);
+    })
+    .on("nodeError", (node, error) => {
+        console.error(`Node: ${node.options.identifier} on host: ${node.options.host} errored:`, error);
+    })
+    .on("nodeRaw", (payload) => {
+        // don't do much with it, the lib handles it
+    })
+    .on("playerCreate", (player) => {
+        const textChannel = client.channels.cache.get(player.textChannel);
+        console.log(`Player got Created in: ${player.guild}`);
+        if(textChannel) textChannel.send({ content: `Player Created!` });
+    })
+    .on("playerDestroy", (player) => {
+        const textChannel = client.channels.cache.get(player.textChannel);
+        console.log(`Player got Destroyed in: ${player.guild}`);
+        if(textChannel) textChannel.send({ content: `Player Destroyed!` });
+    })
+    .on("queueEnd", (player, track, payload) => {
+        const textChannel = client.channels.cache.get(player.textChannel);
+        console.log(`Queue Ended in: ${player.guild}`);
+        if(textChannel) textChannel.send({ content: `Queue Ended` });
+    })
+    .on("playerMove", (player, initChannel, newChannel) => {
+        if(player.voiceChannel === newChannel) return;
+        // all of the code should not be necessary, but sometimes it fixes a bug
+        player.voiceChannel = newChannel; // overwride the voiceChannel with the newChannel
+        if (player.paused) return; // if it's paused keep it 
+        setTimeout(() => {
+            player.pause(true); // else pause and unpause to continue playing
+            setTimeout(() => player.pause(false), 150);
+        }, 150);
+    })
+    .on("playerDisconnect", (player, channel) => {
+        console.log("The player disconnected");
+        player.destroy();
+    })
+    .on("trackStart", (player, track, payload) => {
+        const textChannel = client.channels.cache.get(player.textChannel);
+        console.log(`Track Started: ${player.guild}`);
+        if(textChannel) textChannel.send({ content: `Now Playing **${track.title}**: ${track.uri}` });
+    })
+    .on("trackEnd", (player, track, payload) => {
+        console.log(`Track Ended: ${player.guild}`);
+    })
+    .on("trackStuck", (player, track, payload) => {
+        const textChannel = client.channels.cache.get(player.textChannel);
+        console.log(`Track Stucked: ${player.guild}`);
+        if(textChannel) textChannel.send({ content: `Track Stucked **${track.title}**: ${track.uri}` });
+    })
+    .on("trackError", (player, track, payload) => {
+        const textChannel = client.channels.cache.get(player.textChannel);
+        console.log(`Track Errored: ${player.guild}`);
+        if(textChannel) textChannel.send({ content: `Track Errored **${track.title}**: ${track.uri}` });
+        player.stop();
+    })
 
 // init the manager
-
-  
-
 client.on("ready", () => {
-
   client.musicManager.init(client.user.id, {
-
     shards: client.ws.totalShards,
-
     clientName: client.user.username,
-
     clientId: client.user.id,
-
   });
-
 })
 
-  
-
 // send voicestate updates
-
 client.on("raw", (data) => {
-
     switch(data.t) {
-
         case "VOICE_SERVER_UPDATE":
-
         case "VOICE_STATE_UPDATE":
-
             client.musicManager.updateVoiceState(data.d)
-
         break;
-
     }
-
 });
 
-  
 
-// example how to search with rtcRegion
+client.on("interactionCreate", await (interaction) => {
+    if(!interaction.isCommand() && interaction.commandName !== "play") return; // if it's a wrong command
+    
+    const query = interaction.getString("query"); // `eminem without me`
+    if(!interaction.member.voice.channel) return interaction.reply({ content: "Please join a VC" });
+    // example how to search with rtcRegion
+    const player = client.musicManager.create({
+      region: interaction.member.voice.channel?.rtcRegion || undefined,
+      guild: interaction.guildId,
+      voiceChannel: interaction.member.voice.channel.id, // message.member.voice.channel.id,
+      textChannel: interaction.channel.id,
+      selfDeafen: true,
+    });
 
-const player = client.musicManager.create({
+    // join vc
+    if(!player.connected) {
+        await player.connect();
+        await player.stop();
+    }
+    // don't provide a source --> it searches on defaultSearchPlatform
+    // the source you provide will be used as a search platform!
+    const result = await player.search({ query, source: "soundcloud" }, interaction.user);
+    // wanna search via manager?       const result = await client.musicManager.search({ query, source: "soundcloud" }, interaction.user, player.node); // PROVIDE THE PLAYERNODE
 
-  region: interaction.member.voice.channel?.rtcRegion || undefined,
-
-  guild: interaction.guildId,
-
-  voiceChannel: interaction.member.voice.channel.id, // message.member.voice.channel.id,
-
-  textChannel: interaction.channel.id,
-
-  selfDeafen: true,
-
+    if(!result.tracks[0]) return interaction.reply({ content: "Nothing found" });
+    
+    // play track or add song to queue
+    if(!player?.queue?.totalSize || (!player.paused && !player.playing)) { 
+        // add multiple tracks: player.queue.add([...result.tracks]);
+        player.queue.add(result.tracks[0]); // add track
+        player.play({
+            pause: false,
+            volume: 100,
+            startTime: 0,
+        }); 
+        if (!player.paused && !player.playing) player.pause(false);
+        interaction.reply({ content: `Now playing: **${player.queue.current.title}**: ${player.queue.current.uri}` });
+    } else {
+        player.queue.add(result.tracks[0]); // add track
+        interaction.reply({ content: `Added the song the queue: **${result.tracks[0].title}**: ${result.tracks[0].uri}` });
+    }
 });
+// recommended events to listen:
+client.on("channelDelete", channel => {
+    const player = client.musicManager.players.get(channel.guild.id);
+    if(!player) return;
+    if(channel.id === player.voiceChannel) player.destroy();
+    if(channel.id === player.textChannel) player.textChannel = null;
+});
+// recommended events to listen:
+client.on("guildRemove", guild => {
+    const player = client.musicManager.players.get(guild.id);
+    if(!player) return; 
+    player.destroy();
+});
+``` 
+  
+# Contributors & Credits
 
-const query = `eminem without me`;
+- Thanks to [menudocs](https://github.com/menudocs) and their Original version of [erela.js](https://github.com/menudocs/erela.js)
+- They discontinued the library, so I decided to continue coding it, keeping it up to date and adding new features!
 
-// Alternative query with sources: { query: `eminem without me`, source: "sc" };
+👤 **Tomato6966**
+- Maintainer + Improver + Author of the New Version
+- Website: <https://tomato6966.xyz>
+- Github: [@Tomtao6966](https://github.com/Tomato6966)
 
-const result = await client.musicManager.search(query, interaction, player.node)
+👤 **Solaris**
+- Author - Old Version
+- Website: <https://solaris.codes/>
+- Github: [@Solaris9](https://github.com/Solaris9)
 
-```
+👤 **Anish Shobith**
+- Contributor - Old Version
+- Github: [@Anish-Shobith](https://github.com/Anish-Shobith)
+
+👤 **ayntee**
+- Contributor - Old Version
+- Github: [@ayntee](https://github.com/ayntee)
 
   
-  
-
-all Valid Sources
-
-```
-
-youtube music === ytm
-
-youtube       === yt
-
-soundcloud    === sc
-
-ytmsearch     === ytm
-
-ytsearch      === yt
-
-amsearch      === am
-
-spsearch      === sp
-
-yandexsearch  === ym
-
-deezer        === dz
-
-tts           === tts
-
-speak         === speak
-```
