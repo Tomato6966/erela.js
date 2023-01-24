@@ -17,6 +17,7 @@ import {
   TrackStuckEvent,
   WebSocketClosedEvent,
 } from "./Utils";
+import internal from "node:stream";
 
 function check(options: NodeOptions) {
   if (!options) throw new TypeError("NodeOptions must not be empty.");
@@ -166,7 +167,16 @@ export class Node {
     this.manager.nodes.set(this.options.identifier, this);
     this.manager.emit("nodeCreate", this);
   }
-
+  public async fetchInfo(): Promise<LavalinkInfo|null> {
+    if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
+    const resInfo = await this.makeRequest(`/info`, r => r.path = "/v3/info" ).catch(console.warn) || null;
+    return resInfo as LavalinkInfo|null;
+  }
+  public async fetchVersion(): Promise<string|null> {
+    if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
+    const resInfo = await this.makeRequest(`/version` ).catch(console.warn) || null;
+    return resInfo as string|null;
+  }
   /**
    * Gets all Players of a Node
    */
@@ -297,6 +307,17 @@ export class Node {
         r.method = "POST";
         r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
         r.body = JSON.stringify({ address });
+      });
+  }
+  /**
+   * Release blacklisted IP address into pool of IPs
+   * @param address IP address
+   */
+  public async unmarkAllFailedAddresses(): Promise<void> {
+    if(!this.sessionId) throw new Error("the Lavalink-Node is either not ready, or not up to date!");
+      await this.makeRequest(`/v3/routeplanner/free/all`, r => {
+        r.method = "POST";
+        r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
       });
   }
 
@@ -651,6 +672,36 @@ export interface NodeOptions {
   version?: LavalinkVersion;
   /** If it should use the version in the request Path(s) */
   useVersionPath?: boolean;
+}
+
+export interface LavalinkInfo {
+  version: VersionObject;
+  buildTime: number;
+  git: GitObject;
+  jvm: string;
+  lavaplayer: string;
+  sourceManagers: string[];
+  filters: string[];
+  plugins: PluginObject[];
+}
+
+export interface VersionObject {
+  semver: string;
+  major: number;
+  minor: number;
+  patch: internal;
+  preRelease?: string;
+}
+
+export interface GitObject {
+  branch: string;
+  commit: string;
+  commitTime: string;
+}
+
+export interface PluginObject {
+  name: string;
+  version: string;
 }
 
 export interface NodeStats {

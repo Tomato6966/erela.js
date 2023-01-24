@@ -6,6 +6,7 @@ import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
 import { PluginDataInfo } from "./Utils";
 import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
+export declare const LoadTypes: Record<"TrackLoaded" | "PlaylistLoaded" | "SearchResult" | "NoMatches" | "LoadFailed", LoadType>;
 export interface Manager {
     /**
      * Emitted when a Node is created.
@@ -166,7 +167,7 @@ export declare class Manager extends EventEmitter {
      * Decodes the base64 encoded track and returns a TrackData.
      * @param track
      */
-    decodeTrack(track: string): Promise<TrackData>;
+    decodeTrack(encodedTrack: string): Promise<TrackData>;
     /**
      * Creates a player or returns one if it already exists.
      * @param options

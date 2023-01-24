@@ -121,7 +121,8 @@ client.musicManager = new Manager(ManagerOptions)
 | `useUnresolvedData`            | boolean                               | true                                                                                                                           | If it should use unresolved Tracks Data uppon their resolved ones                                                                                                     |
 | `userAgent`                    | string                                | "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 OPR/93.0.0.0" | What user Agent to use when doing Requests to Lavalink                                                                                                                |
 | `restTimeout`                  | number                                | -                                                                                                                              | Amount of time to wait until the Rest Methods are rejected                                                                                                            |
-| send                         | Function(id: string, payload:Payload) | - | The function to send payload to discord... | 
+| `send`                         | Function(id: string, payload:Payload) | - | The function to send payload to discord... | 
+| `applyVolumeAsFilter` | Boolean | false | If volume should only be applied via the filter property (no smooth transition), you can always set manual by using Player#setVolumeFilter(0-5) | 
 
 
 ### Manager-Methods / Properties

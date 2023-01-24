@@ -130,6 +130,18 @@ class Node {
         this.manager.nodes.set(this.options.identifier, this);
         this.manager.emit("nodeCreate", this);
     }
+    async fetchInfo() {
+        if (!this.sessionId)
+            throw new Error("The Lavalink-Node is either not ready, or not up to date!");
+        const resInfo = await this.makeRequest(`/info`, r => r.path = "/v3/info").catch(console.warn) || null;
+        return resInfo;
+    }
+    async fetchVersion() {
+        if (!this.sessionId)
+            throw new Error("The Lavalink-Node is either not ready, or not up to date!");
+        const resInfo = await this.makeRequest(`/version`).catch(console.warn) || null;
+        return resInfo;
+    }
     /**
      * Gets all Players of a Node
      */
@@ -266,6 +278,18 @@ class Node {
             r.method = "POST";
             r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
             r.body = JSON.stringify({ address });
+        });
+    }
+    /**
+     * Release blacklisted IP address into pool of IPs
+     * @param address IP address
+     */
+    async unmarkAllFailedAddresses() {
+        if (!this.sessionId)
+            throw new Error("the Lavalink-Node is either not ready, or not up to date!");
+        await this.makeRequest(`/v3/routeplanner/free/all`, r => {
+            r.method = "POST";
+            r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
         });
     }
     /** Connects to the Node. */

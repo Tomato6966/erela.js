@@ -1,11 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Manager = void 0;
+exports.Manager = exports.LoadTypes = void 0;
 /* eslint-disable no-async-promise-executor */
 const collection_1 = require("@discordjs/collection");
 const node_events_1 = require("node:events");
 const Utils_1 = require("./Utils");
 const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
+exports.LoadTypes = {
+    TrackLoaded: "TRACK_LOADED",
+    PlaylistLoaded: "PLAYLIST_LOADED",
+    SearchResult: "SEARCH_RESULT",
+    NoMatches: "NO_MATCHES",
+    LoadFailed: "LOAD_FAILED"
+};
 function check(options) {
     if (!options)
         throw new TypeError("ManagerOptions must not be empty.");
@@ -400,7 +407,7 @@ class Manager extends node_events_1.EventEmitter {
                 exception: res.exception ?? null,
                 tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
-            if (result.loadType === "PLAYLIST_LOADED") {
+            if (result.loadType === exports.LoadTypes.PlaylistLoaded) {
                 if (typeof res.playlistInfo === "object") {
                     result.playlist = {
                         ...result.playlist,
@@ -451,8 +458,8 @@ class Manager extends node_events_1.EventEmitter {
      * Decodes the base64 encoded track and returns a TrackData.
      * @param track
      */
-    async decodeTrack(track) {
-        const res = await this.decodeTracks([track]);
+    async decodeTrack(encodedTrack) {
+        const res = await this.decodeTracks([encodedTrack]);
         return res[0];
     }
     /**
@@ -526,7 +533,7 @@ class Manager extends node_events_1.EventEmitter {
                     voice: {
                         token: update.token,
                         endpoint: update.endpoint,
-                        sessionId: player.voiceState.sessionId,
+                        sessionId: player.voice?.sessionId || player.voiceState.sessionId,
                     }
                 }
             });
@@ -540,12 +547,14 @@ class Manager extends node_events_1.EventEmitter {
                 this.emit("playerMove", player, player.voiceChannel, update.channel_id);
             }
             player.voiceState.sessionId = update.session_id;
+            player.voice.sessionId = update.session_id;
             player.voiceChannel = update.channel_id;
         }
         else {
             this.emit("playerDisconnect", player, player.voiceChannel);
             player.voiceChannel = null;
             player.voiceState = Object.assign({});
+            player.voice = Object.assign({});
             await player.pause(true);
         }
         if (REQUIRED_KEYS.every(key => key in player.voiceState))

@@ -78,8 +78,9 @@ class Player {
     state = "DISCONNECTED";
     /** The equalizer bands array. */
     bands = new Array(15).fill(0.0);
-    /** The voice state object from Discord. */
+    /** @deprecated The voice state object from Discord. */
     voiceState;
+    /** The new VoiceState Data from Lavalink */
     voice;
     /** The Manager. */
     manager;
@@ -303,7 +304,6 @@ class Player {
      * @returns
      */
     async setSpeed(speed = 1) {
-        this.filterData.timescale.speed = speed;
         // reset nightcore / vaporwave filter if enabled
         if (this.filters.nightcore || this.filters.vaporwave) {
             this.filterData.timescale.pitch = 1;
@@ -312,6 +312,7 @@ class Player {
             this.filters.nightcore = false;
             this.filters.vaporwave = false;
         }
+        this.filterData.timescale.speed = speed;
         // check if custom filter is active / not
         this.isCustomFilterActive();
         await this.updatePlayerFilters();
@@ -323,7 +324,6 @@ class Player {
      * @returns
      */
     async setPitch(pitch = 1) {
-        this.filterData.timescale.pitch = pitch;
         // reset nightcore / vaporwave filter if enabled
         if (this.filters.nightcore || this.filters.vaporwave) {
             this.filterData.timescale.pitch = 1;
@@ -332,6 +332,7 @@ class Player {
             this.filters.nightcore = false;
             this.filters.vaporwave = false;
         }
+        this.filterData.timescale.pitch = pitch;
         // check if custom filter is active / not
         this.isCustomFilterActive();
         await this.updatePlayerFilters();
@@ -343,7 +344,6 @@ class Player {
      * @returns
      */
     async setRate(rate = 1) {
-        this.filterData.timescale.rate = rate;
         // reset nightcore / vaporwave filter if enabled
         if (this.filters.nightcore || this.filters.vaporwave) {
             this.filterData.timescale.pitch = 1;
@@ -352,6 +352,7 @@ class Player {
             this.filters.nightcore = false;
             this.filters.vaporwave = false;
         }
+        this.filterData.timescale.rate = rate;
         // check if custom filter is active / not
         this.isCustomFilterActive();
         await this.updatePlayerFilters();
@@ -655,11 +656,7 @@ class Player {
         }
         if (!this.queue.current)
             throw new RangeError("No current track.");
-        const finalOptions = playOptions
-            ? playOptions
-            : getOptions(optionsOrTrack)
-                ? optionsOrTrack
-                : {};
+        const finalOptions = getOptions(playOptions || optionsOrTrack, !!this.node.sessionId) ? optionsOrTrack : {};
         if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
             try {
                 this.queue.current = await Utils_1.TrackUtils.getClosestTrack(this.queue.current);
@@ -886,14 +883,16 @@ class Player {
     }
 }
 exports.Player = Player;
-function getOptions(opts) {
-    const valids = ["startTime", "endTime", "noReplace", "volume", "pause"];
+function getOptions(opts, allowFilters) {
+    const valids = ["startTime", "endTime", "noReplace", "volume", "pause", "filters"];
     const returnObject = {};
     if (!opts)
         return false;
     for (const [key, value] of Object.entries(Object.assign({}, opts))) {
-        if (valids.includes(key))
+        if (valids.includes(key) && (key !== "filters" || (key === "filters" && allowFilters))) {
             returnObject[key] = value;
+        }
+        ;
     }
     return returnObject;
 }

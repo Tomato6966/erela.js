@@ -22,6 +22,16 @@ import {
 
 const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
 
+export const LoadTypes = {
+  TrackLoaded: "TRACK_LOADED",
+  PlaylistLoaded: "PLAYLIST_LOADED",
+  SearchResult: "SEARCH_RESULT",
+  NoMatches: "NO_MATCHES",
+  LoadFailed: "LOAD_FAILED"
+} as Record<"TrackLoaded"|"PlaylistLoaded"|"SearchResult"|"NoMatches"|"LoadFailed", LoadType>
+
+
+
 function check(options: ManagerOptions) {
   if (!options) throw new TypeError("ManagerOptions must not be empty.");
 
@@ -595,7 +605,7 @@ export class Manager extends EventEmitter {
         ) ?? [],
       };
 
-      if (result.loadType === "PLAYLIST_LOADED") {
+      if (result.loadType === LoadTypes.PlaylistLoaded) {
         if(typeof res.playlistInfo === "object") {
           result.playlist = {
             ...result.playlist,
@@ -653,8 +663,8 @@ export class Manager extends EventEmitter {
    * Decodes the base64 encoded track and returns a TrackData.
    * @param track
    */
-  public async decodeTrack(track: string): Promise<TrackData> {
-    const res = await this.decodeTracks([ track ]);
+  public async decodeTrack(encodedTrack: string): Promise<TrackData> {
+    const res = await this.decodeTracks([ encodedTrack ]);
     return res[0];
   }
 
@@ -734,7 +744,7 @@ export class Manager extends EventEmitter {
           voice: {
             token: update.token,
             endpoint: update.endpoint,
-            sessionId: player.voiceState.sessionId,
+            sessionId: player.voice?.sessionId || player.voiceState.sessionId,
           }
         }
       });
@@ -748,11 +758,13 @@ export class Manager extends EventEmitter {
         this.emit("playerMove", player, player.voiceChannel, update.channel_id);
       }
       player.voiceState.sessionId = update.session_id;
+      player.voice.sessionId = update.session_id;
       player.voiceChannel = update.channel_id;
     } else {
       this.emit("playerDisconnect", player, player.voiceChannel);
       player.voiceChannel = null;
       player.voiceState = Object.assign({});
+      player.voice = Object.assign({});
       await player.pause(true);
     }
 

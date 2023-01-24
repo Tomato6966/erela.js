@@ -1,9 +1,11 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import WebSocket from "ws";
 import { Dispatcher, Pool } from "undici";
 import { Manager } from "./Manager";
 import { Player, Track, UnresolvedTrack } from "./Player";
 import { LavalinkPlayer, PlayerEvent, PlayerEvents, PlayerUpdateInfo, RoutePlanner, Session, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
+import internal from "node:stream";
 export type LavalinkVersion = "v2" | "v3";
 export declare class Node {
     options: NodeOptions;
@@ -36,6 +38,8 @@ export declare class Node {
      * @param options
      */
     constructor(options: NodeOptions);
+    fetchInfo(): Promise<LavalinkInfo | null>;
+    fetchVersion(): Promise<string | null>;
     /**
      * Gets all Players of a Node
      */
@@ -69,6 +73,11 @@ export declare class Node {
      * @param address IP address
      */
     unmarkFailedAddress(address: string): Promise<void>;
+    /**
+     * Release blacklisted IP address into pool of IPs
+     * @param address IP address
+     */
+    unmarkAllFailedAddresses(): Promise<void>;
     /** Connects to the Node. */
     connect(): void;
     /** Destroys the Node and all players connected with it. */
@@ -125,6 +134,32 @@ export interface NodeOptions {
     version?: LavalinkVersion;
     /** If it should use the version in the request Path(s) */
     useVersionPath?: boolean;
+}
+export interface LavalinkInfo {
+    version: VersionObject;
+    buildTime: number;
+    git: GitObject;
+    jvm: string;
+    lavaplayer: string;
+    sourceManagers: string[];
+    filters: string[];
+    plugins: PluginObject[];
+}
+export interface VersionObject {
+    semver: string;
+    major: number;
+    minor: number;
+    patch: internal;
+    preRelease?: string;
+}
+export interface GitObject {
+    branch: string;
+    commit: string;
+    commitTime: string;
+}
+export interface PluginObject {
+    name: string;
+    version: string;
 }
 export interface NodeStats {
     /** The amount of players on the node. */

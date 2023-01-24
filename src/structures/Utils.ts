@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars, @typescript-eslint/no-var-requires*/
 import { Manager } from "./Manager";
 import { Node, NodeStats } from "./Node";
-import { Player, Track, UnresolvedTrack } from "./Player";
+import { Player, PlayerFilters, Track, UnresolvedTrack } from "./Player";
 import { Queue } from "./Queue";
 
 /** @hidden */
@@ -390,7 +390,10 @@ export interface PlayerUpdateInfo {
 }
 export interface LavalinkPlayer {
   guildId: string;
-  track?: Track;
+  track?: {
+    encoded: string;
+    info: TrackDataInfo;
+  };
   volume: number;
   paused: boolean;
   voice: LavalinkPlayerVoice;
@@ -449,6 +452,7 @@ export interface LavalinkPlayerVoice {
   ping?: number
 }
 
+
 export interface TrackData {
   track: string;
   encoded: string;
@@ -497,14 +501,9 @@ export interface VoiceState {
   guildId: string;
   event: VoiceServer;
   sessionId?: string;
-  
-  /** @deprecated */
   guild_id: string;
-  /** @deprecated */
   user_id: string;
-  /** @deprecated */
   session_id: string;
-  /** @deprecated */
   channel_id: string;
 }
 

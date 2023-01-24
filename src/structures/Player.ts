@@ -129,8 +129,9 @@ export class Player {
   public state: State = "DISCONNECTED";
   /** The equalizer bands array. */
   public bands = new Array<number>(15).fill(0.0);
-  /** The voice state object from Discord. */
+  /** @deprecated The voice state object from Discord. */
   public voiceState: VoiceState;
+  /** The new VoiceState Data from Lavalink */
   public voice: LavalinkPlayerVoice;
   /** The Manager. */
   public manager: Manager;
@@ -363,8 +364,6 @@ export class Player {
    * @returns 
    */
   public async setSpeed(speed:number = 1): Promise<boolean> {
-    this.filterData.timescale.speed = speed;
-
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
       this.filterData.timescale.pitch = 1;
@@ -373,6 +372,8 @@ export class Player {
       this.filters.nightcore = false;
       this.filters.vaporwave = false;
     }
+
+    this.filterData.timescale.speed = speed;
 
     // check if custom filter is active / not
     this.isCustomFilterActive();
@@ -386,8 +387,6 @@ export class Player {
    * @returns 
    */
   public async setPitch(pitch:number = 1): Promise<boolean> {
-    this.filterData.timescale.pitch = pitch;
-
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
       this.filterData.timescale.pitch = 1;
@@ -396,6 +395,9 @@ export class Player {
       this.filters.nightcore = false;
       this.filters.vaporwave = false;
     }
+
+    this.filterData.timescale.pitch = pitch;
+
 
     // check if custom filter is active / not
     this.isCustomFilterActive();
@@ -408,9 +410,7 @@ export class Player {
    * @param speed 
    * @returns 
    */
-  public async setRate(rate:number = 1): Promise<boolean> {
-    this.filterData.timescale.rate = rate;
-    
+  public async setRate(rate:number = 1): Promise<boolean> {    
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
       this.filterData.timescale.pitch = 1;
@@ -419,6 +419,8 @@ export class Player {
       this.filters.nightcore = false;
       this.filters.vaporwave = false;
     }
+
+    this.filterData.timescale.rate = rate;
 
     // check if custom filter is active / not
     this.isCustomFilterActive();
@@ -764,15 +766,11 @@ export class Player {
     ) {
       if (this.queue.current) this.queue.previous = this.queue.current;
       this.queue.current = optionsOrTrack as Track;
-    }
+    } 
 
     if (!this.queue.current) throw new RangeError("No current track.");
 
-    const finalOptions = playOptions
-      ? playOptions
-      : getOptions(optionsOrTrack)
-      ? (optionsOrTrack as PlayOptions)
-      : {};
+    const finalOptions = getOptions(playOptions || optionsOrTrack, !!this.node.sessionId) ? (optionsOrTrack as PlayOptions) : {};
 
     if (TrackUtils.isUnresolvedTrack(this.queue.current)) {
       try {
@@ -1038,7 +1036,7 @@ export interface PlayerOptions {
 
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {
-  /** The base64 encoded track. */
+  /** @deprecated The base64 encoded track. */
   readonly track: string;
   /** The encoded base64 track. */
   readonly encodedTrack: string;
@@ -1100,6 +1098,8 @@ export interface PlayOptions {
   readonly pause?: boolean;
   /** The Volume to start with */
   readonly volume?: number;
+  /** The Lavalink Filters to use | only with the new REST API */
+  readonly filters?: LavalinkFilterData;
 }
 
 export interface EqualizerBand {
@@ -1109,12 +1109,14 @@ export interface EqualizerBand {
   gain: number;
 }
 
-function getOptions(opts?:any): Partial<PlayOptions> | false {
-  const valids = ["startTime", "endTime", "noReplace", "volume", "pause"];
-  const returnObject = {}
+function getOptions(opts?:any, allowFilters?: boolean): Partial<PlayOptions> | false {
+  const valids = ["startTime", "endTime", "noReplace", "volume", "pause", "filters"];
+  const returnObject = {} as PlayOptions
   if(!opts) return false;
   for(const [key, value] of Object.entries(Object.assign({}, opts))) {
-      if(valids.includes(key)) returnObject[key] = value;
+      if(valids.includes(key) && (key !== "filters" || (key === "filters" && allowFilters))) {
+        returnObject[key] = value
+      };
   }
-  return returnObject;
+  return returnObject as PlayOptions;
 }

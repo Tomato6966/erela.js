@@ -87,8 +87,9 @@ export declare class Player {
     state: State;
     /** The equalizer bands array. */
     bands: number[];
-    /** The voice state object from Discord. */
+    /** @deprecated The voice state object from Discord. */
     voiceState: VoiceState;
+    /** The new VoiceState Data from Lavalink */
     voice: LavalinkPlayerVoice;
     /** The Manager. */
     manager: Manager;
@@ -322,7 +323,7 @@ export interface PlayerOptions {
 }
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {
-    /** The base64 encoded track. */
+    /** @deprecated The base64 encoded track. */
     readonly track: string;
     /** The encoded base64 track. */
     readonly encodedTrack: string;
@@ -381,6 +382,8 @@ export interface PlayOptions {
     readonly pause?: boolean;
     /** The Volume to start with */
     readonly volume?: number;
+    /** The Lavalink Filters to use | only with the new REST API */
+    readonly filters?: LavalinkFilterData;
 }
 export interface EqualizerBand {
     /** The band number being 0 to 14. */

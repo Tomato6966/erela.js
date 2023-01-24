@@ -96,7 +96,10 @@ export interface PlayerUpdateInfo {
 }
 export interface LavalinkPlayer {
     guildId: string;
-    track?: Track;
+    track?: {
+        encoded: string;
+        info: TrackDataInfo;
+    };
     volume: number;
     paused: boolean;
     voice: LavalinkPlayerVoice;
@@ -192,13 +195,9 @@ export interface VoiceState {
     guildId: string;
     event: VoiceServer;
     sessionId?: string;
-    /** @deprecated */
     guild_id: string;
-    /** @deprecated */
     user_id: string;
-    /** @deprecated */
     session_id: string;
-    /** @deprecated */
     channel_id: string;
 }
 export interface VoiceServer {
