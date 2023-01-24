@@ -76,12 +76,15 @@ class TrackUtils {
     static build(data, requester) {
         if (typeof data === "undefined")
             throw new RangeError('Argument "data" must be present.');
+        const encodedTrackString = data.encoded || data.encodedTrack || data.track;
+        if (!encodedTrackString)
+            throw new RangeError("Argument 'data.encoded' / 'data.encodedTrack' / 'data.track' must be present.");
         if (!data.info)
             data.info = {};
         try {
             const track = {
-                track: data.track,
-                encodedTrack: data.encoded,
+                track: encodedTrackString,
+                encodedTrack: encodedTrackString,
                 // add all lavalink Info
                 ...data.info,
                 // lavalink Data
@@ -108,7 +111,7 @@ class TrackUtils {
                             ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
                             : data.info?.thumbnail || data.info?.image;
                 },
-                requester,
+                requester: requester || {},
             };
             track.displayThumbnail = track.displayThumbnail.bind(track);
             if (this.trackPartial) {

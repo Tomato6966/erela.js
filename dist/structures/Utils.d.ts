@@ -28,7 +28,7 @@ export declare abstract class TrackUtils {
      * @param data
      * @param requester
      */
-    static build(data: TrackData, requester?: unknown): Track;
+    static build(data: Partial<TrackData>, requester?: unknown): Track;
     /**
      * Builds a UnresolvedTrack to be resolved before being played  .
      * @param query
@@ -70,6 +70,13 @@ export type PlayerEvents = TrackStartEvent | TrackEndEvent | TrackStuckEvent | T
 export type PlayerEventType = "TrackStartEvent" | "TrackEndEvent" | "TrackExceptionEvent" | "TrackStuckEvent" | "WebSocketClosedEvent";
 export type TrackEndReason = "FINISHED" | "LOAD_FAILED" | "STOPPED" | "REPLACED" | "CLEANUP";
 export type Severity = "COMMON" | "SUSPICIOUS" | "FAULT";
+export interface InvalidLavalinkRestRequest {
+    timestamp: number;
+    status: number;
+    error: string;
+    message?: string;
+    path: string;
+}
 export interface LavalinkPlayerVoice {
     token: string;
     endpoint: string;
@@ -94,12 +101,13 @@ export interface PlayerUpdateInfo {
     playerOptions: PlayerUpdateOptions;
     noReplace?: boolean;
 }
+export interface LavalinkPlayerUpdateTrack {
+    encoded?: string;
+    info: TrackDataInfo;
+}
 export interface LavalinkPlayer {
     guildId: string;
-    track?: {
-        encoded: string;
-        info: TrackDataInfo;
-    };
+    track?: LavalinkPlayerUpdateTrack;
     volume: number;
     paused: boolean;
     voice: LavalinkPlayerVoice;
@@ -153,8 +161,10 @@ export interface LavalinkPlayerVoice {
     ping?: number;
 }
 export interface TrackData {
-    track: string;
-    encoded: string;
+    /** @deprecated */
+    track?: string;
+    encoded?: string;
+    encodedTrack?: string;
     info: Partial<TrackDataInfoExtended>;
     pluginInfo: Partial<PluginDataInfo> | Record<string, string | number>;
 }
@@ -165,6 +175,7 @@ export interface TrackDataInfo {
     author: string;
     length: number;
     isSeekable: boolean;
+    position?: number;
     isStream: boolean;
     uri: string;
     sourceName: string;

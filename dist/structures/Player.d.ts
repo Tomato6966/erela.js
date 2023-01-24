@@ -1,7 +1,7 @@
 import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
-import { LavalinkFilterData, LavalinkPlayerVoice } from "./Utils";
+import { LavalinkFilterData, LavalinkPlayerVoice, TimescaleFilter } from "./Utils";
 import { Sizes, State, VoiceState } from "./Utils";
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
 export declare const validAudioOutputs: {
@@ -133,6 +133,7 @@ export declare class Player {
      * @param options
      */
     constructor(options: PlayerOptions);
+    checkFiltersState(oldFilterTimescale?: Partial<TimescaleFilter>): boolean;
     /**
      * Reset all Filters
      */
@@ -162,6 +163,12 @@ export declare class Player {
     setRate(rate?: number): Promise<boolean>;
     /**
      * Enabels / Disables the rotation effect, (Optional: provide your Own Data)
+     * @param rotationHz
+     * @returns
+     */
+    toggleRotation(rotationHz?: number): Promise<boolean>;
+    /**
+     * @deprected - use #toggleRotation() Enabels / Disables the rotation effect, (Optional: provide your Own Data)
      * @param rotationHz
      * @returns
      */

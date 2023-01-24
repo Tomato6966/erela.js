@@ -4,7 +4,7 @@ import { EventEmitter } from "node:events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
-import { PluginDataInfo } from "./Utils";
+import { LavalinkPlayerVoice, PluginDataInfo } from "./Utils";
 import {
   LoadType,
   Plugin,
@@ -823,7 +823,7 @@ export class Manager extends EventEmitter {
 
     if ("token" in update) {
       player.voiceState.event = update;
-      if (!player.node.sessionId) {
+      if (!player.node?.sessionId) {
         if (REQUIRED_KEYS.every(key => key in player.voiceState)) await player.node.send(player.voiceState);
         return;
       }
@@ -846,8 +846,8 @@ export class Manager extends EventEmitter {
       if (player.voiceChannel !== update.channel_id) {
         this.emit("playerMove", player, player.voiceChannel, update.channel_id);
       }
-      player.voiceState.sessionId = update.session_id;
-      player.voice.sessionId = update.session_id;
+      if(player.voiceState) player.voiceState.sessionId = update.session_id;
+      if(player.voice) player.voice.sessionId = update.session_id;
       player.voiceChannel = update.channel_id;
     } else {
       this.emit("playerDisconnect", player, player.voiceChannel);

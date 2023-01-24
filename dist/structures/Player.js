@@ -168,8 +168,9 @@ class Player {
             this.manager.init(this.manager.options?.clientId);
         }
         this.region = options?.region;
-        const node = this.manager.nodes.get(options.node);
-        this.node = node || this.manager.leastUsedNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first() || this.manager.leastUsedNodes.first();
+        const customNode = this.manager.nodes.get(options.node);
+        const regionNode = this.manager.leastUsedNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first();
+        this.node = customNode || regionNode || this.manager.leastUsedNodes.first();
         if (!this.node)
             throw new RangeError("No available nodes.");
         this.filters = {
@@ -231,6 +232,22 @@ class Player {
         this.manager.players.set(options.guild, this);
         this.manager.emit("playerCreate", this);
         this.setVolume(options.volume ?? 100);
+    }
+    checkFiltersState(oldFilterTimescale) {
+        this.filters.rotation = this.filterData.rotation.rotationHz !== 0;
+        this.filters.vibrato = this.filterData.vibrato.frequency !== 0 || this.filterData.vibrato.depth !== 0;
+        this.filters.tremolo = this.filterData.tremolo.frequency !== 0 || this.filterData.tremolo.depth !== 0;
+        this.filters.echo = this.filterData.echo.decay !== 0 || this.filterData.echo.delay !== 0;
+        this.filters.lowPass = this.filterData.lowPass.smoothing !== 0;
+        this.filters.karaoke = Object.values(this.filterData.karaoke).some(v => v !== 0);
+        if ((this.filters.nightcore || this.filters.vaporwave) && oldFilterTimescale) {
+            if (oldFilterTimescale.pitch !== this.filterData.timescale.pitch || oldFilterTimescale.rate !== this.filterData.timescale.rate || oldFilterTimescale.speed !== this.filterData.timescale.speed) {
+                this.filters.custom = Object.values(this.filterData.timescale).some(v => v !== 1);
+                this.filters.nightcore = false;
+                this.filters.vaporwave = false;
+            }
+        }
+        return true;
     }
     /**
      * Reset all Filters
@@ -368,6 +385,20 @@ class Player {
     }
     /**
      * Enabels / Disables the rotation effect, (Optional: provide your Own Data)
+     * @param rotationHz
+     * @returns
+     */
+    async toggleRotation(rotationHz = 0.2) {
+        if (this.node.info && !this.node.info?.filters?.includes("rotation"))
+            throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)");
+        this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
+        this.filters.rotation = !!!this.filters.rotation;
+        /** @deprecated but sync with rotating */
+        this.filters.rotating = this.filters.rotation;
+        return await this.updatePlayerFilters(), this.filters.rotation;
+    }
+    /**
+     * @deprected - use #toggleRotation() Enabels / Disables the rotation effect, (Optional: provide your Own Data)
      * @param rotationHz
      * @returns
      */

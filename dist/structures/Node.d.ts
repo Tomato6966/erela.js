@@ -6,7 +6,7 @@ import { Manager } from "./Manager";
 import { Player, Track, UnresolvedTrack } from "./Player";
 import { LavalinkPlayer, PlayerEvent, PlayerEvents, PlayerUpdateInfo, RoutePlanner, Session, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, WebSocketClosedEvent } from "./Utils";
 import internal from "node:stream";
-export type LavalinkVersion = "v2" | "v3";
+export type LavalinkVersion = "v2" | "v3" | "v4";
 export declare class Node {
     options: NodeOptions;
     /** The socket for the node. */
@@ -50,6 +50,7 @@ export declare class Node {
      */
     getPlayer(guildId: string): Promise<LavalinkPlayer | {}>;
     updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer | {}>;
+    private syncPlayerData;
     /**
      * Deletes a Lavalink Player (from Lavalink)
      * @param guildId

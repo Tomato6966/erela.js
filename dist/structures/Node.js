@@ -128,13 +128,26 @@ class Node {
                 deficit: 0,
             },
         };
+        if (this.version === "v4" && !this.useVersionPath) {
+            console.error(`@deprecation-warning erela.js - ${this.version} was provided which requires #useVersionPath to be false --> set it to true for you!`);
+            this.useVersionPath = true;
+        }
+        if (this.version && !["v3", "v4"].includes(this.version) && this.useVersionPath) {
+            console.error(`@deprecation-warning erela.js - ${this.version} was provided which does not allow #useVersionPath to be true --> set it to false for you!`);
+            this.useVersionPath = false;
+        }
+        if (!this.version) {
+            console.error(`erela.js - For Node: ${this.options.identifier} - ${this.address} was no Version provided --> using v3 as a fallback`);
+            this.version = "v3";
+            this.useVersionPath = true;
+        }
         this.manager.nodes.set(this.options.identifier, this);
         this.manager.emit("nodeCreate", this);
     }
     async fetchInfo() {
         if (!this.sessionId)
             throw new Error("The Lavalink-Node is either not ready, or not up to date!");
-        const resInfo = await this.makeRequest(`/info`, r => r.path = "/v3/info").catch(console.warn) || null;
+        const resInfo = await this.makeRequest(`/info`, r => r.path = `/${["v3", "v4"].includes(this.version) ? this.version : "v3"}/info`).catch(console.warn) || null;
         return resInfo;
     }
     async fetchVersion() {
@@ -161,12 +174,12 @@ class Node {
     async getPlayer(guildId) {
         if (!this.sessionId)
             throw new Error("The Lavalink-Node is either not ready, or not up to date!");
-        const res = await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
-        return res;
+        return await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
     }
     async updatePlayer(data) {
         if (!this.sessionId)
             throw new Error("The Lavalink-Node is either not ready, or not up to date!");
+        this.syncPlayerData(data);
         const res = await this.makeRequest(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
             r.method = "PATCH";
             r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
@@ -177,50 +190,60 @@ class Node {
                 r.path = url.toString().replace(this.poolAddress, "");
             }
         });
-        /*
-          {
-            guildId: '773668217163218944',
-            track: {
-              encoded: 'QAAA4wIAHU1vb25saWdodCBTaGFkb3cgKFJlbWFzdGVyZWQpAA1NaWtlIE9sZGZpZWxkAAAAAAADU5AACDcwMDkzODc2AAEAIWh0dHBzOi8vZGVlemVyLmNvbS90cmFjay83MDA5Mzg3NgAGZGVlemVyAAEAaWh0dHBzOi8vZS1jZG5zLWltYWdlcy5kemNkbi5uZXQvaW1hZ2VzL2NvdmVyL2UwN2IxODViZWNiZTBiNmFiMDE0YzM2NzQ4ZWZlMGMzLzEwMDB4MTAwMC0wMDAwMDAtODAtMC0wLmpwZwAAAAAAAA44',
-              track: 'QAAA4wIAHU1vb25saWdodCBTaGFkb3cgKFJlbWFzdGVyZWQpAA1NaWtlIE9sZGZpZWxkAAAAAAADU5AACDcwMDkzODc2AAEAIWh0dHBzOi8vZGVlemVyLmNvbS90cmFjay83MDA5Mzg3NgAGZGVlemVyAAEAaWh0dHBzOi8vZS1jZG5zLWltYWdlcy5kemNkbi5uZXQvaW1hZ2VzL2NvdmVyL2UwN2IxODViZWNiZTBiNmFiMDE0YzM2NzQ4ZWZlMGMzLzEwMDB4MTAwMC0wMDAwMDAtODAtMC0wLmpwZwAAAAAAAA44',
-              info: {
-                identifier: '70093876',
-                isSeekable: true,
-                author: 'Mike Oldfield',
-                length: 218000,
-                isStream: false,
-                position: 3640,
-                title: 'Moonlight Shadow (Remastered)',
-                uri: 'https://deezer.com/track/70093876',
-                sourceName: 'deezer'
-              }
-            },
-            volume: 100,
-            paused: false,
-            voice: {
-              token: '793e7c82ef5f4b49',
-              endpoint: 'frankfurt8457.discord.media:443',
-              sessionId: '1dfe0c9a05946e0137698ece51d807b9',
-              connected: true,
-              ping: 0
-            },
-            filters: { volume: 3.5 }
-          }
-        */
-        const player = this.manager.players.get(data.guildId);
-        if (player) {
-            if (typeof res.voice !== "undefined")
-                player.voice = res.voice;
-            if (typeof res.volume !== "undefined")
-                player.volume = res.volume;
-            if (typeof res.paused !== "undefined") {
-                player.paused = res.paused;
-                player.playing = !res.paused;
-            }
-            if (typeof res.filters !== "undefined")
-                player.filters;
-        }
+        this.syncPlayerData({}, res);
         return res;
+    }
+    syncPlayerData(data, res) {
+        if (("guildId" in data)) {
+            const player = this.manager.players.get(data.guildId);
+            if (!player)
+                return;
+            if (typeof data.playerOptions.paused !== "undefined") {
+                player.paused = data.playerOptions.paused;
+                player.playing = !data.playerOptions.paused;
+            }
+            if (typeof data.playerOptions.position !== "undefined")
+                player.position = data.playerOptions.position;
+            if (typeof data.playerOptions.voice !== "undefined")
+                player.voice = data.playerOptions.voice;
+            if (typeof data.playerOptions.volume !== "undefined")
+                player.volume = data.playerOptions.volume;
+            if (typeof data.playerOptions.filters !== "undefined") {
+                const oldFilterTimescale = { ...(player.filterData.timescale || {}) };
+                Object.freeze(oldFilterTimescale);
+                if (data.playerOptions.filters.timescale)
+                    player.filterData.timescale = data.playerOptions.filters.timescale;
+                if (data.playerOptions.filters.distortion)
+                    player.filterData.distortion = data.playerOptions.filters.distortion;
+                if (data.playerOptions.filters.echo)
+                    player.filterData.echo = data.playerOptions.filters.echo;
+                if (data.playerOptions.filters.vibrato)
+                    player.filterData.vibrato = data.playerOptions.filters.vibrato;
+                if (data.playerOptions.filters.volume)
+                    player.filterData.volume = data.playerOptions.filters.volume;
+                if (data.playerOptions.filters.equalizer)
+                    player.filterData.equalizer = data.playerOptions.filters.equalizer;
+                if (data.playerOptions.filters.karaoke)
+                    player.filterData.karaoke = data.playerOptions.filters.karaoke;
+                if (data.playerOptions.filters.lowPass)
+                    player.filterData.lowPass = data.playerOptions.filters.lowPass;
+                if (data.playerOptions.filters.rotation)
+                    player.filterData.rotation = data.playerOptions.filters.rotation;
+                if (data.playerOptions.filters.tremolo)
+                    player.filterData.tremolo = data.playerOptions.filters.tremolo;
+                player.checkFiltersState(oldFilterTimescale);
+            }
+            ;
+        }
+        if (res?.guildId === "string" && typeof res?.voice !== "undefined") {
+            const player = this.manager.players.get(data.guildId);
+            if (!player)
+                return;
+            if (typeof res?.voice?.connected === "boolean" && res.voice.connected === false)
+                return player.destroy();
+            player.wsPing = res?.voice?.ping || player?.wsPing;
+        }
+        return true;
     }
     /**
      * Deletes a Lavalink Player (from Lavalink)
@@ -305,7 +328,7 @@ class Node {
         };
         if (!this.initialized)
             this.initialized = true;
-        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}`, { headers });
+        this.socket = new ws_1.default(`ws${this.options.secure ? "s" : ""}://${this.address}${["v3", "v4"].includes(this.version) ? `/${this.version}/websocket` : ``}`, { headers });
         this.socket.on("open", this.open.bind(this));
         this.socket.on("close", this.close.bind(this));
         this.socket.on("message", this.message.bind(this));
@@ -385,7 +408,16 @@ class Node {
         if (this.reconnectTimeout)
             clearTimeout(this.reconnectTimeout);
         this.manager.emit("nodeConnect", this);
-        this.fetchInfo().then(x => this.info = x).catch(() => null);
+        setTimeout(() => {
+            this.fetchInfo().then(x => this.info = x).catch(() => null).then(() => {
+                if (!this.info && ["v3", "v4"].includes(this.version)) {
+                    const errorString = `Lavalink Node (${this.address}) does not provide any /${this.useVersionPath ? `${this.version}/` : ""}info --> but Version: ${this.version} was provided which means, Lavalink is not up to date! --> set #useVersionPath to false + set it so that`;
+                    this.useVersionPath = false; // fix it
+                    this.options.useVersionPath = false;
+                    throw new Error(errorString);
+                }
+            });
+        }, 1500);
     }
     close(code, reason) {
         this.manager.emit("nodeDisconnect", this, { code, reason });
@@ -414,6 +446,7 @@ class Node {
             case "playerUpdate":
                 const player = this.manager.players.get(payload.guildId);
                 if (player) {
+                    console.log(payload);
                     delete payload.op;
                     player.payload = Object.assign({}, payload);
                     if (player.get("updateInterval"))

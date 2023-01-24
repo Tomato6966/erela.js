@@ -85,17 +85,18 @@ export abstract class TrackUtils {
    * @param data
    * @param requester
    */
-  static build(data: TrackData, requester?: unknown): Track {
+  static build(data: Partial<TrackData>, requester?: unknown): Track {
     if (typeof data === "undefined")
       throw new RangeError('Argument "data" must be present.');
+    const encodedTrackString = data.encoded || data.encodedTrack || data.track;
+    if(!encodedTrackString) throw new RangeError("Argument 'data.encoded' / 'data.encodedTrack' / 'data.track' must be present.");
     if(!data.info) data.info = {} as Partial<TrackDataInfoExtended>;
     try {
       const track: Track = {
-        track: data.track,
-        encodedTrack: data.encoded,
+        track: encodedTrackString,
+        encodedTrack: encodedTrackString,
         // add all lavalink Info
         ...data.info,
-
         // lavalink Data
         title: data.info.title,
         identifier: data.info.identifier,
@@ -106,7 +107,6 @@ export abstract class TrackUtils {
         uri: data.info.uri,
         artworkURL: data.info.artworkUrl?.replace("/maxresdefault.jpg",  "/mqdefault.jpg"),
         isrc: data.info.isrc,
-
         // library data
         isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
         // parsed Thumbnail
@@ -121,7 +121,7 @@ export abstract class TrackUtils {
           ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
           :  data.info?.thumbnail || data.info?.image
         },
-        requester,
+        requester: requester || {},
       };
 
       track.displayThumbnail = track.displayThumbnail.bind(track);
@@ -362,6 +362,13 @@ export type TrackEndReason =
 
 export type Severity = "COMMON" | "SUSPICIOUS" | "FAULT";
 
+export interface InvalidLavalinkRestRequest {
+  timestamp: number;
+  status: number;
+  error: string;
+  message?: string;
+  path: string;
+}
 export interface LavalinkPlayerVoice {
   token: string;
   endpoint: string;
@@ -388,17 +395,19 @@ export interface PlayerUpdateInfo {
   playerOptions: PlayerUpdateOptions;
   noReplace?: boolean;
 }
+export interface LavalinkPlayerUpdateTrack {
+  encoded?: string;
+  info: TrackDataInfo;
+}
 export interface LavalinkPlayer {
   guildId: string;
-  track?: {
-    encoded: string;
-    info: TrackDataInfo;
-  };
+  track?: LavalinkPlayerUpdateTrack;
   volume: number;
   paused: boolean;
   voice: LavalinkPlayerVoice;
   filters: Partial<LavalinkFilterData>;
 }
+
 
 export interface FetchOptions {
   endpoint: string;
@@ -454,8 +463,10 @@ export interface LavalinkPlayerVoice {
 
 
 export interface TrackData {
-  track: string;
-  encoded: string;
+  /** @deprecated */
+  track?: string;
+  encoded?: string;
+  encodedTrack?: string;
   info:  Partial<TrackDataInfoExtended>;
   pluginInfo: Partial<PluginDataInfo> | Record<string, string|number>;
 }
@@ -467,6 +478,7 @@ export interface TrackDataInfo {
   author: string;
   length: number;
   isSeekable: boolean;
+  position?: number;
   isStream: boolean;
   uri: string;
   sourceName: string;

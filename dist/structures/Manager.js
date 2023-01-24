@@ -609,7 +609,7 @@ class Manager extends node_events_1.EventEmitter {
             return;
         if ("token" in update) {
             player.voiceState.event = update;
-            if (!player.node.sessionId) {
+            if (!player.node?.sessionId) {
                 if (REQUIRED_KEYS.every(key => key in player.voiceState))
                     await player.node.send(player.voiceState);
                 return;
@@ -633,8 +633,10 @@ class Manager extends node_events_1.EventEmitter {
             if (player.voiceChannel !== update.channel_id) {
                 this.emit("playerMove", player, player.voiceChannel, update.channel_id);
             }
-            player.voiceState.sessionId = update.session_id;
-            player.voice.sessionId = update.session_id;
+            if (player.voiceState)
+                player.voiceState.sessionId = update.session_id;
+            if (player.voice)
+                player.voice.sessionId = update.session_id;
             player.voiceChannel = update.channel_id;
         }
         else {
