@@ -55,6 +55,7 @@ class Node {
     static _manager;
     reconnectTimeout;
     reconnectAttempts = 1;
+    info = null;
     useVersionPath = true;
     /** Returns if connected to the Node. */
     get connected() {
@@ -384,6 +385,7 @@ class Node {
         if (this.reconnectTimeout)
             clearTimeout(this.reconnectTimeout);
         this.manager.emit("nodeConnect", this);
+        this.fetchInfo().then(x => this.info = x).catch(() => null);
     }
     close(code, reason) {
         this.manager.emit("nodeDisconnect", this, { code, reason });

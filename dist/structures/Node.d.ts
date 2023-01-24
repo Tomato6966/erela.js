@@ -25,6 +25,7 @@ export declare class Node {
     private static _manager;
     private reconnectTimeout?;
     private reconnectAttempts;
+    info: LavalinkInfo | null;
     useVersionPath: boolean;
     /** Returns if connected to the Node. */
     get connected(): boolean;

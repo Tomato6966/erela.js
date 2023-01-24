@@ -102,7 +102,7 @@ export interface Manager {
  * @noInheritDoc
  */
 export declare class Manager extends EventEmitter {
-    static readonly DEFAULT_SOURCES: Record<SearchPlatform, string>;
+    static readonly DEFAULT_SOURCES: Record<SearchPlatform, LavalinkSearchPlatform>;
     static readonly regex: Record<SourcesRegex, RegExp>;
     /** The map of players. */
     readonly players: Collection<string, Player>;
@@ -158,6 +158,7 @@ export declare class Manager extends EventEmitter {
        * @returns The search result.
        */
     searchLink(query: string | SearchQuery, requester?: unknown, customNode?: Node): Promise<SearchResult>;
+    validatedQuery(queryString: string, node: Node): void;
     /**
      * Decodes the base64 encoded tracks and returns a TrackData array.
      * @param tracks
@@ -263,7 +264,9 @@ export interface ManagerOptions {
 }
 export type leastUsedNodeSortType = "memory" | "calls" | "players";
 export type leastLoadNodeSortType = "cpu" | "memory";
-export type SearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytsearch" | "ytmsearch" | "ytm" | "yt" | "sc" | "am" | "amsearch" | "sp" | "sprec" | "spsuggestion" | "spsearch" | "scsearch" | "ytmsearch" | "dzisrc" | "dzsearch" | "ds" | "dz" | "deezer" | "ymsearch" | "speak" | "tts";
+export type LavalinkSearchPlatform = "ytsearch" | "ytmsearch" | "scsearch" | "spsearch" | "sprec" | "amsearch" | "dzsearch" | "dzisrc" | "sprec" | "ymsearch" | "speak" | "tts";
+export type ErelaSearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytm" | "yt" | "sc" | "am" | "sp" | "sprec" | "spsuggestion" | "ds" | "dz" | "deezer" | "yandex" | "yandexmusic";
+export type SearchPlatform = LavalinkSearchPlatform | ErelaSearchPlatform;
 export type SourcesRegex = "YoutubeRegex" | "YoutubeMusicRegex" | "SoundCloudRegex" | "SoundCloudMobileRegex" | "DeezerTrackRegex" | "DeezerArtistRegex" | "DeezerEpisodeRegex" | "DeezerMixesRegex" | "DeezerPageLinkRegex" | "DeezerPlaylistRegex" | "DeezerAlbumRegex" | "AllDeezerRegex" | "SpotifySongRegex" | "SpotifyPlaylistRegex" | "SpotifyArtistRegex" | "SpotifyEpisodeRegex" | "SpotifyShowRegex" | "SpotifyAlbumRegex" | "AllSpotifyRegex" | "mp3Url" | "m3uUrl" | "m3u8Url" | "mp4Url" | "m4aUrl" | "wavUrl" | "tiktok" | "mixcloud" | "musicYandex" | "radiohost" | "bandcamp" | "appleMusic" | "TwitchTv" | "vimeo";
 export interface SearchQuery {
     /** The source to search from. */

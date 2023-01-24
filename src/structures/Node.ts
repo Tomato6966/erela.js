@@ -87,6 +87,8 @@ export class Node {
   private reconnectTimeout?: NodeJS.Timeout;
   private reconnectAttempts = 1;
   
+  public info: LavalinkInfo|null = null;
+
   public useVersionPath = true;
 
   /** Returns if connected to the Node. */
@@ -421,6 +423,7 @@ export class Node {
   protected open(): void {
     if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
     this.manager.emit("nodeConnect", this);
+    this.fetchInfo().then(x => this.info = x).catch(() => null);
   }
 
   protected close(code: number, reason: string): void {

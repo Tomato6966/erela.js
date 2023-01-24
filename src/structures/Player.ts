@@ -352,11 +352,12 @@ export class Player {
    * @param type 
    */
   public async setAudioOutput(type:AudioOutputs): Promise<AudioOutputs> {
-      if(!type || !validAudioOutputs[type]) throw "Invalid audio type added, must be 'mono' / 'stereo' / 'left' / 'right'"
-      this.filterData.channelMix = validAudioOutputs[type];
-      this.filters.audioOutput = type;
-      await this.updatePlayerFilters();
-      return this.filters.audioOutput;
+    if(this.node.info && !this.node.info?.filters?.includes("channelMix")) throw new Error("Node#Info#filters does not include the 'channelMix' Filter (Node has it not enable)")
+    if(!type || !validAudioOutputs[type]) throw "Invalid audio type added, must be 'mono' / 'stereo' / 'left' / 'right'"
+    this.filterData.channelMix = validAudioOutputs[type];
+    this.filters.audioOutput = type;
+    await this.updatePlayerFilters();
+    return this.filters.audioOutput;
   }
   /**
    * Set custom filter.timescale#speed . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
@@ -364,6 +365,7 @@ export class Player {
    * @returns 
    */
   public async setSpeed(speed:number = 1): Promise<boolean> {
+    if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
       this.filterData.timescale.pitch = 1;
@@ -387,6 +389,7 @@ export class Player {
    * @returns 
    */
   public async setPitch(pitch:number = 1): Promise<boolean> {
+    if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
       this.filterData.timescale.pitch = 1;
@@ -411,6 +414,7 @@ export class Player {
    * @returns 
    */
   public async setRate(rate:number = 1): Promise<boolean> {    
+    if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
       this.filterData.timescale.pitch = 1;
@@ -433,6 +437,7 @@ export class Player {
    * @returns 
    */
   public async toggleRotating(rotationHz:number = 0.2): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("rotation")) throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)")
       this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
       
       this.filters.rotation = !!!this.filters.rotation;
@@ -448,6 +453,7 @@ export class Player {
    * @returns 
    */
   public async toggleVibrato(frequency:number = 2, depth:number = 0.5): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("vibrato")) throw new Error("Node#Info#filters does not include the 'vibrato' Filter (Node has it not enable)")
       this.filterData.vibrato.frequency = this.filters.vibrato ? 0 : frequency;
       this.filterData.vibrato.depth = this.filters.vibrato ? 0 : depth;
 
@@ -462,6 +468,7 @@ export class Player {
    * @returns 
    */
   public async toggleTremolo(frequency:number = 2, depth:number = 0.5): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("tremolo")) throw new Error("Node#Info#filters does not include the 'tremolo' Filter (Node has it not enable)")
       this.filterData.tremolo.frequency = this.filters.tremolo ? 0 : frequency;
       this.filterData.tremolo.depth = this.filters.tremolo ? 0 : depth;
 
@@ -475,6 +482,7 @@ export class Player {
    * @returns 
    */
   public async toggleLowPass(smoothing:number = 20): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("lowPass")) throw new Error("Node#Info#filters does not include the 'lowPass' Filter (Node has it not enable)")
       this.filterData.lowPass.smoothing = this.filters.lowPass ? 0 : smoothing;
       
       this.filters.lowPass = !!!this.filters.lowPass;
@@ -488,6 +496,7 @@ export class Player {
    * @returns 
    */
   public async toggleEcho(delay:number = 1, decay:number = 0.5): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("echo")) throw new Error("Node#Info#filters does not include the 'echo' Filter (Node has it not enable aka not installed!)")
       this.filterData.echo.delay = this.filters.echo ? 0 : delay;
       this.filterData.echo.decay = this.filters.echo ? 0 : decay;
 
@@ -503,6 +512,7 @@ export class Player {
    * @returns 
    */
   public async toggleNightcore(speed:number = 1.289999523162842, pitch:number = 1.289999523162842, rate:number = 0.9365999523162842): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
       this.filterData.timescale.speed = this.filters.nightcore ? 1 : speed;
       this.filterData.timescale.pitch = this.filters.nightcore ? 1 : pitch;
       this.filterData.timescale.rate = this.filters.nightcore ? 1 : rate;
@@ -521,6 +531,7 @@ export class Player {
    * @returns 
    */
   public async toggleVaporwave(speed:number = 0.8500000238418579, pitch:number = 0.800000011920929, rate:number = 1): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
       this.filterData.timescale.speed = this.filters.vaporwave ? 1 : speed;
       this.filterData.timescale.pitch = this.filters.vaporwave ? 1 : pitch;
       this.filterData.timescale.rate = this.filters.vaporwave ? 1 : rate;
@@ -540,6 +551,8 @@ export class Player {
    * @returns 
    */
   public async toggleKaraoke(level:number = 1, monoLevel:number = 1, filterBand:number = 220, filterWidth:number = 100): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("karaoke")) throw new Error("Node#Info#filters does not include the 'karaoke' Filter (Node has it not enable)")
+    
       this.filterData.karaoke.level = this.filters.karaoke ? 0 : level;
       this.filterData.karaoke.monoLevel = this.filters.karaoke ? 0 : monoLevel;
       this.filterData.karaoke.filterBand = this.filters.karaoke ? 0 : filterBand;
@@ -559,6 +572,7 @@ export class Player {
   async updatePlayerFilters(): Promise<Player> {
     const sendData = {...this.filterData};
 
+    if(!this.filters.volume) delete sendData.volume;
     if(!this.filters.tremolo) delete sendData.tremolo;
     if(!this.filters.vibrato) delete sendData.vibrato;
     //if(!this.filters.karaoke) delete sendData.karaoke;
@@ -582,10 +596,14 @@ export class Player {
         ...sendData
       });
     } else {
+      sendData.equalizer = this.bands.map((gain, band) => ({ band, gain }));
+      for(const key of [...Object.keys(sendData)]) {
+        if(this.node.info && !this.node.info?.filters?.includes?.(key)) delete sendData[key];
+      }
       await this.node.updatePlayer({
         guildId: this.guild,
         playerOptions: {
-          filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })), ...sendData },
+          filters: sendData,
         }
       })
     }
