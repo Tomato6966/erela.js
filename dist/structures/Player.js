@@ -49,6 +49,7 @@ function check(options) {
         typeof options.selfDeafen !== "boolean")
         throw new TypeError('Player option "selfDeafen" must be a boolean.');
 }
+;
 class Player {
     options;
     /** The Queue for the Player. */
@@ -79,6 +80,7 @@ class Player {
     bands = new Array(15).fill(0.0);
     /** The voice state object from Discord. */
     voiceState;
+    voice;
     /** The Manager. */
     manager;
     static _manager;
@@ -170,9 +172,13 @@ class Player {
         if (!this.node)
             throw new RangeError("No available nodes.");
         this.filters = {
+            volume: false,
+            vaporwave: false,
+            custom: false,
             nightcore: false,
             echo: false,
             rotating: false,
+            rotation: false,
             karaoke: false,
             tremolo: false,
             vibrato: false,
@@ -198,7 +204,7 @@ class Player {
                 delay: 0,
                 decay: 0
             },
-            rotating: {
+            rotation: {
                 rotationHz: 0
             },
             tremolo: {
@@ -225,18 +231,24 @@ class Player {
         this.manager.emit("playerCreate", this);
         this.setVolume(options.volume ?? 100);
     }
-    resetFilters() {
+    /**
+     * Reset all Filters
+     */
+    async resetFilters() {
         this.filters.echo = false;
         this.filters.nightcore = false;
         this.filters.lowPass = false;
         this.filters.rotating = false;
+        this.filters.rotation = false;
         this.filters.tremolo = false;
         this.filters.vibrato = false;
         this.filters.karaoke = false;
         this.filters.karaoke = false;
+        this.filters.volume = false;
         this.filters.audioOutput = "stereo";
         // disable all filters
         for (const [key, value] of Object.entries({
+            volume: 1,
             lowPass: {
                 smoothing: 0
             },
@@ -255,7 +267,7 @@ class Player {
                 delay: 0,
                 decay: 0
             },
-            rotating: {
+            rotation: {
                 rotationHz: 0
             },
             tremolo: {
@@ -270,70 +282,198 @@ class Player {
         })) {
             this.filterData[key] = value;
         }
-        return this.updatePlayerFilters();
-        this.filters;
+        await this.updatePlayerFilters();
+        return this.filters;
     }
     /**
-     *
-     * @param {AudioOutputs} type
+     * Set the AudioOutput Filter
+     * @param type
      */
-    setAudioOutput(type) {
+    async setAudioOutput(type) {
         if (!type || !exports.validAudioOutputs[type])
             throw "Invalid audio type added, must be 'mono' / 'stereo' / 'left' / 'right'";
         this.filterData.channelMix = exports.validAudioOutputs[type];
         this.filters.audioOutput = type;
-        return this.updatePlayerFilters(), this.filters.audioOutput;
+        await this.updatePlayerFilters();
+        return this.filters.audioOutput;
     }
-    // all effects possible to "toggle"
-    toggleRotating(rotationHz = 0.2) {
-        const filterDataName = "rotating", filterName = "rotating";
-        this.filterData[filterDataName].rotationHz = this.filters[filterName] ? 0 : rotationHz;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Set custom filter.timescale#speed . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
+     * @param speed
+     * @returns
+     */
+    async setSpeed(speed = 1) {
+        this.filterData.timescale.speed = speed;
+        // reset nightcore / vaporwave filter if enabled
+        if (this.filters.nightcore || this.filters.vaporwave) {
+            this.filterData.timescale.pitch = 1;
+            this.filterData.timescale.speed = 1;
+            this.filterData.timescale.rate = 1;
+            this.filters.nightcore = false;
+            this.filters.vaporwave = false;
+        }
+        // check if custom filter is active / not
+        this.isCustomFilterActive();
+        await this.updatePlayerFilters();
+        return this.filters.custom;
     }
-    toggleVibrato(frequency = 2, depth = 0.5) {
-        const filterDataName = "vibrato", filterName = "vibrato";
-        this.filterData[filterDataName].frequency = this.filters[filterName] ? 0 : frequency;
-        this.filterData[filterDataName].depth = this.filters[filterName] ? 0 : depth;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Set custom filter.timescale#pitch . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
+     * @param speed
+     * @returns
+     */
+    async setPitch(pitch = 1) {
+        this.filterData.timescale.pitch = pitch;
+        // reset nightcore / vaporwave filter if enabled
+        if (this.filters.nightcore || this.filters.vaporwave) {
+            this.filterData.timescale.pitch = 1;
+            this.filterData.timescale.speed = 1;
+            this.filterData.timescale.rate = 1;
+            this.filters.nightcore = false;
+            this.filters.vaporwave = false;
+        }
+        // check if custom filter is active / not
+        this.isCustomFilterActive();
+        await this.updatePlayerFilters();
+        return this.filters.custom;
     }
-    toggleTremolo(frequency = 2, depth = 0.5) {
-        const filterDataName = "tremolo", filterName = "tremolo";
-        this.filterData[filterDataName].frequency = this.filters[filterName] ? 0 : frequency;
-        this.filterData[filterDataName].depth = this.filters[filterName] ? 0 : depth;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Set custom filter.timescale#rate . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
+     * @param speed
+     * @returns
+     */
+    async setRate(rate = 1) {
+        this.filterData.timescale.rate = rate;
+        // reset nightcore / vaporwave filter if enabled
+        if (this.filters.nightcore || this.filters.vaporwave) {
+            this.filterData.timescale.pitch = 1;
+            this.filterData.timescale.speed = 1;
+            this.filterData.timescale.rate = 1;
+            this.filters.nightcore = false;
+            this.filters.vaporwave = false;
+        }
+        // check if custom filter is active / not
+        this.isCustomFilterActive();
+        await this.updatePlayerFilters();
+        return this.filters.custom;
     }
-    toggleLowPass(smoothing = 20) {
-        const filterDataName = "lowPass", filterName = "lowPass";
-        this.filterData[filterDataName].smoothing = this.filters[filterName] ? 0 : smoothing;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Enabels / Disables the rotation effect, (Optional: provide your Own Data)
+     * @param rotationHz
+     * @returns
+     */
+    async toggleRotating(rotationHz = 0.2) {
+        this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
+        this.filters.rotation = !!!this.filters.rotation;
+        /** @deprecated but sync with rotating */
+        this.filters.rotating = this.filters.rotation;
+        return await this.updatePlayerFilters(), this.filters.rotation;
     }
-    toggleEcho(delay = 1, decay = 0.5) {
-        const filterDataName = "echo", filterName = "echo";
-        this.filterData[filterDataName].delay = this.filters[filterName] ? 0 : delay;
-        this.filterData[filterDataName].decay = this.filters[filterName] ? 0 : decay;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Enabels / Disables the Vibrato effect, (Optional: provide your Own Data)
+     * @param frequency
+     * @param depth
+     * @returns
+     */
+    async toggleVibrato(frequency = 2, depth = 0.5) {
+        this.filterData.vibrato.frequency = this.filters.vibrato ? 0 : frequency;
+        this.filterData.vibrato.depth = this.filters.vibrato ? 0 : depth;
+        this.filters.vibrato = !!!this.filters.vibrato;
+        await this.updatePlayerFilters();
+        return this.filters.vibrato;
     }
-    toggleNightcore(speed = 1.2999999523162842, pitch = 1.2999999523162842, rate = 1) {
-        const filterDataName = "timescale", filterName = "nightcore";
-        this.filterData[filterDataName].speed = this.filters[filterName] ? 1 : speed;
-        this.filterData[filterDataName].pitch = this.filters[filterName] ? 1 : pitch;
-        this.filterData[filterDataName].rate = this.filters[filterName] ? 1 : rate;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Enabels / Disables the Tremolo effect, (Optional: provide your Own Data)
+     * @param frequency
+     * @param depth
+     * @returns
+     */
+    async toggleTremolo(frequency = 2, depth = 0.5) {
+        this.filterData.tremolo.frequency = this.filters.tremolo ? 0 : frequency;
+        this.filterData.tremolo.depth = this.filters.tremolo ? 0 : depth;
+        this.filters.tremolo = !!!this.filters.tremolo;
+        await this.updatePlayerFilters();
+        return this.filters.tremolo;
     }
-    toggleKaraoke(level = 1, monoLevel = 1, filterBand = 220, filterWidth = 100) {
-        const filterDataName = "karaoke", filterName = "karaoke";
-        this.filterData[filterDataName].level = this.filters[filterName] ? 0 : level;
-        this.filterData[filterDataName].monoLevel = this.filters[filterName] ? 0 : monoLevel;
-        this.filterData[filterDataName].filterBand = this.filters[filterName] ? 0 : filterBand;
-        this.filterData[filterDataName].filterWidth = this.filters[filterName] ? 0 : filterWidth;
-        this.filters[filterName] = !!!this.filters[filterName];
-        return this.updatePlayerFilters(), this.filters[filterName];
+    /**
+     * Enabels / Disables the LowPass effect, (Optional: provide your Own Data)
+     * @param smoothing
+     * @returns
+     */
+    async toggleLowPass(smoothing = 20) {
+        this.filterData.lowPass.smoothing = this.filters.lowPass ? 0 : smoothing;
+        this.filters.lowPass = !!!this.filters.lowPass;
+        await this.updatePlayerFilters();
+        return this.filters.lowPass;
+    }
+    /**
+     * Enabels / Disables the Echo effect, IMPORTANT! Only works with the correct Lavalink Plugin installed. (Optional: provide your Own Data)
+     * @param delay
+     * @param decay
+     * @returns
+     */
+    async toggleEcho(delay = 1, decay = 0.5) {
+        this.filterData.echo.delay = this.filters.echo ? 0 : delay;
+        this.filterData.echo.decay = this.filters.echo ? 0 : decay;
+        this.filters.echo = !!!this.filters.echo;
+        await this.updatePlayerFilters();
+        return this.filters.echo;
+    }
+    /**
+     * Enables / Disabels a Nightcore-like filter Effect. Disables/Overwrides both: custom and Vaporwave Filter
+     * @param speed
+     * @param pitch
+     * @param rate
+     * @returns
+     */
+    async toggleNightcore(speed = 1.289999523162842, pitch = 1.289999523162842, rate = 0.9365999523162842) {
+        this.filterData.timescale.speed = this.filters.nightcore ? 1 : speed;
+        this.filterData.timescale.pitch = this.filters.nightcore ? 1 : pitch;
+        this.filterData.timescale.rate = this.filters.nightcore ? 1 : rate;
+        this.filters.nightcore = !!!this.filters.nightcore;
+        this.filters.vaporwave = false;
+        this.filters.custom = false;
+        await this.updatePlayerFilters();
+        return this.filters.nightcore;
+    }
+    /**
+     * Enables / Disabels a Vaporwave-like filter Effect. Disables/Overwrides both: custom and nightcore Filter
+     * @param speed
+     * @param pitch
+     * @param rate
+     * @returns
+     */
+    async toggleVaporwave(speed = 0.8500000238418579, pitch = 0.800000011920929, rate = 1) {
+        this.filterData.timescale.speed = this.filters.vaporwave ? 1 : speed;
+        this.filterData.timescale.pitch = this.filters.vaporwave ? 1 : pitch;
+        this.filterData.timescale.rate = this.filters.vaporwave ? 1 : rate;
+        this.filters.vaporwave = !!!this.filters.vaporwave;
+        this.filters.nightcore = false;
+        this.filters.custom = false;
+        await this.updatePlayerFilters();
+        return this.filters.vaporwave;
+    }
+    /**
+     * Enable / Disables a Karaoke like Filter Effect
+     * @param level
+     * @param monoLevel
+     * @param filterBand
+     * @param filterWidth
+     * @returns
+     */
+    async toggleKaraoke(level = 1, monoLevel = 1, filterBand = 220, filterWidth = 100) {
+        this.filterData.karaoke.level = this.filters.karaoke ? 0 : level;
+        this.filterData.karaoke.monoLevel = this.filters.karaoke ? 0 : monoLevel;
+        this.filterData.karaoke.filterBand = this.filters.karaoke ? 0 : filterBand;
+        this.filterData.karaoke.filterWidth = this.filters.karaoke ? 0 : filterWidth;
+        this.filters.karaoke = !!!this.filters.karaoke;
+        await this.updatePlayerFilters();
+        return this.filters.karaoke;
+    }
+    /** Function to find out if currently there is a custom timescamle etc. filter applied */
+    isCustomFilterActive() {
+        this.filters.custom = !this.filters.nightcore && !this.filters.vaporwave && Object.values(this.filterData.timescale).some(d => d !== 1);
+        return this.filters.custom;
     }
     // function to update all filters at ONCE (and eqs)
     async updatePlayerFilters() {
@@ -355,6 +495,11 @@ class Player {
         const now = Date.now();
         if (!this.node.sessionId) {
             console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            if (sendData.rotation) {
+                // @ts-ignore
+                sendData.rotating = sendData.rotation;
+                delete sendData.rotation;
+            } // on websocket it's called rotating, and on rest it's called rotation
             await this.node.send({
                 op: "filters",
                 guildId: this.guild,
@@ -381,7 +526,7 @@ class Player {
      * @param requester
      */
     search(query, requester) {
-        return this.manager.search(query, requester);
+        return this.manager.search(query, requester, this.node);
     }
     /**
      * Sets the players equalizer band on-top of the existing ones.
@@ -556,7 +701,7 @@ class Player {
     }
     /**
      * Sets the player volume.
-     * @param volume
+     * @param volume 0-500
      */
     async setVolume(volume) {
         volume = Number(volume);
@@ -576,13 +721,45 @@ class Player {
             });
         }
         else {
-            await this.node.updatePlayer({
-                guildId: this.guild,
-                playerOptions: {
-                    volume: vol
-                }
-            });
+            if (this.manager.options.applyVolumeAsFilter) {
+                await this.node.updatePlayer({
+                    guildId: this.guild,
+                    playerOptions: {
+                        filters: { volume: vol / 100 }
+                    }
+                });
+            }
+            else {
+                await this.node.updatePlayer({
+                    guildId: this.guild,
+                    playerOptions: {
+                        volume: vol
+                    }
+                });
+            }
         }
+        this.ping = Date.now() - now;
+        return this;
+    }
+    /**
+     * Applies a Node-Filter for Volume (make it louder/quieter without distortion | only for new REST api).
+     * @param volume 0-5
+     */
+    async setVolumeFilter(volume) {
+        if (!this.node.sessionId)
+            throw new Error("The Lavalink-Node is either not ready, or not up to date! (REST Api must be useable)");
+        volume = Number(volume);
+        if (isNaN(volume))
+            throw new TypeError("Volume must be a number.");
+        this.filterData.volume = Math.max(Math.min(volume, 5), 0);
+        this.filters.volume = this.filterData.volume === 1 ? false : true;
+        const now = Date.now();
+        await this.node.updatePlayer({
+            guildId: this.guild,
+            playerOptions: {
+                filters: { volume: this.filterData.volume }
+            }
+        });
         this.ping = Date.now() - now;
         return this;
     }

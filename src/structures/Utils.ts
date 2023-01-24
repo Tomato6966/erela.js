@@ -88,12 +88,15 @@ export abstract class TrackUtils {
   static build(data: TrackData, requester?: unknown): Track {
     if (typeof data === "undefined")
       throw new RangeError('Argument "data" must be present.');
-
+    if(!data.info) data.info = {} as Partial<TrackDataInfoExtended>;
     try {
       const track: Track = {
-        ...data.info,
         track: data.track,
         encodedTrack: data.encoded,
+        // add all lavalink Info
+        ...data.info,
+
+        // lavalink Data
         title: data.info.title,
         identifier: data.info.identifier,
         author: data.info.author,
@@ -101,12 +104,15 @@ export abstract class TrackUtils {
         isSeekable: data.info.isSeekable,
         isStream: data.info.isStream,
         uri: data.info.uri,
-        isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && data.info.identifier?.includes?.("soundcloud")),
-        thumbnail: (data?.info?.uri?.includes?.("youtube.") || data?.info?.uri?.includes?.("youtu.be"))
-            ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
-            : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
-            ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
-            :  data.info?.thumbnail || data.info?.image,
+        artworkURL: data.info.artworkUrl?.replace("/maxresdefault.jpg",  "/mqdefault.jpg"),
+        isrc: data.info.isrc,
+
+        // library data
+        isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
+        // parsed Thumbnail
+        thumbnail: (data.info.artworkUrl?.replace("/maxresdefault.jpg",  "/mqdefault.jpg") || data.info.thumbnail || data.info.image) ||  ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
+            ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg` : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
+            ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg` : null,
         displayThumbnail(size = "mqdefault"): string | null {
           const finalSize = SIZES.find((s) => s === size) ?? "default";
           return (data?.info?.uri?.includes?.("youtube.") || data?.info?.uri?.includes?.("youtu.be"))
@@ -116,7 +122,6 @@ export abstract class TrackUtils {
           :  data.info?.thumbnail || data.info?.image
         },
         requester,
-        pluginInfo: data.pluginInfo,
       };
 
       track.displayThumbnail = track.displayThumbnail.bind(track);
@@ -374,7 +379,7 @@ export interface PlayerUpdateOptions {
   endTime?: number;
   volume?: number;
   paused?: boolean;
-  filters?: any;
+  filters?: Partial<LavalinkFilterData>;
   voice?: LavalinkPlayerVoiceOptions;
 }
 
@@ -384,12 +389,12 @@ export interface PlayerUpdateInfo {
   noReplace?: boolean;
 }
 export interface LavalinkPlayer {
-  guildId: string,
-  track?: Track,
+  guildId: string;
+  track?: Track;
   volume: number;
   paused: boolean;
-  voice: LavalinkPlayerVoice
-  filters: any
+  voice: LavalinkPlayerVoice;
+  filters: Partial<LavalinkFilterData>;
 }
 
 export interface FetchOptions {
@@ -447,7 +452,7 @@ export interface LavalinkPlayerVoice {
 export interface TrackData {
   track: string;
   encoded: string;
-  info: TrackDataInfo;
+  info:  Partial<TrackDataInfoExtended>;
   pluginInfo: Partial<PluginDataInfo> | Record<string, string|number>;
 }
 
@@ -464,6 +469,16 @@ export interface TrackDataInfo {
   artworkUrl: string | null;
   isrc: string | null;
 }
+
+export interface TrackDataInfoExtended extends TrackDataInfo {
+  /** Things provided by an library */
+  thumbnail?: string;
+  /** Things provided by a library */
+  md5_image?: string;
+  /** Things provided by a library */
+  image?: string;
+}
+
 export interface PluginDataInfo {
   type?: string;
   identifier?: string;
@@ -482,6 +497,15 @@ export interface VoiceState {
   guildId: string;
   event: VoiceServer;
   sessionId?: string;
+  
+  /** @deprecated */
+  guild_id: string;
+  /** @deprecated */
+  user_id: string;
+  /** @deprecated */
+  session_id: string;
+  /** @deprecated */
+  channel_id: string;
 }
 
 export interface VoiceServer {
@@ -490,12 +514,6 @@ export interface VoiceServer {
   endpoint: string;
 }
 
-export interface VoiceState {
-  guild_id: string;
-  user_id: string;
-  session_id: string;
-  channel_id: string;
-}
 
 export interface VoicePacket {
   t?: "VOICE_SERVER_UPDATE" | "VOICE_STATE_UPDATE";
@@ -557,3 +575,68 @@ export interface PlayerUpdate {
   };
   guildId: string;
 }
+export interface EQBand {
+  band: number;
+  gain: number;
+}
+export interface KaraokeFilter {
+  level?: number;
+  monoLevel?: number;
+  filterBand?: number;
+  filterWidth?: number;
+}
+
+export interface TimescaleFilter {
+  speed?: number;
+  pitch?: number;
+  rate?: number;
+}
+
+export interface FreqFilter {
+  frequency?: number;
+  depth?: number;
+}
+
+export interface RotationFilter {
+  rotationHz?: number;
+}
+
+export interface DistortionFilter {
+  sinOffset?: number;
+  sinScale?: number;
+  cosOffset?: number;
+  cosScale?: number;
+  tanOffset?: number;
+  tanScale?: number;
+  offset?: number;
+  scale?: number;
+}
+
+export interface ChannelMixFilter {
+  leftToLeft?: number;
+  leftToRight?: number;
+  rightToLeft?: number;
+  rightToRight?: number;
+}
+
+export interface LowPassFilter {
+  smoothing?: number
+}
+export interface EchoFilter {
+  delay: number
+  decay: number
+}
+export interface LavalinkFilterData {
+  volume?: number;
+  equalizer?: EQBand[];
+  karaoke?: KaraokeFilter;
+  timescale?: TimescaleFilter;
+  tremolo?: FreqFilter;
+  vibrato?: FreqFilter;
+  rotation?: RotationFilter;
+  // rotating: RotationFilter
+  distortion?: DistortionFilter;
+  channelMix?: ChannelMixFilter;
+  lowPass?: LowPassFilter;
+  echo: EchoFilter,
+};

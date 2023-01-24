@@ -4,6 +4,7 @@ import { EventEmitter } from "node:events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
+import { PluginDataInfo } from "./Utils";
 import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
 export interface Manager {
     /**
@@ -250,6 +251,8 @@ export interface ManagerOptions {
     userAgent?: string;
     /** Rest max request time */
     restTimeout?: number;
+    /** Use the new REST Filter#Volume float Value instead of the % Volume (Library re-calculates it, sounds better, but yea)  */
+    applyVolumeAsFilter?: boolean;
     /**
      * Function to send data to the websocket.
      * @param id
@@ -274,6 +277,8 @@ export interface SearchResult {
     tracks: Track[];
     /** The playlist info if the load type is PLAYLIST_LOADED. */
     playlist?: PlaylistInfo;
+    /** The plugin info if the load type is PLAYLIST_LOADED. */
+    pluginInfo?: Partial<PluginDataInfo> | Record<string, string | number>;
     /** The exception when searching if one. */
     exception?: {
         /** The message for the exception. */
@@ -302,5 +307,6 @@ export interface LavalinkResult {
     playlistInfo: {
         name: string;
         selectedTrack?: number;
-    };
+    } | null;
+    pluginInfo: Partial<PluginDataInfo> | Record<string, string | number> | null;
 }

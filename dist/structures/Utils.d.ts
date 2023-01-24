@@ -86,7 +86,7 @@ export interface PlayerUpdateOptions {
     endTime?: number;
     volume?: number;
     paused?: boolean;
-    filters?: any;
+    filters?: Partial<LavalinkFilterData>;
     voice?: LavalinkPlayerVoiceOptions;
 }
 export interface PlayerUpdateInfo {
@@ -100,7 +100,7 @@ export interface LavalinkPlayer {
     volume: number;
     paused: boolean;
     voice: LavalinkPlayerVoice;
-    filters: any;
+    filters: Partial<LavalinkFilterData>;
 }
 export interface FetchOptions {
     endpoint: string;
@@ -152,8 +152,10 @@ export interface LavalinkPlayerVoice {
 export interface TrackData {
     track: string;
     encoded: string;
-    info: TrackDataInfo;
+    info: Partial<TrackDataInfoExtended>;
+    pluginInfo: Partial<PluginDataInfo> | Record<string, string | number>;
 }
+/** Data from Lavalink */
 export interface TrackDataInfo {
     title: string;
     identifier: string;
@@ -163,12 +165,22 @@ export interface TrackDataInfo {
     isStream: boolean;
     uri: string;
     sourceName: string;
-    /** Only via my deezer package */
-    md5_image?: string;
-    /** Only via my deezer package */
+    artworkUrl: string | null;
+    isrc: string | null;
+}
+export interface TrackDataInfoExtended extends TrackDataInfo {
+    /** Things provided by an library */
     thumbnail?: string;
-    /** Only via my deezer package */
+    /** Things provided by a library */
+    md5_image?: string;
+    /** Things provided by a library */
     image?: string;
+}
+export interface PluginDataInfo {
+    type?: string;
+    identifier?: string;
+    artworkURL?: string;
+    author?: string;
 }
 export interface Extendable {
     Player: typeof Player;
@@ -180,17 +192,19 @@ export interface VoiceState {
     guildId: string;
     event: VoiceServer;
     sessionId?: string;
+    /** @deprecated */
+    guild_id: string;
+    /** @deprecated */
+    user_id: string;
+    /** @deprecated */
+    session_id: string;
+    /** @deprecated */
+    channel_id: string;
 }
 export interface VoiceServer {
     token: string;
     guild_id: string;
     endpoint: string;
-}
-export interface VoiceState {
-    guild_id: string;
-    user_id: string;
-    session_id: string;
-    channel_id: string;
 }
 export interface VoicePacket {
     t?: "VOICE_SERVER_UPDATE" | "VOICE_STATE_UPDATE";
@@ -242,4 +256,62 @@ export interface PlayerUpdate {
         time: number;
     };
     guildId: string;
+}
+export interface EQBand {
+    band: number;
+    gain: number;
+}
+export interface KaraokeFilter {
+    level?: number;
+    monoLevel?: number;
+    filterBand?: number;
+    filterWidth?: number;
+}
+export interface TimescaleFilter {
+    speed?: number;
+    pitch?: number;
+    rate?: number;
+}
+export interface FreqFilter {
+    frequency?: number;
+    depth?: number;
+}
+export interface RotationFilter {
+    rotationHz?: number;
+}
+export interface DistortionFilter {
+    sinOffset?: number;
+    sinScale?: number;
+    cosOffset?: number;
+    cosScale?: number;
+    tanOffset?: number;
+    tanScale?: number;
+    offset?: number;
+    scale?: number;
+}
+export interface ChannelMixFilter {
+    leftToLeft?: number;
+    leftToRight?: number;
+    rightToLeft?: number;
+    rightToRight?: number;
+}
+export interface LowPassFilter {
+    smoothing?: number;
+}
+export interface EchoFilter {
+    delay: number;
+    decay: number;
+}
+export interface LavalinkFilterData {
+    volume?: number;
+    equalizer?: EQBand[];
+    karaoke?: KaraokeFilter;
+    timescale?: TimescaleFilter;
+    tremolo?: FreqFilter;
+    vibrato?: FreqFilter;
+    rotation?: RotationFilter;
+    distortion?: DistortionFilter;
+    channelMix?: ChannelMixFilter;
+    lowPass?: LowPassFilter;
+    echo: EchoFilter;
 }

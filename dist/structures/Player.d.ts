@@ -1,6 +1,7 @@
 import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
+import { LavalinkFilterData, LavalinkPlayerVoice } from "./Utils";
 import { Sizes, State, VoiceState } from "./Utils";
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
 export declare const validAudioOutputs: {
@@ -38,6 +39,26 @@ export interface PlayerUpdatePayload {
     };
     guildId: string;
 }
+export interface PlayerFilters {
+    /** Sets nightcore to false, and vaporwave to false */
+    custom: boolean;
+    /** Sets custom to false, and vaporwave to false */
+    nightcore: boolean;
+    /** Sets custom to false, and nightcore to false */
+    vaporwave: boolean;
+    echo: boolean;
+    rotation: boolean;
+    /** @deprecated */
+    rotating: boolean;
+    karaoke: boolean;
+    tremolo: boolean;
+    vibrato: boolean;
+    lowPass: boolean;
+    /** audio Output (default stereo, mono sounds the fullest and best for not-stereo tracks) */
+    audioOutput: AudioOutputs;
+    /** Lavalink Volume FILTER (not player Volume, think of it as a gain booster) */
+    volume: boolean;
+}
 export declare class Player {
     options: PlayerOptions;
     /** The Queue for the Player. */
@@ -68,6 +89,7 @@ export declare class Player {
     bands: number[];
     /** The voice state object from Discord. */
     voiceState: VoiceState;
+    voice: LavalinkPlayerVoice;
     /** The Manager. */
     manager: Manager;
     private static _manager;
@@ -89,65 +111,9 @@ export declare class Player {
     /** The Voice Connection Ping from Lavalink in ms | < 0 == not connected | null == lavalinkversion is < 3.5.1 in where there is no ping info. | undefined == not defined yet. */
     wsPing: number | null | undefined;
     /** All States of a Filter, however you can manually overwrite it with a string, if you need so */
-    filters: {
-        nightcore: boolean | string;
-        echo: boolean | string;
-        rotating: boolean | string;
-        karaoke: boolean | string;
-        tremolo: boolean | string;
-        vibrato: boolean | string;
-        lowPass: boolean | string;
-        /** audio Output (default stereo, mono sounds the fullest and best for not-stereo tracks) */
-        audioOutput: AudioOutputs;
-    };
+    filters: PlayerFilters;
     /** The Current Filter Data(s) */
-    filterData: {
-        channelMix?: {
-            leftToLeft: number;
-            leftToRight: number;
-            rightToLeft: number;
-            rightToRight: number;
-        };
-        lowPass: {
-            smoothing: number;
-        };
-        karaoke: {
-            level: number;
-            monoLevel: number;
-            filterBand: number;
-            filterWidth: number;
-        };
-        timescale: {
-            speed: number;
-            pitch: number;
-            rate: number;
-        };
-        echo: {
-            delay: number;
-            decay: number;
-        };
-        rotating: {
-            rotationHz: number;
-        };
-        tremolo: {
-            frequency: number;
-            depth: number;
-        };
-        vibrato: {
-            frequency: number;
-            depth: number;
-        };
-        distortion?: {
-            sinOffset: number;
-            sinScale: number;
-            cosOffset: number;
-            cosScale: number;
-            tanOffset: number;
-            tanScale: number;
-            offset: number;
-            scale: number;
-        };
-    };
+    filterData: LavalinkFilterData;
     /**
      * Set custom data.
      * @param key
@@ -166,20 +132,94 @@ export declare class Player {
      * @param options
      */
     constructor(options: PlayerOptions);
-    resetFilters(): Promise<this>;
     /**
-     *
-     * @param {AudioOutputs} type
+     * Reset all Filters
      */
-    setAudioOutput(type: any): AudioOutputs;
-    toggleRotating(rotationHz?: number): boolean;
-    toggleVibrato(frequency?: number, depth?: number): boolean;
-    toggleTremolo(frequency?: number, depth?: number): boolean;
-    toggleLowPass(smoothing?: number): boolean;
-    toggleEcho(delay?: number, decay?: number): boolean;
-    toggleNightcore(speed?: number, pitch?: number, rate?: number): boolean;
-    toggleKaraoke(level?: number, monoLevel?: number, filterBand?: number, filterWidth?: number): boolean;
-    updatePlayerFilters(): Promise<this>;
+    resetFilters(): Promise<PlayerFilters>;
+    /**
+     * Set the AudioOutput Filter
+     * @param type
+     */
+    setAudioOutput(type: AudioOutputs): Promise<AudioOutputs>;
+    /**
+     * Set custom filter.timescale#speed . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
+     * @param speed
+     * @returns
+     */
+    setSpeed(speed?: number): Promise<boolean>;
+    /**
+     * Set custom filter.timescale#pitch . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
+     * @param speed
+     * @returns
+     */
+    setPitch(pitch?: number): Promise<boolean>;
+    /**
+     * Set custom filter.timescale#rate . This method disabled both: nightcore & vaporwave. use 1 to reset it to normal
+     * @param speed
+     * @returns
+     */
+    setRate(rate?: number): Promise<boolean>;
+    /**
+     * Enabels / Disables the rotation effect, (Optional: provide your Own Data)
+     * @param rotationHz
+     * @returns
+     */
+    toggleRotating(rotationHz?: number): Promise<boolean>;
+    /**
+     * Enabels / Disables the Vibrato effect, (Optional: provide your Own Data)
+     * @param frequency
+     * @param depth
+     * @returns
+     */
+    toggleVibrato(frequency?: number, depth?: number): Promise<boolean>;
+    /**
+     * Enabels / Disables the Tremolo effect, (Optional: provide your Own Data)
+     * @param frequency
+     * @param depth
+     * @returns
+     */
+    toggleTremolo(frequency?: number, depth?: number): Promise<boolean>;
+    /**
+     * Enabels / Disables the LowPass effect, (Optional: provide your Own Data)
+     * @param smoothing
+     * @returns
+     */
+    toggleLowPass(smoothing?: number): Promise<boolean>;
+    /**
+     * Enabels / Disables the Echo effect, IMPORTANT! Only works with the correct Lavalink Plugin installed. (Optional: provide your Own Data)
+     * @param delay
+     * @param decay
+     * @returns
+     */
+    toggleEcho(delay?: number, decay?: number): Promise<boolean>;
+    /**
+     * Enables / Disabels a Nightcore-like filter Effect. Disables/Overwrides both: custom and Vaporwave Filter
+     * @param speed
+     * @param pitch
+     * @param rate
+     * @returns
+     */
+    toggleNightcore(speed?: number, pitch?: number, rate?: number): Promise<boolean>;
+    /**
+     * Enables / Disabels a Vaporwave-like filter Effect. Disables/Overwrides both: custom and nightcore Filter
+     * @param speed
+     * @param pitch
+     * @param rate
+     * @returns
+     */
+    toggleVaporwave(speed?: number, pitch?: number, rate?: number): Promise<boolean>;
+    /**
+     * Enable / Disables a Karaoke like Filter Effect
+     * @param level
+     * @param monoLevel
+     * @param filterBand
+     * @param filterWidth
+     * @returns
+     */
+    toggleKaraoke(level?: number, monoLevel?: number, filterBand?: number, filterWidth?: number): Promise<boolean>;
+    /** Function to find out if currently there is a custom timescamle etc. filter applied */
+    isCustomFilterActive(): boolean;
+    updatePlayerFilters(): Promise<Player>;
     /**
      * Same as Manager#search() but a shortcut on the player itself.
      * @param query
@@ -229,9 +269,14 @@ export declare class Player {
     play(track: Track | UnresolvedTrack, options: PlayOptions): Promise<void>;
     /**
      * Sets the player volume.
-     * @param volume
+     * @param volume 0-500
      */
     setVolume(volume: number): Promise<this>;
+    /**
+     * Applies a Node-Filter for Volume (make it louder/quieter without distortion | only for new REST api).
+     * @param volume 0-5
+     */
+    setVolumeFilter(volume: number): Promise<this>;
     /**
      * Sets the track repeat.
      * @param repeat
@@ -279,6 +324,8 @@ export interface PlayerOptions {
 export interface Track {
     /** The base64 encoded track. */
     readonly track: string;
+    /** The encoded base64 track. */
+    readonly encodedTrack: string;
     /** The title of the track. */
     title: string;
     /** The identifier of the track. */
@@ -301,6 +348,10 @@ export interface Track {
     displayThumbnail(size?: Sizes): string;
     /** If the Track is a preview */
     isPreview: boolean;
+    /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
+    artworkURL: string | null;
+    /** ISRC if available */
+    isrc: string | null;
 }
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
 export interface UnresolvedTrack extends Partial<Track> {
@@ -312,6 +363,8 @@ export interface UnresolvedTrack extends Partial<Track> {
     duration?: number;
     /** Thumbnail of the track */
     thumbnail?: string;
+    /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
+    artworkURL: string | null;
     /** Identifier of the track */
     identifier?: string;
     /** Resolves into a Track. */

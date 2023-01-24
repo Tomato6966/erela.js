@@ -179,13 +179,14 @@ export class Node {
   /**
    * Gets specific Player Information
    */
-  public getPlayer(guildId: string): Promise<LavalinkPlayer|{}> {
+  public async getPlayer(guildId: string): Promise<LavalinkPlayer|{}> {
     if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
-      return this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
+    const res = await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
+    return res;
   }
-  public updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer|{}> {
+  public async updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer|{}> {
     if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
-    return this.makeRequest<LavalinkPlayer>(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
+    const res = await this.makeRequest<LavalinkPlayer>(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
       r.method = "PATCH";
       r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
       r.body = JSON.stringify(data.playerOptions);
@@ -195,6 +196,47 @@ export class Node {
         r.path = url.toString().replace(this.poolAddress, "");
       }
     });
+    /*
+      {
+        guildId: '773668217163218944',
+        track: {
+          encoded: 'QAAA4wIAHU1vb25saWdodCBTaGFkb3cgKFJlbWFzdGVyZWQpAA1NaWtlIE9sZGZpZWxkAAAAAAADU5AACDcwMDkzODc2AAEAIWh0dHBzOi8vZGVlemVyLmNvbS90cmFjay83MDA5Mzg3NgAGZGVlemVyAAEAaWh0dHBzOi8vZS1jZG5zLWltYWdlcy5kemNkbi5uZXQvaW1hZ2VzL2NvdmVyL2UwN2IxODViZWNiZTBiNmFiMDE0YzM2NzQ4ZWZlMGMzLzEwMDB4MTAwMC0wMDAwMDAtODAtMC0wLmpwZwAAAAAAAA44',
+          track: 'QAAA4wIAHU1vb25saWdodCBTaGFkb3cgKFJlbWFzdGVyZWQpAA1NaWtlIE9sZGZpZWxkAAAAAAADU5AACDcwMDkzODc2AAEAIWh0dHBzOi8vZGVlemVyLmNvbS90cmFjay83MDA5Mzg3NgAGZGVlemVyAAEAaWh0dHBzOi8vZS1jZG5zLWltYWdlcy5kemNkbi5uZXQvaW1hZ2VzL2NvdmVyL2UwN2IxODViZWNiZTBiNmFiMDE0YzM2NzQ4ZWZlMGMzLzEwMDB4MTAwMC0wMDAwMDAtODAtMC0wLmpwZwAAAAAAAA44',
+          info: {
+            identifier: '70093876',
+            isSeekable: true,
+            author: 'Mike Oldfield',
+            length: 218000,
+            isStream: false,
+            position: 3640,
+            title: 'Moonlight Shadow (Remastered)',
+            uri: 'https://deezer.com/track/70093876',
+            sourceName: 'deezer'
+          }
+        },
+        volume: 100,
+        paused: false,
+        voice: {
+          token: '793e7c82ef5f4b49',
+          endpoint: 'frankfurt8457.discord.media:443',
+          sessionId: '1dfe0c9a05946e0137698ece51d807b9',
+          connected: true,
+          ping: 0
+        },
+        filters: { volume: 3.5 }
+      }
+    */
+    const player = this.manager.players.get(data.guildId);
+    if(player) {
+      if(typeof res.voice !== "undefined") player.voice = res.voice;
+      if(typeof res.volume !== "undefined") player.volume = res.volume;
+      if(typeof res.paused !== "undefined") {
+        player.paused = res.paused;
+        player.playing = !res.paused;
+      }
+      if(typeof res.filters !== "undefined") player.filters
+    }
+    return res;
   }
   
   /**

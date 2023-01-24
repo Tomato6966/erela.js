@@ -27,6 +27,31 @@ function check(options) {
         throw new TypeError('Manager option "clientName" must be a string.');
     if (typeof options.defaultSearchPlatform !== "undefined" && typeof options.defaultSearchPlatform !== "string")
         throw new TypeError('Manager option "defaultSearchPlatform" must be a string.');
+    /*
+        nodes?: NodeOptions[];
+        clientId?: string;
+        clientName?: string;
+        shards?: number;
+        plugins?: Plugin[];
+        autoPlay?: boolean;
+        trackPartial?: string[];
+        defaultSearchPlatform?: SearchPlatform;
+        volumeDecrementer?: number;
+        position_update_interval?: number;
+        validUnresolvedUris?: string[];
+        forceLoadPlugin?: boolean;
+        allowedLinks?: String[];
+        allowedLinksRegexes?: RegExp[];
+        onlyAllowAllowedLinks?: boolean;
+        defaultLeastUsedNodeSortType?: leastUsedNodeSortType;
+        defaultLeastLoadNodeSortType?: leastLoadNodeSortType;
+        forceSearchLinkQueries?: boolean;
+        useUnresolvedData?: boolean;
+        userAgent?: string;
+        restTimeout?: number;
+        applyVolumeAsFilter?: boolean;
+        send(id: string, payload: Payload): void;
+    */
 }
 /**
  * The main hub for interacting with Lavalink and using Erela.JS,
@@ -320,13 +345,26 @@ class Manager extends node_events_1.EventEmitter {
                 tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
             if (result.loadType === "PLAYLIST_LOADED") {
-                result.playlist = {
-                    name: res.playlistInfo.name,
-                    selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-                        Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
-                    duration: result.tracks
-                        .reduce((acc, cur) => acc + (cur.duration || 0), 0),
-                };
+                if (typeof res.playlistInfo === "object") {
+                    result.playlist = {
+                        ...result.playlist,
+                        // transform other Data(s)
+                        name: res.playlistInfo.name,
+                        selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
+                            Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
+                        duration: result.tracks
+                            .reduce((acc, cur) => acc + (cur.duration || 0), 0),
+                    };
+                }
+                if (typeof res.pluginInfo === "object") {
+                    result.pluginInfo = { ...result.pluginInfo };
+                }
+                // if(result.playlist || result.pluginInfo) {
+                //   result.tracks.forEach(track => {
+                //     if(result.playlist) track.playlist = result.playlist;
+                //     if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
+                //   });
+                // }
             }
             return resolve(result);
         });
@@ -363,13 +401,26 @@ class Manager extends node_events_1.EventEmitter {
                 tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
             if (result.loadType === "PLAYLIST_LOADED") {
-                result.playlist = {
-                    name: res.playlistInfo.name,
-                    selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-                        Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
-                    duration: result.tracks
-                        .reduce((acc, cur) => acc + (cur.duration || 0), 0),
-                };
+                if (typeof res.playlistInfo === "object") {
+                    result.playlist = {
+                        ...result.playlist,
+                        // transform other Data(s)
+                        name: res.playlistInfo.name,
+                        selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
+                            Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
+                        duration: result.tracks
+                            .reduce((acc, cur) => acc + (cur.duration || 0), 0),
+                    };
+                }
+                if (typeof res.pluginInfo === "object") {
+                    result.pluginInfo = { ...result.pluginInfo };
+                }
+                // if(result.playlist || result.pluginInfo) {
+                //   result.tracks.forEach(track => {
+                //     if(result.playlist) track.playlist = result.playlist;
+                //     if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
+                //   });
+                // }
             }
             return resolve(result);
         });

@@ -76,9 +76,15 @@ class TrackUtils {
     static build(data, requester) {
         if (typeof data === "undefined")
             throw new RangeError('Argument "data" must be present.');
+        if (!data.info)
+            data.info = {};
         try {
             const track = {
                 track: data.track,
+                encodedTrack: data.encoded,
+                // add all lavalink Info
+                ...data.info,
+                // lavalink Data
                 title: data.info.title,
                 identifier: data.info.identifier,
                 author: data.info.author,
@@ -86,12 +92,14 @@ class TrackUtils {
                 isSeekable: data.info.isSeekable,
                 isStream: data.info.isStream,
                 uri: data.info.uri,
-                isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && data.info.identifier?.includes?.("soundcloud")),
-                thumbnail: (data?.info?.uri?.includes?.("youtube.") || data?.info?.uri?.includes?.("youtu.be"))
-                    ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
-                    : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
-                        ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
-                        : data.info?.thumbnail || data.info?.image,
+                artworkURL: data.info.artworkUrl?.replace("/maxresdefault.jpg", "/mqdefault.jpg"),
+                isrc: data.info.isrc,
+                // library data
+                isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
+                // parsed Thumbnail
+                thumbnail: (data.info.artworkUrl?.replace("/maxresdefault.jpg", "/mqdefault.jpg") || data.info.thumbnail || data.info.image) || ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
+                    ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg` : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
+                    ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg` : null,
                 displayThumbnail(size = "mqdefault") {
                     const finalSize = SIZES.find((s) => s === size) ?? "default";
                     return (data?.info?.uri?.includes?.("youtube.") || data?.info?.uri?.includes?.("youtu.be"))
@@ -293,3 +301,4 @@ const structures = {
     Queue: Queue_1.Queue,
     Node: Node_1.Node,
 };
+;

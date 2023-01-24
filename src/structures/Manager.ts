@@ -51,6 +51,31 @@ function check(options: ManagerOptions) {
   
   if (typeof options.defaultSearchPlatform !== "undefined" && typeof options.defaultSearchPlatform !== "string")
     throw new TypeError('Manager option "defaultSearchPlatform" must be a string.');
+  /*
+      nodes?: NodeOptions[];
+      clientId?: string;
+      clientName?: string;
+      shards?: number;
+      plugins?: Plugin[];
+      autoPlay?: boolean;
+      trackPartial?: string[];
+      defaultSearchPlatform?: SearchPlatform;
+      volumeDecrementer?: number; 
+      position_update_interval?: number;
+      validUnresolvedUris?: string[];
+      forceLoadPlugin?: boolean;
+      allowedLinks?: String[];
+      allowedLinksRegexes?: RegExp[];
+      onlyAllowAllowedLinks?: boolean;
+      defaultLeastUsedNodeSortType?: leastUsedNodeSortType;
+      defaultLeastLoadNodeSortType?: leastLoadNodeSortType;
+      forceSearchLinkQueries?: boolean;
+      useUnresolvedData?: boolean;
+      userAgent?: string;
+      restTimeout?: number;
+      applyVolumeAsFilter?: boolean;
+      send(id: string, payload: Payload): void;
+  */
 }
 
 export interface Manager {
@@ -519,12 +544,12 @@ export class Manager extends EventEmitter {
         if(typeof res.pluginInfo === "object") {
           result.pluginInfo = { ...result.pluginInfo };
         }
-        if(result.playlist || result.pluginInfo) {
-          result.tracks.forEach(track => {
-            if(result.playlist) track.playlist = result.playlist;
-            if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
-          });
-        }
+        // if(result.playlist || result.pluginInfo) {
+        //   result.tracks.forEach(track => {
+        //     if(result.playlist) track.playlist = result.playlist;
+        //     if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
+        //   });
+        // }
       }
 
       return resolve(result);
@@ -588,12 +613,12 @@ export class Manager extends EventEmitter {
         if(typeof res.pluginInfo === "object") {
           result.pluginInfo = { ...result.pluginInfo };
         }
-        if(result.playlist || result.pluginInfo) {
-          result.tracks.forEach(track => {
-            if(result.playlist) track.playlist = result.playlist;
-            if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
-          });
-        }
+        // if(result.playlist || result.pluginInfo) {
+        //   result.tracks.forEach(track => {
+        //     if(result.playlist) track.playlist = result.playlist;
+        //     if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
+        //   });
+        // }
       }
 
       return resolve(result);
@@ -790,6 +815,8 @@ export interface ManagerOptions {
   userAgent?: string;
   /** Rest max request time */
   restTimeout?: number;
+  /** Use the new REST Filter#Volume float Value instead of the % Volume (Library re-calculates it, sounds better, but yea)  */
+  applyVolumeAsFilter?: boolean;
   /**
    * Function to send data to the websocket.
    * @param id
