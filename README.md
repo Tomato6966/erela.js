@@ -12,7 +12,7 @@ An up to date Lavalink Wrapper, which makes it easy to use Lavalink within your 
 
 Within this Repository, I did:
 - updated erela.js to support Latest Lavalink Features (Sessions, REST-API, etc.)
-- Added new [Features](#features)
+- Added new [Features](#new-features---tutorials)
 
 ## Install my Version:
 
