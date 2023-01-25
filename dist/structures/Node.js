@@ -446,7 +446,6 @@ class Node {
             case "playerUpdate":
                 const player = this.manager.players.get(payload.guildId);
                 if (player) {
-                    console.log(payload);
                     delete payload.op;
                     player.payload = Object.assign({}, payload);
                     if (player.get("updateInterval"))
