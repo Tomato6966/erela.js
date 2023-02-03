@@ -258,7 +258,6 @@ class Manager extends node_events_1.EventEmitter {
             defaultSearchPlatform: "youtube",
             userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 OPR/93.0.0.0",
             restTimeout: 5000,
-            ...options,
             allowedLinksRegexes: [...Object.values(Manager.regex)],
             onlyAllowAllowedLinks: true,
             defaultLeastLoadNodeSortType: "memory",
@@ -267,6 +266,7 @@ class Manager extends node_events_1.EventEmitter {
             position_update_interval: 250,
             useUnresolvedData: true,
             volumeDecrementer: 1,
+            ...options,
         };
         if (this.options.plugins) {
             for (const [index, plugin] of this.options.plugins.entries()) {
