@@ -182,7 +182,7 @@ export abstract class TrackUtils {
     if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
       throw new RangeError("Provided track is not a UnresolvedTrack.");
 
-    const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
+    const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
     const isvalidUri = (str) => {
       const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
       if(TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
