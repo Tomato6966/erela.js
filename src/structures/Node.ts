@@ -218,9 +218,9 @@ export class Node {
       r.method = "PATCH";
       r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
       r.body = JSON.stringify(data.playerOptions);
-      if(data.noReplace) {
+      if(data.noReplace) { 
         const url = new URL(`${this.poolAddress}${r.path}`);
-        url.search = new URLSearchParams({ noReplace: data.noReplace?.toString() || 'false' }).toString();
+        url.searchParams.append("noReplace", data.noReplace?.toString() || false)
         r.path = url.toString().replace(this.poolAddress, "");
       }
     });
@@ -331,7 +331,7 @@ export class Node {
    */
   public async unmarkAllFailedAddresses(): Promise<void> {
     if(!this.sessionId) throw new Error("the Lavalink-Node is either not ready, or not up to date!");
-      await this.makeRequest(`/v3/routeplanner/free/all`, r => {
+      await this.makeRequest(`/routeplanner/free/all`, r => {
         r.method = "POST";
         r.headers = { Authorization: this.options.password, 'Content-Type': 'application/json' };
       });
@@ -392,6 +392,12 @@ export class Node {
     }
 
     modify?.(options);
+
+    if(this.version === "v3" || this.version === "v4") {
+      const url = new URL(`${this.poolAddress}${options.path}`);
+      url.searchParams.append("trace", true);
+      options.path = url.toString().replace(this.poolAddress, "");
+    }
 
     const request = await this.http.request(options);
     this.calls++;
