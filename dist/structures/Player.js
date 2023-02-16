@@ -721,7 +721,7 @@ class Player {
         const finalOptions = getOptions(playOptions || optionsOrTrack, !!this.node.sessionId) ? optionsOrTrack : {};
         if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
             try {
-                this.queue.current = await Utils_1.TrackUtils.getClosestTrack(this.queue.current);
+                this.queue.current = await Utils_1.TrackUtils.getClosestTrack(this.queue.current, this.node);
             }
             catch (error) {
                 this.manager.emit("trackError", this, this.queue.current, error);

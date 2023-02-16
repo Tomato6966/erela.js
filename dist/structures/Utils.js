@@ -162,7 +162,7 @@ class TrackUtils {
             throw new RangeError("Manager has not been initiated.");
         if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
             throw new RangeError("Provided track is not a UnresolvedTrack.");
-        const query = [unresolvedTrack.author, unresolvedTrack.title].filter(str => !!str).join(" - ");
+        const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
         const isvalidUri = (str) => {
             const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
             if (TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
@@ -181,7 +181,9 @@ class TrackUtils {
                 return true;
             return false;
         };
-        const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+        const res = isvalidUri(unresolvedTrack.uri) ? 
+            await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : 
+            await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
         if (res.loadType !== "SEARCH_RESULT")
             throw res.exception ?? {
                 message: "No tracks found.",
@@ -194,7 +196,7 @@ class TrackUtils {
                     new RegExp(`^${escapeRegExp(unresolvedTrack.title)}$`, "i").test(track.title));
             });
             if (originalAudio) {
-                originalAudio.uri = unresolvedTrack.uri;
+                if(unresolvedTrack.uri) originalAudio.uri = unresolvedTrack.uri;
                 if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
                     if (unresolvedTrack.thumbnail?.length)
                         originalAudio.thumbnail = unresolvedTrack.thumbnail;
@@ -212,7 +214,7 @@ class TrackUtils {
                         originalAudio.thumbnail = unresolvedTrack.thumbnail;
                 }
                 for (const key of Object.keys(unresolvedTrack))
-                    if (!originalAudio[key])
+                    if (typeof originalAudio[key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
                         originalAudio[key] = unresolvedTrack[key]; // add non-existing values
                 return originalAudio;
             }
@@ -221,7 +223,7 @@ class TrackUtils {
             const sameDuration = res.tracks.find(track => (track.duration >= (unresolvedTrack.duration - 1500)) &&
                 (track.duration <= (unresolvedTrack.duration + 1500)));
             if (sameDuration) {
-                sameDuration.uri = unresolvedTrack.uri;
+                if(unresolvedTrack.uri) sameDuration.uri = unresolvedTrack.uri;
                 if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
                     if (unresolvedTrack.thumbnail?.length)
                         sameDuration.thumbnail = unresolvedTrack.thumbnail;
@@ -239,12 +241,12 @@ class TrackUtils {
                         sameDuration.thumbnail = unresolvedTrack.thumbnail;
                 }
                 for (const key of Object.keys(unresolvedTrack))
-                    if (!sameDuration[key])
+                    if (typeof sameDuration[key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
                         sameDuration[key] = unresolvedTrack[key]; // add non-existing values
                 return sameDuration;
             }
         }
-        res.tracks[0].uri = unresolvedTrack.uri;
+        if(unresolvedTrack.uri) res.tracks[0].uri = unresolvedTrack.uri;
         if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if (unresolvedTrack.thumbnail?.length)
                 res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
@@ -262,7 +264,7 @@ class TrackUtils {
                 res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
         }
         for (const key of Object.keys(unresolvedTrack))
-            if (!res.tracks[0][key])
+            if (typeof res.tracks[0][key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
                 res.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
         return res.tracks[0];
     }

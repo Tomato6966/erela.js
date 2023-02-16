@@ -823,7 +823,7 @@ export class Player {
 
     if (TrackUtils.isUnresolvedTrack(this.queue.current)) {
       try {
-        this.queue.current = await TrackUtils.getClosestTrack(this.queue.current as UnresolvedTrack);
+        this.queue.current = await TrackUtils.getClosestTrack(this.queue.current as UnresolvedTrack, this.node);
       } catch (error) {
         this.manager.emit("trackError", this, this.queue.current, error);
         if (this.queue[0]) return this.play(this.queue[0]);

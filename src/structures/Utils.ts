@@ -215,7 +215,7 @@ export abstract class TrackUtils {
       });
 
       if (originalAudio) {
-        originalAudio.uri = unresolvedTrack.uri;
+        if(unresolvedTrack.uri) originalAudio.uri = unresolvedTrack.uri;
         if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if(unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
             if(unresolvedTrack.title?.length) originalAudio.title = unresolvedTrack.title;
@@ -225,7 +225,9 @@ export abstract class TrackUtils {
             if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
             if(originalAudio.thumbnail != unresolvedTrack.thumbnail) originalAudio.thumbnail = unresolvedTrack.thumbnail;    
         }
-        for(const key of Object.keys(unresolvedTrack)) if(!originalAudio[key]) originalAudio[key] = unresolvedTrack[key]; // add non-existing values
+        for (const key of Object.keys(unresolvedTrack))
+            if (typeof originalAudio[key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                originalAudio[key] = unresolvedTrack[key]; // add non-existing values
         return originalAudio;
       }
     }
@@ -237,7 +239,7 @@ export abstract class TrackUtils {
       );
 
       if (sameDuration) {
-        sameDuration.uri = unresolvedTrack.uri;
+        if(unresolvedTrack.uri) sameDuration.uri = unresolvedTrack.uri;
         if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if(unresolvedTrack.thumbnail?.length) sameDuration.thumbnail = unresolvedTrack.thumbnail;
             if(unresolvedTrack.title?.length) sameDuration.title = unresolvedTrack.title;
@@ -247,11 +249,13 @@ export abstract class TrackUtils {
             if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
             if(sameDuration.thumbnail != unresolvedTrack.thumbnail) sameDuration.thumbnail = unresolvedTrack.thumbnail;
         }
-        for(const key of Object.keys(unresolvedTrack)) if(!sameDuration[key]) sameDuration[key] = unresolvedTrack[key]; // add non-existing values
+        for (const key of Object.keys(unresolvedTrack))
+            if (typeof sameDuration[key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                sameDuration[key] = unresolvedTrack[key]; // add non-existing values
         return sameDuration;
       }
     }
-    res.tracks[0].uri = unresolvedTrack.uri;
+    if(unresolvedTrack.uri) res.tracks[0].uri = unresolvedTrack.uri;
     if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
         if(unresolvedTrack.thumbnail?.length) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
         if(unresolvedTrack.title?.length) res.tracks[0].title = unresolvedTrack.title;
@@ -261,7 +265,9 @@ export abstract class TrackUtils {
         if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
         if(unresolvedTrack.thumbnail != res.tracks[0].thumbnail) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
     }
-    for(const key of Object.keys(unresolvedTrack)) if(!res.tracks[0][key]) res.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
+    for (const key of Object.keys(unresolvedTrack))
+            if (typeof res.tracks[0][key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                res.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
     return res.tracks[0];
   }
 }
