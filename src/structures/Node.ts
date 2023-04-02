@@ -222,6 +222,7 @@ export class Node {
         const url = new URL(`${this.poolAddress}${r.path}`);
         url.searchParams.append("noReplace", data.noReplace?.toString() || "false")
         r.path = url.toString().replace(this.poolAddress, "");
+        console.log(r.path);
       }
     });
     this.syncPlayerData({}, res);
@@ -528,8 +529,6 @@ export class Node {
               player.createdAt = new Date(player.createdTimeStamp);
           }
           
-          let interValSelfCounter = (player.get("position_update_interval") || 250) as number;
-          if(interValSelfCounter < 25) interValSelfCounter = 25;
           if(player.filterUpdated >= 1) {
               player.filterUpdated++;
               const maxMins = 8;
@@ -544,7 +543,11 @@ export class Node {
               }
           }
           
-          player.set("updateInterval", setInterval(() => {
+          if(typeof this.manager.options.position_update_interval === "number" && this.manager.options.position_update_interval > 0) {
+            let interValSelfCounter = (this.manager.options.position_update_interval ?? 250) as number;
+            if(interValSelfCounter < 25) interValSelfCounter = 25;
+            
+            player.set("updateInterval", setInterval(() => {
               player.position += interValSelfCounter;
               player.set("lastposition", player.position);
               if(player.filterUpdated >= 1) {
@@ -561,6 +564,7 @@ export class Node {
                   }
               }
           }, interValSelfCounter));
+          }
         }
         break;
       case "event":
