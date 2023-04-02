@@ -188,6 +188,7 @@ class Node {
                 const url = new URL(`${this.poolAddress}${r.path}`);
                 url.searchParams.append("noReplace", data.noReplace?.toString() || "false");
                 r.path = url.toString().replace(this.poolAddress, "");
+                console.log(r.path);
             }
         });
         this.syncPlayerData({}, res);
@@ -490,9 +491,6 @@ class Node {
                         player.createdTimeStamp = payload.state.time;
                         player.createdAt = new Date(player.createdTimeStamp);
                     }
-                    let interValSelfCounter = (player.get("position_update_interval") || 250);
-                    if (interValSelfCounter < 25)
-                        interValSelfCounter = 25;
                     if (player.filterUpdated >= 1) {
                         player.filterUpdated++;
                         const maxMins = 8;
@@ -507,24 +505,29 @@ class Node {
                             player.filterUpdated = 0;
                         }
                     }
-                    player.set("updateInterval", setInterval(() => {
-                        player.position += interValSelfCounter;
-                        player.set("lastposition", player.position);
-                        if (player.filterUpdated >= 1) {
-                            player.filterUpdated++;
-                            const maxMins = 8;
-                            const currentDuration = player?.queue?.current?.duration || 0;
-                            if (currentDuration <= maxMins * 60000) {
-                                if (player.filterUpdated >= 3) {
+                    if (typeof this.manager.options.position_update_interval === "number" && this.manager.options.position_update_interval > 0) {
+                        let interValSelfCounter = (this.manager.options.position_update_interval ?? 250);
+                        if (interValSelfCounter < 25)
+                            interValSelfCounter = 25;
+                        player.set("updateInterval", setInterval(() => {
+                            player.position += interValSelfCounter;
+                            player.set("lastposition", player.position);
+                            if (player.filterUpdated >= 1) {
+                                player.filterUpdated++;
+                                const maxMins = 8;
+                                const currentDuration = player?.queue?.current?.duration || 0;
+                                if (currentDuration <= maxMins * 60000) {
+                                    if (player.filterUpdated >= 3) {
+                                        player.filterUpdated = 0;
+                                        player.seek(player.position);
+                                    }
+                                }
+                                else {
                                     player.filterUpdated = 0;
-                                    player.seek(player.position);
                                 }
                             }
-                            else {
-                                player.filterUpdated = 0;
-                            }
-                        }
-                    }, interValSelfCounter));
+                        }, interValSelfCounter));
+                    }
                 }
                 break;
             case "event":

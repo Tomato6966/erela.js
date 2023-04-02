@@ -34,31 +34,38 @@ function check(options) {
         throw new TypeError('Manager option "clientName" must be a string.');
     if (typeof options.defaultSearchPlatform !== "undefined" && typeof options.defaultSearchPlatform !== "string")
         throw new TypeError('Manager option "defaultSearchPlatform" must be a string.');
-    /*
-        nodes?: NodeOptions[];
-        clientId?: string;
-        clientName?: string;
-        shards?: number;
-        plugins?: Plugin[];
-        autoPlay?: boolean;
-        trackPartial?: string[];
-        defaultSearchPlatform?: SearchPlatform;
-        volumeDecrementer?: number;
-        position_update_interval?: number;
-        validUnresolvedUris?: string[];
-        forceLoadPlugin?: boolean;
-        allowedLinks?: String[];
-        allowedLinksRegexes?: RegExp[];
-        onlyAllowAllowedLinks?: boolean;
-        defaultLeastUsedNodeSortType?: leastUsedNodeSortType;
-        defaultLeastLoadNodeSortType?: leastLoadNodeSortType;
-        forceSearchLinkQueries?: boolean;
-        useUnresolvedData?: boolean;
-        userAgent?: string;
-        restTimeout?: number;
-        applyVolumeAsFilter?: boolean;
-        send(id: string, payload: Payload): void;
-    */
+    if (typeof options.volumeDecrementer !== "undefined" && (typeof options.volumeDecrementer !== "number" || isNaN(options.volumeDecrementer)))
+        throw new TypeError('Manager option "volumeDecrementer" must be a number between 0 and 1.');
+    if (options.volumeDecrementer > 1 || options.volumeDecrementer < 0)
+        throw new TypeError('Manager option "volumeDecrementer" must be a number between 0 and 1.');
+    if (typeof options.position_update_interval !== "undefined" && (typeof options.position_update_interval !== "number" || isNaN(options.position_update_interval)))
+        throw new TypeError('Manager option "position_update_interval" must be a number between 50 and 1000., set it to 0 to disable it');
+    if ((options.position_update_interval > 1000 || options.position_update_interval < 50) && options.position_update_interval !== 0)
+        throw new TypeError('Manager option "position_update_interval" must be a number between 50 and 1000., set it to 0 to disable it');
+    if (typeof options.validUnresolvedUris !== "undefined" && !Array.isArray(options.validUnresolvedUris) && !options.validUnresolvedUris.every(v => typeof v === "string"))
+        throw new TypeError('Manager option "validUnresolvedUris" must be an array of strings');
+    if (typeof options.forceLoadPlugin !== "undefined" && typeof options.forceLoadPlugin !== "boolean")
+        throw new TypeError('Manager option "forceLoadPlugin" must be a boolean');
+    if (typeof options.allowedLinks !== "undefined" && !Array.isArray(options.allowedLinks) && !options.allowedLinks.every(v => typeof v === "string"))
+        throw new TypeError('Manager option "allowedLinks" must be an array of strings');
+    if (typeof options.allowedLinksRegexes !== "undefined" && !Array.isArray(options.allowedLinksRegexes) && !options.allowedLinksRegexes.every(v => v instanceof RegExp))
+        throw new TypeError('Manager option "allowedLinksRegexes" must be an array of regexes');
+    if (typeof options.onlyAllowAllowedLinks !== "undefined" && typeof options.onlyAllowAllowedLinks !== "boolean")
+        throw new TypeError('Manager option "onlyAllowAllowedLinks" must be a boolean');
+    if (typeof options.defaultLeastUsedNodeSortType !== "undefined" && options.defaultLeastUsedNodeSortType !== "memory" && options.defaultLeastUsedNodeSortType !== "calls" && options.defaultLeastUsedNodeSortType !== "players")
+        throw new TypeError('Manager option "defaultLeastUsedNodeSortType" must be a string of leastUsedNodeSortType ("memory" | "calls" | "players")');
+    if (typeof options.defaultLeastLoadNodeSortType !== "undefined" && options.defaultLeastLoadNodeSortType !== "cpu" && options.defaultLeastLoadNodeSortType !== "memory")
+        throw new TypeError('Manager option "defaultLeastLoadNodeSortType" must be a string of leastUsedNodeSortType ("cpu" | "memory")');
+    if (typeof options.useUnresolvedData !== "undefined" && typeof options.useUnresolvedData !== "boolean")
+        throw new TypeError('Manager option "useUnresolvedData" must be a boolean');
+    if (typeof options.forceSearchLinkQueries !== "undefined" && typeof options.forceSearchLinkQueries !== "boolean")
+        throw new TypeError('Manager option "forceSearchLinkQueries" must be a boolean');
+    if (typeof options.userAgent !== "undefined" && typeof options.userAgent !== "string")
+        throw new TypeError('Manager option "userAgent" must be a string (public useragent when doing fetch requests)');
+    if (typeof options.restTimeout !== "undefined" && (typeof options.restTimeout !== "number" || isNaN(options.restTimeout)))
+        throw new TypeError('Manager option "restTimeout" must be a number');
+    if (typeof options.applyVolumeAsFilter !== "undefined" && typeof options.applyVolumeAsFilter !== "boolean")
+        throw new TypeError('Manager option "applyVolumeAsFilter" must be a boolean');
 }
 /**
  * The main hub for interacting with Lavalink and using Erela.JS,
@@ -333,7 +340,7 @@ class Manager extends node_events_1.EventEmitter {
             if (!node)
                 throw new Error("No available nodes.");
             const _query = typeof query === "string" ? { query } : query;
-            const _source = Manager.DEFAULT_SOURCES[_query.source ?? this.options.defaultSearchPlatform] ?? _query.source;
+            const _source = Manager.DEFAULT_SOURCES[_query.source ?? this.options.defaultSearchPlatform] ?? _query.source ?? this.options.defaultSearchPlatform;
             _query.query = _query?.query?.trim?.();
             const link = this.getValidUrlOfQuery(_query.query);
             if (this.options.allowedLinksRegexes?.length || this.options.allowedLinks?.length) {
