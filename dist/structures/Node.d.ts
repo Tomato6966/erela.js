@@ -92,6 +92,13 @@ export declare class Node {
      */
     makeRequest<T>(endpoint: string, modify?: ModifyRequest): Promise<T>;
     /**
+     * Makes an API call to the Node and returns it as TEXT
+     * @param endpoint The endpoint that we will make the call to
+     * @param modify Used to modify the request before being sent
+     * @returns The returned data
+     */
+    makeTextRequest<T>(endpoint: string, modify?: ModifyRequest): Promise<T>;
+    /**
      * Sends data to the Node.
      * @param data
      */

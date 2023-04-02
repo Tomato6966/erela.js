@@ -181,9 +181,7 @@ class TrackUtils {
                 return true;
             return false;
         };
-        const res = isvalidUri(unresolvedTrack.uri) ? 
-            await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : 
-            await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+        const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
         if (res.loadType !== "SEARCH_RESULT")
             throw res.exception ?? {
                 message: "No tracks found.",
@@ -196,7 +194,8 @@ class TrackUtils {
                     new RegExp(`^${escapeRegExp(unresolvedTrack.title)}$`, "i").test(track.title));
             });
             if (originalAudio) {
-                if(unresolvedTrack.uri) originalAudio.uri = unresolvedTrack.uri;
+                if (unresolvedTrack.uri)
+                    originalAudio.uri = unresolvedTrack.uri;
                 if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
                     if (unresolvedTrack.thumbnail?.length)
                         originalAudio.thumbnail = unresolvedTrack.thumbnail;
@@ -223,7 +222,8 @@ class TrackUtils {
             const sameDuration = res.tracks.find(track => (track.duration >= (unresolvedTrack.duration - 1500)) &&
                 (track.duration <= (unresolvedTrack.duration + 1500)));
             if (sameDuration) {
-                if(unresolvedTrack.uri) sameDuration.uri = unresolvedTrack.uri;
+                if (unresolvedTrack.uri)
+                    sameDuration.uri = unresolvedTrack.uri;
                 if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
                     if (unresolvedTrack.thumbnail?.length)
                         sameDuration.thumbnail = unresolvedTrack.thumbnail;
@@ -246,7 +246,8 @@ class TrackUtils {
                 return sameDuration;
             }
         }
-        if(unresolvedTrack.uri) res.tracks[0].uri = unresolvedTrack.uri;
+        if (unresolvedTrack.uri)
+            res.tracks[0].uri = unresolvedTrack.uri;
         if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if (unresolvedTrack.thumbnail?.length)
                 res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
