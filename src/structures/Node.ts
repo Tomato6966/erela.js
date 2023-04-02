@@ -436,7 +436,7 @@ export class Node {
 
     if(options.method === "DELETE") return;
 
-    return await request.body.text();
+    return await request.body.text() as T;
   }
 
   /**
