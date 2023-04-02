@@ -74,16 +74,16 @@ function check(options: ManagerOptions) {
   if ((options.position_update_interval > 1000 || options.position_update_interval < 50) && options.position_update_interval !== 0)
   throw new TypeError('Manager option "position_update_interval" must be a number between 50 and 1000., set it to 0 to disable it');
 
-  if (typeof options.validUnresolvedUris !== "undefined" && !Array.isArray(options.validUnresolvedUris) && !options.validUnresolvedUris.every(v => typeof v === "string"))
+  if (typeof options.validUnresolvedUris !== "undefined" && !Array.isArray(options.validUnresolvedUris) && !(options.validUnresolvedUris as string[]).every(v => typeof v === "string"))
     throw new TypeError('Manager option "validUnresolvedUris" must be an array of strings');
   
   if (typeof options.forceLoadPlugin !== "undefined" && typeof options.forceLoadPlugin !== "boolean")
     throw new TypeError('Manager option "forceLoadPlugin" must be a boolean');
   
-  if (typeof options.allowedLinks !== "undefined" && !Array.isArray(options.allowedLinks) && !options.allowedLinks.every(v => typeof v === "string"))
+  if (typeof options.allowedLinks !== "undefined" && !Array.isArray(options.allowedLinks) && !(options.allowedLinks as string[]).every(v => typeof v === "string"))
     throw new TypeError('Manager option "allowedLinks" must be an array of strings');
  
-  if (typeof options.allowedLinksRegexes !== "undefined" && !Array.isArray(options.allowedLinksRegexes) && !options.allowedLinksRegexes.every(v => v instanceof RegExp))
+  if (typeof options.allowedLinksRegexes !== "undefined" && !Array.isArray(options.allowedLinksRegexes) && !(options.allowedLinksRegexes as RegExp[]).every(v => v instanceof RegExp))
     throw new TypeError('Manager option "allowedLinksRegexes" must be an array of regexes');
   
   if (typeof options.onlyAllowAllowedLinks !== "undefined" && typeof options.onlyAllowAllowedLinks !== "boolean")
