@@ -192,7 +192,7 @@ export class Node {
   }
   public async fetchVersion(): Promise<string|null> {
     if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
-    const resInfo = await this.makeRequest(`/version` ).catch(console.warn) || null;
+    const resInfo = await this.makeTextRequest(`/version`, r => r.path = "/version").catch(console.warn) || null;
     return resInfo as string|null;
   }
   /**
@@ -220,7 +220,7 @@ export class Node {
       r.body = JSON.stringify(data.playerOptions);
       if(data.noReplace) { 
         const url = new URL(`${this.poolAddress}${r.path}`);
-        url.searchParams.append("noReplace", data.noReplace?.toString() || false)
+        url.searchParams.append("noReplace", data.noReplace?.toString() || "false")
         r.path = url.toString().replace(this.poolAddress, "");
       }
     });
@@ -395,7 +395,7 @@ export class Node {
 
     if(this.version === "v3" || this.version === "v4") {
       const url = new URL(`${this.poolAddress}${options.path}`);
-      url.searchParams.append("trace", true);
+      url.searchParams.append("trace", "true");
       options.path = url.toString().replace(this.poolAddress, "");
     }
 
@@ -405,6 +405,38 @@ export class Node {
     if(options.method === "DELETE") return;
 
     return await request.body.json();
+  }
+
+  /**
+   * Makes an API call to the Node and returns it as TEXT
+   * @param endpoint The endpoint that we will make the call to
+   * @param modify Used to modify the request before being sent
+   * @returns The returned data
+   */
+  public async makeTextRequest<T>(endpoint: string, modify?: ModifyRequest): Promise<T> {
+    const options: Dispatcher.RequestOptions = {
+      path: `${this.useVersionPath && this.version ? `/${this.version}` : ""}/${endpoint.replace(/^\//gm, "")}`,
+      method: "GET",
+      headers: {
+        Authorization: this.options.password
+      },
+      headersTimeout: this.options.requestTimeout,
+    }
+
+    modify?.(options);
+
+    if(this.version === "v3" || this.version === "v4") {
+      const url = new URL(`${this.poolAddress}${options.path}`);
+      url.searchParams.append("trace", "true");
+      options.path = url.toString().replace(this.poolAddress, "");
+    }
+
+    const request = await this.http.request(options);
+    this.calls++;
+
+    if(options.method === "DELETE") return;
+
+    return await request.body.text();
   }
 
   /**
