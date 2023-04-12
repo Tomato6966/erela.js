@@ -117,6 +117,8 @@ export class Player {
   public paused = false;
   /** The volume for the player */
   public volume: number;
+  /** The real volume for the player (if volumedecrementer is used this will be diffrent to player.volume) */
+  public lavalinkVolume: number;
   /** The Node for the Player. */
   public node: Node;
   /** The guild for the player. */
@@ -874,6 +876,8 @@ export class Player {
     
     let vol = Number(this.volume);
     if(this.manager.options.volumeDecrementer) vol *= this.manager.options.volumeDecrementer;
+
+    this.lavalinkVolume = Math.floor(vol * 100) / 100;
 
     const now = Date.now();
     if(!this.node.sessionId) {

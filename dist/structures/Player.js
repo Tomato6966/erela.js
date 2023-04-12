@@ -770,6 +770,9 @@ class Player {
         let vol = Number(this.volume);
         if (this.manager.options.volumeDecrementer)
             vol *= this.manager.options.volumeDecrementer;
+        
+        this.lavalinkVolume = Math.floor(vol * 100) / 100;
+
         const now = Date.now();
         if (!this.node.sessionId) {
             console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");

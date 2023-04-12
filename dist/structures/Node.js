@@ -207,8 +207,15 @@ class Node {
                 player.position = data.playerOptions.position;
             if (typeof data.playerOptions.voice !== "undefined")
                 player.voice = data.playerOptions.voice;
-            if (typeof data.playerOptions.volume !== "undefined")
-                player.volume = data.playerOptions.volume;
+            if (typeof data.playerOptions.volume !== "undefined") {
+                if (this.manager.options.volumeDecrementer) {
+                    player.volume = data.playerOptions.volume / this.manager.options.volumeDecrementer;
+                    player.lavalinkVolume = data.playerOptions.volume;
+                } else {
+                    player.volume = data.playerOptions.volume;
+                    player.lavalinkVolume = data.playerOptions.volume;
+                }
+            }
             if (typeof data.playerOptions.filters !== "undefined") {
                 const oldFilterTimescale = { ...(player.filterData.timescale || {}) };
                 Object.freeze(oldFilterTimescale);
