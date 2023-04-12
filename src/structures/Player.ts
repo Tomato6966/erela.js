@@ -872,7 +872,7 @@ export class Player {
     if (isNaN(volume)) throw new TypeError("Volume must be a number.");
     this.volume = Math.max(Math.min(volume, 500), 0);
     
-    let vol = this.volume;
+    let vol = Number(this.volume);
     if(this.manager.options.volumeDecrementer) vol *= this.manager.options.volumeDecrementer;
 
     const now = Date.now();
