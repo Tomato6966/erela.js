@@ -519,6 +519,28 @@ export class Manager extends EventEmitter {
     return this;
   }
 
+  public searchLocal(
+    query: string,
+    requester?: unknown,
+    customNode?: Node
+  ): Promise<SearchResult> {
+    const node = customNode || this.leastUsedNodes.first();
+    if (!node) throw new Error("No available nodes.");
+
+    const tracks = await node.makeRequest(`/loadtracks?identifier=${query}`)
+    if(!tracks?.tracks?.length) return reject(new Error("Query not found."));
+    
+    const result: SearchResult = {
+      loadType: res.loadType,
+      exception: res.exception ?? null,
+      tracks: res.tracks?.map((track: TrackData) =>
+        TrackUtils.build(track, requester)
+      ) ?? [],
+    };
+
+    return resolve(result);
+  }
+
   /**
    * Searches the enabled sources based off the URL or the `source` property.
    * @param query
