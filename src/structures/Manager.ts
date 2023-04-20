@@ -528,8 +528,8 @@ export class Manager extends EventEmitter {
       const node = customNode || this.leastUsedNodes.first();
       if (!node) throw new Error("No available nodes.");
 
-      const tracks = await node.makeRequest(`/loadtracks?identifier=${query}`)
-      if(!tracks?.tracks?.length) return reject(new Error("Query not found."));
+      const res = await node.makeRequest(`/loadtracks?identifier=${query}`) as any;
+      if(!res || !res?.tracks?.length) return reject(new Error("Query not found."));
       
       const result: SearchResult = {
         loadType: res.loadType,
