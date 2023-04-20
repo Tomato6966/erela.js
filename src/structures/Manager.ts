@@ -524,21 +524,23 @@ export class Manager extends EventEmitter {
     requester?: unknown,
     customNode?: Node
   ): Promise<SearchResult> {
-    const node = customNode || this.leastUsedNodes.first();
-    if (!node) throw new Error("No available nodes.");
+    return new Promise(async (resolve, reject) => {
+      const node = customNode || this.leastUsedNodes.first();
+      if (!node) throw new Error("No available nodes.");
 
-    const tracks = await node.makeRequest(`/loadtracks?identifier=${query}`)
-    if(!tracks?.tracks?.length) return reject(new Error("Query not found."));
-    
-    const result: SearchResult = {
-      loadType: res.loadType,
-      exception: res.exception ?? null,
-      tracks: res.tracks?.map((track: TrackData) =>
-        TrackUtils.build(track, requester)
-      ) ?? [],
-    };
+      const tracks = await node.makeRequest(`/loadtracks?identifier=${query}`)
+      if(!tracks?.tracks?.length) return reject(new Error("Query not found."));
+      
+      const result: SearchResult = {
+        loadType: res.loadType,
+        exception: res.exception ?? null,
+        tracks: res.tracks?.map((track: TrackData) =>
+          TrackUtils.build(track, requester)
+        ) ?? [],
+      };
 
-    return resolve(result);
+      return resolve(result);
+    })
   }
 
   /**
