@@ -183,7 +183,7 @@ export abstract class TrackUtils {
       throw new RangeError("Provided track is not a UnresolvedTrack.");
 
     if(unresolvedTrack.local) {
-      const tracks = await TrackUtils.manager.searchLocal(unresolvedTrack.uri)
+      const tracks = await TrackUtils.manager.searchLocal(unresolvedTrack.uri, unresolvedTrack.requester, customNode)
       if(!tracks?.tracks?.length) return undefined;
       if(unresolvedTrack.uri) tracks.tracks[0].uri = unresolvedTrack.uri;
       if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
