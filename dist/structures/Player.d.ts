@@ -75,6 +75,8 @@ export declare class Player {
     paused: boolean;
     /** The volume for the player */
     volume: number;
+    /** The real volume for the player (if volumedecrementer is used this will be diffrent to player.volume) */
+    lavalinkVolume: number;
     /** The Node for the Player. */
     node: Node;
     /** The guild for the player. */

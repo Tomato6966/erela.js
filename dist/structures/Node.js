@@ -211,7 +211,8 @@ class Node {
                 if (this.manager.options.volumeDecrementer) {
                     player.volume = data.playerOptions.volume / this.manager.options.volumeDecrementer;
                     player.lavalinkVolume = data.playerOptions.volume;
-                } else {
+                }
+                else {
                     player.volume = data.playerOptions.volume;
                     player.lavalinkVolume = data.playerOptions.volume;
                 }
