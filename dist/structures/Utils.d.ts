@@ -56,12 +56,20 @@ export declare class Plugin {
     unload(manager: Manager): void;
 }
 export interface UnresolvedQuery {
-    /** The title of the unresolved track. */
+    /** The title to search against. */
     title: string;
-    /** The author of the unresolved track. If provided it will have a more precise search. */
+    /** The author to search against. */
     author?: string;
-    /** The duration of the unresolved track. If provided it will have a more precise search. */
+    /** The duration to search within 1500 milliseconds of the results from YouTube. */
     duration?: number;
+    /** Thumbnail of the track */
+    thumbnail?: string;
+    /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
+    artworkURL: string | null;
+    /** Identifier of the track */
+    identifier?: string;
+    /** If it's a local track */
+    local?: boolean;
 }
 export type Sizes = "0" | "1" | "2" | "3" | "default" | "mqdefault" | "hqdefault" | "maxresdefault";
 export type LoadType = "TRACK_LOADED" | "PLAYLIST_LOADED" | "SEARCH_RESULT" | "LOAD_FAILED" | "NO_MATCHES";

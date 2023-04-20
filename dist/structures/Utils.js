@@ -162,6 +162,33 @@ class TrackUtils {
             throw new RangeError("Manager has not been initiated.");
         if (!TrackUtils.isUnresolvedTrack(unresolvedTrack))
             throw new RangeError("Provided track is not a UnresolvedTrack.");
+        if (unresolvedTrack.local) {
+            const tracks = await TrackUtils.manager.searchLocal(unresolvedTrack.uri);
+            if (!tracks?.tracks?.length)
+                return undefined;
+            if (unresolvedTrack.uri)
+                tracks.tracks[0].uri = unresolvedTrack.uri;
+            if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
+                if (unresolvedTrack.thumbnail?.length)
+                    tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+                if (unresolvedTrack.title?.length)
+                    tracks.tracks[0].title = unresolvedTrack.title;
+                if (unresolvedTrack.author?.length)
+                    tracks.tracks[0].author = unresolvedTrack.author;
+            }
+            else { // only overwrite if undefined / invalid
+                if ((tracks.tracks[0].title == 'Unknown title' || tracks.tracks[0].title == "Unspecified description") && unresolvedTrack.title != tracks.tracks[0].title)
+                    tracks.tracks[0].title = unresolvedTrack.title;
+                if (unresolvedTrack.author != tracks.tracks[0].author)
+                    tracks.tracks[0].author = unresolvedTrack.author;
+                if (unresolvedTrack.thumbnail != tracks.tracks[0].thumbnail)
+                    tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+            }
+            for (const key of Object.keys(unresolvedTrack))
+                if (typeof tracks.tracks[0][key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                    tracks.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
+            return tracks.tracks[0];
+        }
         const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
         const isvalidUri = (str) => {
             const valids = ["www.youtu", "music.youtu", "soundcloud.com"];

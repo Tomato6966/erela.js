@@ -142,6 +142,7 @@ export declare class Manager extends EventEmitter {
         clientName?: string;
         shards?: number;
     }): this;
+    searchLocal(query: string, requester?: unknown, customNode?: Node): Promise<SearchResult>;
     /**
      * Searches the enabled sources based off the URL or the `source` property.
      * @param query

@@ -377,6 +377,8 @@ export interface UnresolvedTrack extends Partial<Track> {
     artworkURL: string | null;
     /** Identifier of the track */
     identifier?: string;
+    /** If it's a local track */
+    local?: boolean;
     /** Resolves into a Track. */
     resolve(): Promise<void>;
 }

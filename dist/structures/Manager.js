@@ -327,6 +327,22 @@ class Manager extends node_events_1.EventEmitter {
             console.error("Could not connect to at least 1 Node");
         return this;
     }
+    searchLocal(query, requester, customNode) {
+        return new Promise(async (resolve, reject) => {
+            const node = customNode || this.leastUsedNodes.first();
+            if (!node)
+                throw new Error("No available nodes.");
+            const res = await node.makeRequest(`/loadtracks?identifier=${query}`);
+            if (!res || !res?.tracks?.length)
+                return reject(new Error("Query not found."));
+            const result = {
+                loadType: res.loadType,
+                exception: res.exception ?? null,
+                tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+            };
+            return resolve(result);
+        });
+    }
     /**
      * Searches the enabled sources based off the URL or the `source` property.
      * @param query
