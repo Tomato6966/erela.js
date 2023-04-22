@@ -209,7 +209,7 @@ class Node {
                 player.voice = data.playerOptions.voice;
             if (typeof data.playerOptions.volume !== "undefined") {
                 if (this.manager.options.volumeDecrementer) {
-                    player.volume = data.playerOptions.volume / this.manager.options.volumeDecrementer;
+                    player.lavalinkVolume = data.playerOptions.volume * this.manager.options.volumeDecrementer;
                     player.lavalinkVolume = data.playerOptions.volume;
                 }
                 else {

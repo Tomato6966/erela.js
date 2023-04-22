@@ -241,8 +241,8 @@ export class Node {
       if(typeof data.playerOptions.voice !== "undefined") player.voice = data.playerOptions.voice;
       if(typeof data.playerOptions.volume !== "undefined") {
         if (this.manager.options.volumeDecrementer) {
-          player.volume = data.playerOptions.volume / this.manager.options.volumeDecrementer;
-          player.lavalinkVolume = data.playerOptions.volume;
+          player.volume = data.playerOptions.volume;
+          player.lavalinkVolume = data.playerOptions.volume * this.manager.options.volumeDecrementer;
         } else {
           player.volume = data.playerOptions.volume;
           player.lavalinkVolume = data.playerOptions.volume;
