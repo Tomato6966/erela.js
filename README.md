@@ -41,6 +41,21 @@ Or shortly said here:
 
 ***
 
+# IMPORTANT INFORMATION!
+
+This Package is also updated, to the latest Lavalink Version (v3.* - v4.*)
+I kept functionality for older Lavalink Versions (v2.*) - since many people are still using that!
+In order to use the Old functionality, add your lavalink - node options those options: `version = "v2"` & `useVersionPath = false`
+```js
+// example manager-options#nodes
+nodes: [
+    {
+        identifier: "NODE", host: "localhost", port: 2333, password: "youshallnotpass",
+        version: "v2", useVersionPath: false // IMPORTANT OPTIONS FOR YOUR LAVALINK V2 TO WORK
+    } // V2 Lavalink Node
+]
+```
+
 # **Overview** - Table of Contents
 
 ## New features - Tutorials
