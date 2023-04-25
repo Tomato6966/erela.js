@@ -1,6 +1,7 @@
 /* eslint-disable no-case-declarations */
 import WebSocket from "ws";
 import { Dispatcher, Pool } from "undici";
+import { isAbsolute } from "path";
 import { Manager } from "./Manager";
 import { Player, PlayOptions, Track, UnresolvedTrack } from "./Player";
 import {
@@ -537,19 +538,6 @@ export class Node {
               player.createdAt = new Date(player.createdTimeStamp);
           }
           
-          if(player.filterUpdated >= 1) {
-              player.filterUpdated++;
-              const maxMins = 8;
-              const currentDuration = player?.queue?.current?.duration || 0;
-              if(currentDuration <= maxMins*60_000) {
-                if(player.filterUpdated >= 3) {
-                    player.filterUpdated = 0;
-                    player.seek(player.position);
-                }
-              } else {
-                player.filterUpdated = 0;
-              }
-          }
           
           if(typeof this.manager.options.position_update_interval === "number" && this.manager.options.position_update_interval > 0) {
             let interValSelfCounter = (this.manager.options.position_update_interval ?? 250) as number;
@@ -571,7 +559,16 @@ export class Node {
                     player.filterUpdated = 0;
                   }
               }
-          }, interValSelfCounter));
+            }, interValSelfCounter));
+          } else {
+            if(player.filterUpdated >= 1) {
+              const maxMins = 8;
+              const currentDuration = player?.queue?.current?.duration || 0;
+              if(currentDuration <= maxMins*60_000 || isAbsolute(player?.queue?.current?.uri)) {
+                  player.seek(player.position);
+              }
+              player.filterUpdated = 0;
+            }
           }
         }
         break;
