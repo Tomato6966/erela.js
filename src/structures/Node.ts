@@ -550,8 +550,9 @@ export class Node {
                   player.filterUpdated++;
                   const maxMins = 8;
                   const currentDuration = player?.queue?.current?.duration || 0;
-                  if(currentDuration <= maxMins*60_000) {
-                    if(player.filterUpdated >= 3) {
+                  if(currentDuration <= maxMins*60_000 || isAbsolute(player?.queue?.current?.uri)) {
+                    let maxSize = interValSelfCounter > 400 ? 2 : 3;
+                    if(player.filterUpdated >= maxSize) {
                         player.filterUpdated = 0;
                         player.seek(player.position);
                     }
