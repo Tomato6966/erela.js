@@ -5,6 +5,7 @@ const tslib_1 = require("tslib");
 /* eslint-disable no-case-declarations */
 const ws_1 = tslib_1.__importDefault(require("ws"));
 const undici_1 = require("undici");
+const path_1 = require("path");
 const Utils_1 = require("./Utils");
 function check(options) {
     if (!options)
@@ -209,8 +210,8 @@ class Node {
                 player.voice = data.playerOptions.voice;
             if (typeof data.playerOptions.volume !== "undefined") {
                 if (this.manager.options.volumeDecrementer) {
+                    player.volume = data.playerOptions.volume;
                     player.lavalinkVolume = data.playerOptions.volume * this.manager.options.volumeDecrementer;
-                    player.lavalinkVolume = data.playerOptions.volume;
                 }
                 else {
                     player.volume = data.playerOptions.volume;
@@ -499,20 +500,6 @@ class Node {
                         player.createdTimeStamp = payload.state.time;
                         player.createdAt = new Date(player.createdTimeStamp);
                     }
-                    if (player.filterUpdated >= 1) {
-                        player.filterUpdated++;
-                        const maxMins = 8;
-                        const currentDuration = player?.queue?.current?.duration || 0;
-                        if (currentDuration <= maxMins * 60000) {
-                            if (player.filterUpdated >= 3) {
-                                player.filterUpdated = 0;
-                                player.seek(player.position);
-                            }
-                        }
-                        else {
-                            player.filterUpdated = 0;
-                        }
-                    }
                     if (typeof this.manager.options.position_update_interval === "number" && this.manager.options.position_update_interval > 0) {
                         let interValSelfCounter = (this.manager.options.position_update_interval ?? 250);
                         if (interValSelfCounter < 25)
@@ -535,6 +522,16 @@ class Node {
                                 }
                             }
                         }, interValSelfCounter));
+                    }
+                    else {
+                        if (player.filterUpdated >= 1) {
+                            const maxMins = 8;
+                            const currentDuration = player?.queue?.current?.duration || 0;
+                            if (currentDuration <= maxMins * 60000 || (0, path_1.isAbsolute)(player?.queue?.current?.uri)) {
+                                player.seek(player.position);
+                            }
+                            player.filterUpdated = 0;
+                        }
                     }
                 }
                 break;
