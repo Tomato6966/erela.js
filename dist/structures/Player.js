@@ -153,9 +153,12 @@ class Player {
         this.ping = undefined;
         /** The Voice Connection Ping from Lavalink */
         this.wsPing = undefined,
-            /** The equalizer bands array. */
-            this.bands = new Array(15).fill(0.0);
+        /** The equalizer bands array. */
+        this.bands = new Array(15).fill(0.0);
         this.set("lastposition", undefined);
+        if(typeof options.customData === "object" && Object.keys(options.customData).length) {
+            this.data = { ...this.data, ...options.customData };
+        } 
         this.guild = options.guild;
         this.voiceState = Object.assign({ op: "voiceUpdate", guildId: options.guild });
         if (options.voiceChannel)

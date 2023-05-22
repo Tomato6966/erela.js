@@ -329,6 +329,8 @@ export interface PlayerOptions {
     region?: string;
     /** If filters should be instantupdated */
     instaUpdateFiltersFix: boolean;
+    /** All vars to set on the customDatas */
+    customData?: Record<string, string>;
 }
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {

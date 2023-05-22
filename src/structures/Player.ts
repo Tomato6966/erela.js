@@ -212,7 +212,11 @@ export class Player {
     /** The equalizer bands array. */
     this.bands = new Array(15).fill(0.0);
     this.set("lastposition", undefined);
-      
+    
+    if(typeof options.customData === "object" && Object.keys(options.customData).length) {
+      this.data = { ...this.data, ...options.customData };
+    } 
+
     this.guild = options.guild;
     this.voiceState = Object.assign({ op: "voiceUpdate", guildId: options.guild });
 
@@ -1085,6 +1089,8 @@ export interface PlayerOptions {
   region?: string;
   /** If filters should be instantupdated */
   instaUpdateFiltersFix: boolean;
+  /** All vars to set on the customDatas */
+  customData?: Record<string, string>;
 }
 
 /** If track partials are set some of these will be `undefined` as they were removed. */
