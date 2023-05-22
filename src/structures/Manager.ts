@@ -473,7 +473,7 @@ export class Manager extends EventEmitter {
 
     if (this.options.plugins) {
       for (const [index, plugin] of this.options.plugins.entries()) {
-        if (!(plugin instanceof Plugin))
+        if (!(plugin instanceof Plugin) && !this.options.forceLoadPlugin)
           throw new RangeError(`Plugin at index ${index} does not extend Plugin.`);
         plugin.load(this);
       }
