@@ -846,6 +846,13 @@ export class Player {
     if (typeof options.encodedTrack !== "string") {
       options.encodedTrack = (options.encodedTrack as Track).track;
     }
+    if (typeof options.volume === "number" && !isNaN(options.volume)) {
+        this.volume = Math.max(Math.min(options.volume, 500), 0);
+        let vol = Number(this.volume);
+        if (this.manager.options.volumeDecrementer) vol *= this.manager.options.volumeDecrementer;
+        this.lavalinkVolume = Math.floor(vol * 100) / 100;
+        options.volume = vol;
+    }
 
     this.set("lastposition", this.position);
 

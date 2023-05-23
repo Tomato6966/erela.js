@@ -189,7 +189,6 @@ class Node {
                 const url = new URL(`${this.poolAddress}${r.path}`);
                 url.searchParams.append("noReplace", data.noReplace?.toString() || "false");
                 r.path = url.toString().replace(this.poolAddress, "");
-                console.log(r.path);
             }
         });
         this.syncPlayerData({}, res);
@@ -209,15 +208,9 @@ class Node {
             if (typeof data.playerOptions.voice !== "undefined")
                 player.voice = data.playerOptions.voice;
             if (typeof data.playerOptions.volume !== "undefined") {
-                if (this.manager.options.volumeDecrementer) {
-                    player.volume = data.playerOptions.volume;
-                    player.lavalinkVolume = data.playerOptions.volume * this.manager.options.volumeDecrementer;
-                }
-                else {
-                    player.volume = data.playerOptions.volume;
-                    player.lavalinkVolume = data.playerOptions.volume;
-                }
-            }
+                player.volume = Math.floor(100 * data.playerOptions.volume / (this.manager.options.volumeDecrementer || 1) / 100);
+                player.lavalinkVolume = data.playerOptions.volume; 
+        	}
             if (typeof data.playerOptions.filters !== "undefined") {
                 const oldFilterTimescale = { ...(player.filterData.timescale || {}) };
                 Object.freeze(oldFilterTimescale);

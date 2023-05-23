@@ -740,10 +740,20 @@ class Player {
             encodedTrack: this.queue.current.track,
             ...finalOptions,
         };
+
         if (typeof options.encodedTrack !== "string") {
             options.encodedTrack = options.encodedTrack.track;
         }
+        if (typeof options.volume === "number" && !isNaN(options.volume)) {
+            this.volume = Math.max(Math.min(options.volume, 500), 0);
+            let vol = Number(this.volume);
+            if (this.manager.options.volumeDecrementer) vol *= this.manager.options.volumeDecrementer;
+            this.lavalinkVolume = Math.floor(vol * 100) / 100;
+            options.volume = vol;
+        }
+        
         this.set("lastposition", this.position);
+
         const now = Date.now();
         if (!this.node.sessionId) {
             await this.node.send({
