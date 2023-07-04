@@ -36,20 +36,20 @@
   },
   "bugs": "https://github.com/Tomato6966/erela.js",
   "devDependencies": {
-    "@discordjs/collection": "^1.5.0",
-    "@types/node": "^18.16.0",
-    "@types/ws": "^8.5.4",
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
-    "@typescript-eslint/parser": "^5.59.0",
+    "@discordjs/collection": "^1.5.1",
+    "@types/node": "^20.3.3",
+    "@types/ws": "^8.5.5",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
     "dts-bundle": "^0.7.3",
-    "eslint": "^8.39.0",
-    "typedoc": "^0.24.6",
+    "eslint": "^8.44.0",
+    "typedoc": "^0.24.8",
     "typedoc-plugin-no-inherit": "^1.4.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
-    "tslib": "^2.5.0",
-    "undici": "^5.22.0",
+    "tslib": "^2.6.0",
+    "undici": "^5.22.1",
     "ws": "^8.13.0"
   },
   "engines": {
