@@ -320,6 +320,10 @@ export interface EchoFilter {
     delay: number;
     decay: number;
 }
+export interface ReverbFilter {
+    delay: number;
+    decay: number;
+}
 export interface LavalinkFilterData {
     volume?: number;
     equalizer?: EQBand[];
@@ -332,4 +336,5 @@ export interface LavalinkFilterData {
     channelMix?: ChannelMixFilter;
     lowPass?: LowPassFilter;
     echo: EchoFilter;
+    reverb: ReverbFilter;
 }

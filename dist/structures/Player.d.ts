@@ -46,7 +46,10 @@ export interface PlayerFilters {
     nightcore: boolean;
     /** Sets custom to false, and nightcore to false */
     vaporwave: boolean;
+    /** only with the custom lavalink filter plugin */
     echo: boolean;
+    /** only with the custom lavalink filter plugin */
+    reverb: boolean;
     rotation: boolean;
     /** @deprecated */
     rotating: boolean;
@@ -202,6 +205,13 @@ export declare class Player {
      * @returns
      */
     toggleEcho(delay?: number, decay?: number): Promise<boolean>;
+    /**
+     * Enabels / Disables the Echo effect, IMPORTANT! Only works with the correct Lavalink Plugin installed. (Optional: provide your Own Data)
+     * @param delay
+     * @param decay
+     * @returns
+     */
+    toggleReverb(delay?: number, decay?: number): Promise<boolean>;
     /**
      * Enables / Disabels a Nightcore-like filter Effect. Disables/Overwrides both: custom and Vaporwave Filter
      * @param speed

@@ -153,12 +153,12 @@ class Player {
         this.ping = undefined;
         /** The Voice Connection Ping from Lavalink */
         this.wsPing = undefined,
-        /** The equalizer bands array. */
-        this.bands = new Array(15).fill(0.0);
+            /** The equalizer bands array. */
+            this.bands = new Array(15).fill(0.0);
         this.set("lastposition", undefined);
-        if(typeof options.customData === "object" && Object.keys(options.customData).length) {
+        if (typeof options.customData === "object" && Object.keys(options.customData).length) {
             this.data = { ...this.data, ...options.customData };
-        } 
+        }
         this.guild = options.guild;
         this.voiceState = Object.assign({ op: "voiceUpdate", guildId: options.guild });
         if (options.voiceChannel)
@@ -184,6 +184,7 @@ class Player {
             custom: false,
             nightcore: false,
             echo: false,
+            reverb: false,
             rotating: false,
             rotation: false,
             karaoke: false,
@@ -208,6 +209,10 @@ class Player {
                 rate: 1 // 0 = x
             },
             echo: {
+                delay: 0,
+                decay: 0
+            },
+            reverb: {
                 delay: 0,
                 decay: 0
             },
@@ -243,6 +248,7 @@ class Player {
         this.filters.vibrato = this.filterData.vibrato.frequency !== 0 || this.filterData.vibrato.depth !== 0;
         this.filters.tremolo = this.filterData.tremolo.frequency !== 0 || this.filterData.tremolo.depth !== 0;
         this.filters.echo = this.filterData.echo.decay !== 0 || this.filterData.echo.delay !== 0;
+        this.filters.reverb = this.filterData.reverb.decay !== 0 || this.filterData.reverb.delay !== 0;
         this.filters.lowPass = this.filterData.lowPass.smoothing !== 0;
         this.filters.karaoke = Object.values(this.filterData.karaoke).some(v => v !== 0);
         if ((this.filters.nightcore || this.filters.vaporwave) && oldFilterTimescale) {
@@ -259,6 +265,7 @@ class Player {
      */
     async resetFilters() {
         this.filters.echo = false;
+        this.filters.reverb = false;
         this.filters.nightcore = false;
         this.filters.lowPass = false;
         this.filters.rotating = false;
@@ -287,6 +294,10 @@ class Player {
                 rate: 1 // 0 = x
             },
             echo: {
+                delay: 0,
+                decay: 0
+            },
+            reverb: {
                 delay: 0,
                 decay: 0
             },
@@ -475,6 +486,21 @@ class Player {
         return this.filters.echo;
     }
     /**
+     * Enabels / Disables the Echo effect, IMPORTANT! Only works with the correct Lavalink Plugin installed. (Optional: provide your Own Data)
+     * @param delay
+     * @param decay
+     * @returns
+     */
+    async toggleReverb(delay = 1, decay = 0.5) {
+        if (this.node.info && !this.node.info?.filters?.includes("reverb"))
+            throw new Error("Node#Info#filters does not include the 'reverb' Filter (Node has it not enable aka not installed!)");
+        this.filterData.reverb.delay = this.filters.reverb ? 0 : delay;
+        this.filterData.reverb.decay = this.filters.reverb ? 0 : decay;
+        this.filters.reverb = !!!this.filters.reverb;
+        await this.updatePlayerFilters();
+        return this.filters.reverb;
+    }
+    /**
      * Enables / Disabels a Nightcore-like filter Effect. Disables/Overwrides both: custom and Vaporwave Filter
      * @param speed
      * @param pitch
@@ -548,6 +574,8 @@ class Player {
         //if(!this.filters.karaoke) delete sendData.karaoke;
         if (!this.filters.echo)
             delete sendData.echo;
+        if (!this.filters.reverb)
+            delete sendData.reverb;
         if (!this.filters.lowPass)
             delete sendData.lowPass;
         if (!this.filters.karaoke)
@@ -740,20 +768,18 @@ class Player {
             encodedTrack: this.queue.current.track,
             ...finalOptions,
         };
-
         if (typeof options.encodedTrack !== "string") {
             options.encodedTrack = options.encodedTrack.track;
         }
         if (typeof options.volume === "number" && !isNaN(options.volume)) {
             this.volume = Math.max(Math.min(options.volume, 500), 0);
             let vol = Number(this.volume);
-            if (this.manager.options.volumeDecrementer) vol *= this.manager.options.volumeDecrementer;
+            if (this.manager.options.volumeDecrementer)
+                vol *= this.manager.options.volumeDecrementer;
             this.lavalinkVolume = Math.floor(vol * 100) / 100;
             options.volume = vol;
         }
-        
         this.set("lastposition", this.position);
-
         const now = Date.now();
         if (!this.node.sessionId) {
             await this.node.send({

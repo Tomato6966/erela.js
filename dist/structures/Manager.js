@@ -1,11 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Manager = exports.LoadTypes = void 0;
+exports.Manager = exports.LoadTypes = exports.v4LoadTypes = void 0;
 /* eslint-disable no-async-promise-executor */
 const collection_1 = require("@discordjs/collection");
 const node_events_1 = require("node:events");
 const Utils_1 = require("./Utils");
 const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
+exports.v4LoadTypes = {
+    TrackLoaded: "track",
+    PlaylistLoaded: "playlist",
+    SearchResult: "search",
+    NoMatches: "empty",
+    LoadFailed: "error",
+};
 exports.LoadTypes = {
     TrackLoaded: "TRACK_LOADED",
     PlaylistLoaded: "PLAYLIST_LOADED",
@@ -376,9 +383,10 @@ class Manager extends node_events_1.EventEmitter {
             const result = {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
-                tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                pluginInfo: res.pluginInfo ?? {},
+                tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
-            if (result.loadType === "PLAYLIST_LOADED") {
+            if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
                 if (typeof res.playlistInfo === "object") {
                     result.playlist = {
                         ...result.playlist,
@@ -389,9 +397,6 @@ class Manager extends node_events_1.EventEmitter {
                         duration: result.tracks
                             .reduce((acc, cur) => acc + (cur.duration || 0), 0),
                     };
-                }
-                if (typeof res.pluginInfo === "object") {
-                    result.pluginInfo = { ...result.pluginInfo };
                 }
                 // if(result.playlist || result.pluginInfo) {
                 //   result.tracks.forEach(track => {
@@ -433,9 +438,10 @@ class Manager extends node_events_1.EventEmitter {
             const result = {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
-                tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                pluginInfo: res.pluginInfo ?? {},
+                tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
-            if (result.loadType === exports.LoadTypes.PlaylistLoaded) {
+            if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
                 if (typeof res.playlistInfo === "object") {
                     result.playlist = {
                         ...result.playlist,
@@ -446,9 +452,6 @@ class Manager extends node_events_1.EventEmitter {
                         duration: result.tracks
                             .reduce((acc, cur) => acc + (cur.duration || 0), 0),
                     };
-                }
-                if (typeof res.pluginInfo === "object") {
-                    result.pluginInfo = { ...result.pluginInfo };
                 }
                 // if(result.playlist || result.pluginInfo) {
                 //   result.tracks.forEach(track => {

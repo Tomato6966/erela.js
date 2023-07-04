@@ -6,6 +6,13 @@ import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
 import { PluginDataInfo } from "./Utils";
 import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
+export declare const v4LoadTypes: {
+    TrackLoaded: string;
+    PlaylistLoaded: string;
+    SearchResult: string;
+    NoMatches: string;
+    LoadFailed: string;
+};
 export declare const LoadTypes: Record<"TrackLoaded" | "PlaylistLoaded" | "SearchResult" | "NoMatches" | "LoadFailed", LoadType>;
 export interface Manager {
     /**
