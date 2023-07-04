@@ -110,14 +110,17 @@ export abstract class TrackUtils {
         // library data
         isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
         // parsed Thumbnail
-        thumbnail: data.info.artworkUrl 
-          || data.info.thumbnail 
-          || data.info.image 
-          || ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
-              ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg` : 
-              (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
-                ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg` 
-                : null,
+        thumbnail: typeof data.info.artworkUrl === "string" ? 
+        data.info.artworkUrl
+        : typeof data.info.thumbnail === "string" ? 
+            data.info.thumbnail :
+            typeof data.info.image === "string" ? 
+                data.info.image :
+                ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d)) ?
+                    `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
+                    : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
+                        ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
+                        : null,
         requester: requester || {},
       };
 
