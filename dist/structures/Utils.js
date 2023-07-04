@@ -95,25 +95,21 @@ class TrackUtils {
                 isSeekable: data.info.isSeekable,
                 isStream: data.info.isStream,
                 uri: data.info.uri,
-                artworkURL: data.info.artworkUrl,
+                artworkUrl: data.info.artworkUrl,
                 isrc: data.info.isrc,
                 // library data
                 isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
                 // parsed Thumbnail
-                thumbnail: (data.info.artworkUrl || data.info.thumbnail || data.info.image) || ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
-                    ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg` : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
-                    ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg` : null,
-                displayThumbnail(size = "mqdefault") {
-                    const finalSize = SIZES.find((s) => s === size) ?? "default";
-                    return (data?.info?.uri?.includes?.("youtube.") || data?.info?.uri?.includes?.("youtu.be"))
-                        ? `https://img.youtube.com/vi/${data.info.identifier}/${finalSize}.jpg`
-                        : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
-                            ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
-                            : data.info?.thumbnail || data.info?.image;
-                },
+                thumbnail: data.info.artworkUrl
+                    || data.info.thumbnail
+                    || data.info.image
+                    || ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
+                    ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg` :
+                    (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
+                        ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
+                        : null,
                 requester: requester || {},
             };
-            track.displayThumbnail = track.displayThumbnail.bind(track);
             if (this.trackPartial) {
                 for (const key of Object.keys(track)) {
                     if (this.trackPartial.includes(key))
@@ -185,7 +181,7 @@ class TrackUtils {
                     tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
             }
             for (const key of Object.keys(unresolvedTrack))
-                if (typeof tracks.tracks[0][key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                if (typeof tracks.tracks[0][key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
                     tracks.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
             return tracks.tracks[0];
         }
@@ -240,7 +236,7 @@ class TrackUtils {
                         originalAudio.thumbnail = unresolvedTrack.thumbnail;
                 }
                 for (const key of Object.keys(unresolvedTrack))
-                    if (typeof originalAudio[key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                    if (typeof originalAudio[key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
                         originalAudio[key] = unresolvedTrack[key]; // add non-existing values
                 return originalAudio;
             }
@@ -268,7 +264,7 @@ class TrackUtils {
                         sameDuration.thumbnail = unresolvedTrack.thumbnail;
                 }
                 for (const key of Object.keys(unresolvedTrack))
-                    if (typeof sameDuration[key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+                    if (typeof sameDuration[key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
                         sameDuration[key] = unresolvedTrack[key]; // add non-existing values
                 return sameDuration;
             }
@@ -292,7 +288,7 @@ class TrackUtils {
                 res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
         }
         for (const key of Object.keys(unresolvedTrack))
-            if (typeof res.tracks[0][key] === "undefined" && key !== "resolve" && key !== "displayThumbnail" && unresolvedTrack[key])
+            if (typeof res.tracks[0][key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
                 res.tracks[0][key] = unresolvedTrack[key]; // add non-existing values
         return res.tracks[0];
     }

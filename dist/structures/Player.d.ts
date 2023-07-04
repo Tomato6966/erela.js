@@ -2,7 +2,7 @@ import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
 import { LavalinkFilterData, LavalinkPlayerVoice, TimescaleFilter } from "./Utils";
-import { Sizes, State, VoiceState } from "./Utils";
+import { State, VoiceState } from "./Utils";
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
 export declare const validAudioOutputs: {
     mono: {
@@ -366,12 +366,10 @@ export interface Track {
     thumbnail: string | null;
     /** The user that requested the track. */
     requester: unknown | null;
-    /** Displays the track thumbnail with optional size or null if it's a unsupported source. */
-    displayThumbnail(size?: Sizes): string;
     /** If the Track is a preview */
     isPreview: boolean;
-    /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
-    artworkURL: string | null;
+    /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+    artworkUrl: string | null;
     /** ISRC if available */
     isrc: string | null;
 }
@@ -385,8 +383,8 @@ export interface UnresolvedTrack extends Partial<Track> {
     duration?: number;
     /** Thumbnail of the track */
     thumbnail?: string;
-    /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
-    artworkURL: string | null;
+    /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+    artworkUrl: string | null;
     /** Identifier of the track */
     identifier?: string;
     /** If it's a local track */
