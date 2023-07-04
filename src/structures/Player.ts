@@ -1156,8 +1156,8 @@ export interface Track {
   requester: unknown | null;
   /** If the Track is a preview */
   isPreview: boolean;
-  /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
-  artworkURL: string | null;
+  /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+  artworkUrl: string | null;
   /** ISRC if available */
   isrc: string | null;
 
@@ -1173,7 +1173,7 @@ export interface UnresolvedTrack extends Partial<Track> {
   duration?: number;
   /** Thumbnail of the track */
   thumbnail?: string;
-  /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
+  /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
   artworkUrl: string | null;
   /** Identifier of the track */
   identifier?: string;
