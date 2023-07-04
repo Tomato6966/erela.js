@@ -1154,8 +1154,6 @@ export interface Track {
   thumbnail: string | null;
   /** The user that requested the track. */
   requester: unknown | null;
-  /** Displays the track thumbnail with optional size or null if it's a unsupported source. */
-  displayThumbnail(size?: Sizes): string;
   /** If the Track is a preview */
   isPreview: boolean;
   /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
@@ -1176,7 +1174,7 @@ export interface UnresolvedTrack extends Partial<Track> {
   /** Thumbnail of the track */
   thumbnail?: string;
   /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
-  artworkURL: string | null;
+  artworkUrl: string | null;
   /** Identifier of the track */
   identifier?: string;
   /** If it's a local track */
