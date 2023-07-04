@@ -105,12 +105,12 @@ export abstract class TrackUtils {
         isSeekable: data.info.isSeekable,
         isStream: data.info.isStream,
         uri: data.info.uri,
-        artworkURL: data.info.artworkUrl?.replace("/maxresdefault.jpg",  "/mqdefault.jpg"),
+        artworkURL: data.info.artworkUrl,
         isrc: data.info.isrc,
         // library data
         isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
         // parsed Thumbnail
-        thumbnail: (data.info.artworkUrl?.replace("/maxresdefault.jpg",  "/mqdefault.jpg") || data.info.thumbnail || data.info.image) ||  ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
+        thumbnail: (data.info.artworkUrl || data.info.thumbnail || data.info.image) ||  ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d))
             ? `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg` : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
             ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg` : null,
         displayThumbnail(size = "mqdefault"): string | null {
@@ -670,6 +670,10 @@ export interface EchoFilter {
   delay: number
   decay: number
 }
+export interface ReverbFilter {
+  delay: number
+  decay: number
+}
 export interface LavalinkFilterData {
   volume?: number;
   equalizer?: EQBand[];
@@ -683,4 +687,5 @@ export interface LavalinkFilterData {
   channelMix?: ChannelMixFilter;
   lowPass?: LowPassFilter;
   echo: EchoFilter,
+  reverb: ReverbFilter,
 };

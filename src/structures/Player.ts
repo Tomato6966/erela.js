@@ -88,8 +88,11 @@ export interface PlayerFilters {
   /** Sets custom to false, and vaporwave to false */
   nightcore: boolean;
   /** Sets custom to false, and nightcore to false */
-  vaporwave: boolean; 
+  vaporwave: boolean;
+  /** only with the custom lavalink filter plugin */ 
   echo: boolean;
+  /** only with the custom lavalink filter plugin */ 
+  reverb: boolean;
   rotation: boolean;
   /** @deprecated */
   rotating: boolean; 
@@ -243,6 +246,7 @@ export class Player {
       custom: false,
       nightcore: false,
       echo: false,
+      reverb: false,
       rotating: false,
       rotation: false, 
       karaoke: false,
@@ -267,6 +271,10 @@ export class Player {
           rate: 1 // 0 = x
       },
       echo: {
+          delay: 0,
+          decay: 0
+      },
+      reverb: {
           delay: 0,
           decay: 0
       },
@@ -303,6 +311,7 @@ export class Player {
     this.filters.vibrato = this.filterData.vibrato.frequency !== 0 || this.filterData.vibrato.depth !== 0;
     this.filters.tremolo = this.filterData.tremolo.frequency !== 0 || this.filterData.tremolo.depth !== 0;
     this.filters.echo = this.filterData.echo.decay !== 0 || this.filterData.echo.delay !== 0;
+    this.filters.reverb = this.filterData.reverb.decay !== 0 || this.filterData.reverb.delay !== 0;
     this.filters.lowPass = this.filterData.lowPass.smoothing !== 0;
     this.filters.karaoke = Object.values(this.filterData.karaoke).some(v => v !== 0);
     if((this.filters.nightcore || this.filters.vaporwave) && oldFilterTimescale) {
@@ -320,6 +329,7 @@ export class Player {
    */
   public async resetFilters() : Promise<PlayerFilters> {
     this.filters.echo = false;
+    this.filters.reverb = false;
     this.filters.nightcore = false;
     this.filters.lowPass = false;
     this.filters.rotating = false;
@@ -348,6 +358,10 @@ export class Player {
             rate: 1 // 0 = x
         },
         echo: {
+            delay: 0,
+            decay: 0
+        },
+        reverb: {
             delay: 0,
             decay: 0
         },
@@ -542,6 +556,21 @@ export class Player {
       return this.filters.echo;
   }
   /**
+   * Enabels / Disables the Echo effect, IMPORTANT! Only works with the correct Lavalink Plugin installed. (Optional: provide your Own Data)
+   * @param delay
+   * @param decay
+   * @returns 
+   */
+  public async toggleReverb(delay:number = 1, decay:number = 0.5): Promise<boolean> {
+      if(this.node.info && !this.node.info?.filters?.includes("reverb")) throw new Error("Node#Info#filters does not include the 'reverb' Filter (Node has it not enable aka not installed!)")
+      this.filterData.reverb.delay = this.filters.reverb ? 0 : delay;
+      this.filterData.reverb.decay = this.filters.reverb ? 0 : decay;
+
+      this.filters.reverb = !!!this.filters.reverb;
+      await this.updatePlayerFilters();
+      return this.filters.reverb;
+  }
+  /**
    * Enables / Disabels a Nightcore-like filter Effect. Disables/Overwrides both: custom and Vaporwave Filter
    * @param speed 
    * @param pitch 
@@ -614,6 +643,7 @@ export class Player {
     if(!this.filters.vibrato) delete sendData.vibrato;
     //if(!this.filters.karaoke) delete sendData.karaoke;
     if(!this.filters.echo) delete sendData.echo;
+    if(!this.filters.reverb) delete sendData.reverb;
     if(!this.filters.lowPass) delete sendData.lowPass;
     if(!this.filters.karaoke) delete sendData.karaoke;
     //if(!this.filters.rotating) delete sendData.rotating;

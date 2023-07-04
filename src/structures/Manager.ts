@@ -22,6 +22,13 @@ import {
 
 const REQUIRED_KEYS = ["event", "guildId", "op", "sessionId"];
 
+export const v4LoadTypes = {
+  TrackLoaded: "track",
+  PlaylistLoaded: "playlist",
+  SearchResult: "search",
+  NoMatches: "empty",
+  LoadFailed: "error",
+}
 export const LoadTypes = {
   TrackLoaded: "TRACK_LOADED",
   PlaylistLoaded: "PLAYLIST_LOADED",
@@ -584,12 +591,13 @@ export class Manager extends EventEmitter {
       const result: SearchResult = {
         loadType: res.loadType,
         exception: res.exception ?? null,
-        tracks: res.tracks?.map((track: TrackData) =>
+        pluginInfo: res.pluginInfo ?? {},
+        tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track: TrackData) =>
           TrackUtils.build(track, requester)
         ) ?? [],
       };
 
-      if (result.loadType === "PLAYLIST_LOADED") {
+      if (result.loadType === LoadTypes.PlaylistLoaded || result.loadType === v4LoadTypes.PlaylistLoaded) {
         if(typeof res.playlistInfo === "object") {
           result.playlist = {
             ...result.playlist,
@@ -603,9 +611,6 @@ export class Manager extends EventEmitter {
             duration: result.tracks
               .reduce((acc: number, cur: Track) => acc + (cur.duration || 0), 0),
           }
-        }
-        if(typeof res.pluginInfo === "object") {
-          result.pluginInfo = { ...result.pluginInfo };
         }
         // if(result.playlist || result.pluginInfo) {
         //   result.tracks.forEach(track => {
@@ -651,16 +656,17 @@ export class Manager extends EventEmitter {
           .catch(err => reject(err));
 
       if (!res) return reject(new Error("Query not found."));
-      
+
       const result: SearchResult = {
         loadType: res.loadType,
         exception: res.exception ?? null,
-        tracks: res.tracks?.map((track: TrackData) =>
+        pluginInfo: res.pluginInfo ?? {},
+        tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track: TrackData) =>
           TrackUtils.build(track, requester)
         ) ?? [],
       };
 
-      if (result.loadType === LoadTypes.PlaylistLoaded) {
+      if (result.loadType === LoadTypes.PlaylistLoaded || result.loadType === v4LoadTypes.PlaylistLoaded) {
         if(typeof res.playlistInfo === "object") {
           result.playlist = {
             ...result.playlist,
@@ -674,9 +680,6 @@ export class Manager extends EventEmitter {
             duration: result.tracks
               .reduce((acc: number, cur: Track) => acc + (cur.duration || 0), 0),
           }
-        }
-        if(typeof res.pluginInfo === "object") {
-          result.pluginInfo = { ...result.pluginInfo };
         }
         // if(result.playlist || result.pluginInfo) {
         //   result.tracks.forEach(track => {
