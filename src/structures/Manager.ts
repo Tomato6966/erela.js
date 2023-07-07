@@ -538,10 +538,12 @@ export class Manager extends EventEmitter {
       const res = await node.makeRequest(`/loadtracks?identifier=${query}`) as any;
       if(!res || !res?.tracks?.length) return reject(new Error("Query not found."));
       
+      const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
+
       const result: SearchResult = {
         loadType: res.loadType,
         exception: res.exception ?? null,
-        tracks: res.tracks?.map((track: TrackData) =>
+        tracks: dataArray?.filter(Boolean).map((track: TrackData) =>
           TrackUtils.build(track, requester)
         ) ?? [],
       };
@@ -588,11 +590,13 @@ export class Manager extends EventEmitter {
 
       if (!res) return reject(new Error("Query not found."));
       
+      const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
+
       const result: SearchResult = {
         loadType: res.loadType,
         exception: res.exception ?? null,
         pluginInfo: res.pluginInfo ?? {},
-        tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track: TrackData) =>
+        tracks: dataArray?.filter(Boolean).map((track: TrackData) =>
           TrackUtils.build(track, requester)
         ) ?? [],
       };
@@ -657,11 +661,13 @@ export class Manager extends EventEmitter {
 
       if (!res) return reject(new Error("Query not found."));
 
+      const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
+
       const result: SearchResult = {
         loadType: res.loadType,
         exception: res.exception ?? null,
         pluginInfo: res.pluginInfo ?? {},
-        tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track: TrackData) =>
+        tracks: dataArray?.filter(Boolean).map((track: TrackData) =>
           TrackUtils.build(track, requester)
         ) ?? [],
       };

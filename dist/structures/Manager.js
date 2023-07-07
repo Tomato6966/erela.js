@@ -342,10 +342,13 @@ class Manager extends node_events_1.EventEmitter {
             const res = await node.makeRequest(`/loadtracks?identifier=${query}`);
             if (!res || !res?.tracks?.length)
                 return reject(new Error("Query not found."));
+            
+            const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
+
             const result = {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
-                tracks: res.tracks?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
             return resolve(result);
         });
@@ -380,11 +383,14 @@ class Manager extends node_events_1.EventEmitter {
                 .catch(err => reject(err));
             if (!res)
                 return reject(new Error("Query not found."));
+                
+            const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
+
             const result = {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
                 pluginInfo: res.pluginInfo ?? {},
-                tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
             if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
                 if (typeof res.playlistInfo === "object") {
@@ -435,11 +441,14 @@ class Manager extends node_events_1.EventEmitter {
                 .catch(err => reject(err));
             if (!res)
                 return reject(new Error("Query not found."));
+            
+            const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
+
             const result = {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
                 pluginInfo: res.pluginInfo ?? {},
-                tracks: res?.[node.options?.version === "v4" ? "data" : "tracks"]?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
             };
             if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
                 if (typeof res.playlistInfo === "object") {
