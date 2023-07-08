@@ -1,9 +1,8 @@
-import { PlaylistInfo } from "./Manager";
 import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
-import { LavalinkFilterData, LavalinkPlayerVoice, PluginDataInfo, RotationFilter, TimescaleFilter, VoiceServer } from "./Utils";
-import { Sizes, State, Structure, TrackUtils, VoiceState } from "./Utils";
+import { LavalinkFilterData, LavalinkPlayerVoice, TimescaleFilter } from "./Utils";
+import { State, Structure, TrackUtils, VoiceState } from "./Utils";
 
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
 
@@ -104,7 +103,7 @@ export interface PlayerFilters {
   audioOutput: AudioOutputs;
   /** Lavalink Volume FILTER (not player Volume, think of it as a gain booster) */
   volume: boolean;
-};
+}
 export class Player {
   /** The Queue for the Player. */
   public readonly queue = new (Structure.get("Queue"))() as Queue;
@@ -400,7 +399,7 @@ export class Player {
    * @param speed 
    * @returns 
    */
-  public async setSpeed(speed:number = 1): Promise<boolean> {
+  public async setSpeed(speed = 1): Promise<boolean> {
     if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
@@ -424,7 +423,7 @@ export class Player {
    * @param speed 
    * @returns 
    */
-  public async setPitch(pitch:number = 1): Promise<boolean> {
+  public async setPitch(pitch = 1): Promise<boolean> {
     if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
@@ -449,7 +448,7 @@ export class Player {
    * @param speed 
    * @returns 
    */
-  public async setRate(rate:number = 1): Promise<boolean> {    
+  public async setRate(rate = 1): Promise<boolean> {    
     if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
     // reset nightcore / vaporwave filter if enabled
     if(this.filters.nightcore || this.filters.vaporwave) { 
@@ -472,11 +471,11 @@ export class Player {
    * @param rotationHz
    * @returns 
    */
-  public async toggleRotation(rotationHz:number = 0.2): Promise<boolean> {
+  public async toggleRotation(rotationHz = 0.2): Promise<boolean> {
     if(this.node.info && !this.node.info?.filters?.includes("rotation")) throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)")
     this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
     
-    this.filters.rotation = !!!this.filters.rotation;
+    this.filters.rotation = !this.filters.rotation;
     /** @deprecated but sync with rotating */
     this.filters.rotating = this.filters.rotation;
     
@@ -487,11 +486,11 @@ export class Player {
    * @param rotationHz
    * @returns 
    */
-  public async toggleRotating(rotationHz:number = 0.2): Promise<boolean> {
+  public async toggleRotating(rotationHz = 0.2): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("rotation")) throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)")
       this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
       
-      this.filters.rotation = !!!this.filters.rotation;
+      this.filters.rotation = !this.filters.rotation;
       /** @deprecated but sync with rotating */
       this.filters.rotating = this.filters.rotation;
       
@@ -503,12 +502,12 @@ export class Player {
    * @param depth
    * @returns 
    */
-  public async toggleVibrato(frequency:number = 2, depth:number = 0.5): Promise<boolean> {
+  public async toggleVibrato(frequency = 2, depth = 0.5): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("vibrato")) throw new Error("Node#Info#filters does not include the 'vibrato' Filter (Node has it not enable)")
       this.filterData.vibrato.frequency = this.filters.vibrato ? 0 : frequency;
       this.filterData.vibrato.depth = this.filters.vibrato ? 0 : depth;
 
-      this.filters.vibrato = !!!this.filters.vibrato;
+      this.filters.vibrato = !this.filters.vibrato;
       await this.updatePlayerFilters();
       return this.filters.vibrato;
   }
@@ -518,12 +517,12 @@ export class Player {
    * @param depth
    * @returns 
    */
-  public async toggleTremolo(frequency:number = 2, depth:number = 0.5): Promise<boolean> {
+  public async toggleTremolo(frequency = 2, depth = 0.5): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("tremolo")) throw new Error("Node#Info#filters does not include the 'tremolo' Filter (Node has it not enable)")
       this.filterData.tremolo.frequency = this.filters.tremolo ? 0 : frequency;
       this.filterData.tremolo.depth = this.filters.tremolo ? 0 : depth;
 
-      this.filters.tremolo = !!!this.filters.tremolo;
+      this.filters.tremolo = !this.filters.tremolo;
       await this.updatePlayerFilters()
       return this.filters.tremolo;
   }
@@ -532,11 +531,11 @@ export class Player {
    * @param smoothing
    * @returns 
    */
-  public async toggleLowPass(smoothing:number = 20): Promise<boolean> {
+  public async toggleLowPass(smoothing = 20): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("lowPass")) throw new Error("Node#Info#filters does not include the 'lowPass' Filter (Node has it not enable)")
       this.filterData.lowPass.smoothing = this.filters.lowPass ? 0 : smoothing;
       
-      this.filters.lowPass = !!!this.filters.lowPass;
+      this.filters.lowPass = !this.filters.lowPass;
       await this.updatePlayerFilters();
       return this.filters.lowPass;
   }
@@ -546,12 +545,12 @@ export class Player {
    * @param decay
    * @returns 
    */
-  public async toggleEcho(delay:number = 1, decay:number = 0.5): Promise<boolean> {
+  public async toggleEcho(delay = 1, decay = 0.5): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("echo")) throw new Error("Node#Info#filters does not include the 'echo' Filter (Node has it not enable aka not installed!)")
       this.filterData.echo.delay = this.filters.echo ? 0 : delay;
       this.filterData.echo.decay = this.filters.echo ? 0 : decay;
 
-      this.filters.echo = !!!this.filters.echo;
+      this.filters.echo = !this.filters.echo;
       await this.updatePlayerFilters();
       return this.filters.echo;
   }
@@ -561,12 +560,12 @@ export class Player {
    * @param decay
    * @returns 
    */
-  public async toggleReverb(delay:number = 1, decay:number = 0.5): Promise<boolean> {
+  public async toggleReverb(delay = 1, decay = 0.5): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("reverb")) throw new Error("Node#Info#filters does not include the 'reverb' Filter (Node has it not enable aka not installed!)")
       this.filterData.reverb.delay = this.filters.reverb ? 0 : delay;
       this.filterData.reverb.decay = this.filters.reverb ? 0 : decay;
 
-      this.filters.reverb = !!!this.filters.reverb;
+      this.filters.reverb = !this.filters.reverb;
       await this.updatePlayerFilters();
       return this.filters.reverb;
   }
@@ -577,13 +576,13 @@ export class Player {
    * @param rate 
    * @returns 
    */
-  public async toggleNightcore(speed:number = 1.289999523162842, pitch:number = 1.289999523162842, rate:number = 0.9365999523162842): Promise<boolean> {
+  public async toggleNightcore(speed = 1.289999523162842, pitch = 1.289999523162842, rate = 0.9365999523162842): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
       this.filterData.timescale.speed = this.filters.nightcore ? 1 : speed;
       this.filterData.timescale.pitch = this.filters.nightcore ? 1 : pitch;
       this.filterData.timescale.rate = this.filters.nightcore ? 1 : rate;
 
-      this.filters.nightcore = !!!this.filters.nightcore;
+      this.filters.nightcore = !this.filters.nightcore;
       this.filters.vaporwave = false;
       this.filters.custom = false;
       await this.updatePlayerFilters();
@@ -596,13 +595,13 @@ export class Player {
    * @param rate 
    * @returns 
    */
-  public async toggleVaporwave(speed:number = 0.8500000238418579, pitch:number = 0.800000011920929, rate:number = 1): Promise<boolean> {
+  public async toggleVaporwave(speed = 0.8500000238418579, pitch = 0.800000011920929, rate = 1): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("timescale")) throw new Error("Node#Info#filters does not include the 'timescale' Filter (Node has it not enable)")
       this.filterData.timescale.speed = this.filters.vaporwave ? 1 : speed;
       this.filterData.timescale.pitch = this.filters.vaporwave ? 1 : pitch;
       this.filterData.timescale.rate = this.filters.vaporwave ? 1 : rate;
 
-      this.filters.vaporwave = !!!this.filters.vaporwave;
+      this.filters.vaporwave = !this.filters.vaporwave;
       this.filters.nightcore = false;
       this.filters.custom = false;
       await this.updatePlayerFilters();
@@ -616,7 +615,7 @@ export class Player {
    * @param filterWidth 
    * @returns 
    */
-  public async toggleKaraoke(level:number = 1, monoLevel:number = 1, filterBand:number = 220, filterWidth:number = 100): Promise<boolean> {
+  public async toggleKaraoke(level = 1, monoLevel = 1, filterBand = 220, filterWidth = 100): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("karaoke")) throw new Error("Node#Info#filters does not include the 'karaoke' Filter (Node has it not enable)")
     
       this.filterData.karaoke.level = this.filters.karaoke ? 0 : level;
@@ -624,7 +623,7 @@ export class Player {
       this.filterData.karaoke.filterBand = this.filters.karaoke ? 0 : filterBand;
       this.filterData.karaoke.filterWidth = this.filters.karaoke ? 0 : filterWidth;
 
-      this.filters.karaoke = !!!this.filters.karaoke;
+      this.filters.karaoke = !this.filters.karaoke;
       await this.updatePlayerFilters();
       return this.filters.karaoke;
   }
@@ -636,7 +635,7 @@ export class Player {
   }
   // function to update all filters at ONCE (and eqs)
   async updatePlayerFilters(): Promise<Player> {
-    const sendData = {...this.filterData};
+    const sendData = { ...this.filterData };
 
     if(!this.filters.volume) delete sendData.volume;
     if(!this.filters.tremolo) delete sendData.tremolo;
@@ -1156,9 +1155,9 @@ export interface Track {
   requester: unknown | null;
   /** If the Track is a preview */
   isPreview: boolean;
-  /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+  /** v4: If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
   artworkUrl: string | null;
-  /** ISRC if available */
+  /** v4: ISRC if available */
   isrc: string | null;
 
 }
@@ -1173,8 +1172,10 @@ export interface UnresolvedTrack extends Partial<Track> {
   duration?: number;
   /** Thumbnail of the track */
   thumbnail?: string;
-  /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+  /** v4: If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
   artworkUrl: string | null;
+  /** v4: If the Track has a ISRC */
+  isrc?: string | null;
   /** Identifier of the track */
   identifier?: string;
   /** If it's a local track */
@@ -1212,7 +1213,7 @@ function getOptions(opts?:any, allowFilters?: boolean): Partial<PlayOptions> | f
   for(const [key, value] of Object.entries(Object.assign({}, opts))) {
       if(valids.includes(key) && (key !== "filters" || (key === "filters" && allowFilters))) {
         returnObject[key] = value
-      };
+      }
   }
   return returnObject as PlayOptions;
 }

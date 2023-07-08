@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars, @typescript-eslint/no-var-requires*/
-import { Manager } from "./Manager";
+import { LoadTypes, Manager, v4LoadTypes } from "./Manager";
 import { Node, NodeStats } from "./Node";
 import { Player, PlayerFilters, Track, UnresolvedTrack } from "./Player";
 import { Queue } from "./Queue";
@@ -216,7 +216,7 @@ export abstract class TrackUtils {
     }
     const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
 
-    if (res.loadType !== "SEARCH_RESULT") throw res.exception ?? {
+    if (res.loadType !== v4LoadTypes.SearchResult && res.loadType !== LoadTypes.SearchResult) throw res.exception ?? {
       message: "No tracks found.",
       severity: "COMMON",
     };
@@ -338,8 +338,8 @@ export interface UnresolvedQuery {
   duration?: number;
   /** Thumbnail of the track */
   thumbnail?: string;
-  /** If the Track has a artworkURL --> will overwrite thumbnail too! (if not a youtube video) */
-  artworkURL: string | null;
+  /** If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+  artworkUrl: string | null;
   /** Identifier of the track */
   identifier?: string;
   /** If it's a local track */
@@ -362,6 +362,13 @@ export type LoadType =
   | "SEARCH_RESULT"
   | "LOAD_FAILED"
   | "NO_MATCHES";
+
+export type v4LoadType =
+  | "track"
+  | "playlist"
+  | "search"
+  | "error"
+  | "empty";
 
 export type State =
   | "CONNECTED"
@@ -529,8 +536,9 @@ export interface TrackDataInfoExtended extends TrackDataInfo {
 export interface PluginDataInfo {
   type?: string;
   identifier?: string;
-  artworkURL?: string;
+  artworkUrl?: string;
   author?: string;
+  url?: string,
 }
 
 export interface Extendable {
@@ -686,4 +694,4 @@ export interface LavalinkFilterData {
   lowPass?: LowPassFilter;
   echo: EchoFilter,
   reverb: ReverbFilter,
-};
+}

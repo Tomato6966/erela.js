@@ -17,7 +17,6 @@ import {
   TrackExceptionEvent,
   TrackStartEvent,
   TrackStuckEvent,
-  TrackUtils,
   WebSocketClosedEvent,
 } from "./Utils";
 import internal from "node:stream";
@@ -81,7 +80,7 @@ export class Node {
   public manager: Manager
 
   public version: LavalinkVersion = "v3";
-  public initialized: boolean = false;
+  public initialized = false;
 
   public sessionId?: string|null = null;
 
@@ -208,11 +207,11 @@ export class Node {
   /**
    * Gets specific Player Information
    */
-  public async getPlayer(guildId: string): Promise<LavalinkPlayer|{}> {
+  public async getPlayer(guildId: string): Promise<LavalinkPlayer | InvalidLavalinkRestRequest | null> {
     if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
-    return await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`) as LavalinkPlayer | InvalidLavalinkRestRequest | null;
+    return await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`);
   }
-  public async updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer|{}> {
+  public async updatePlayer(data: PlayerUpdateInfo): Promise<LavalinkPlayer|Record<string, string>> {
     if(!this.sessionId) throw new Error("The Lavalink-Node is either not ready, or not up to date!");
     this.syncPlayerData(data);
     const res = await this.makeRequest<LavalinkPlayer>(`/sessions/${this.sessionId}/players/${data.guildId}`, (r) => {
@@ -263,7 +262,7 @@ export class Node {
         if(data.playerOptions.filters.rotation) player.filterData.rotation = data.playerOptions.filters.rotation;
         if(data.playerOptions.filters.tremolo) player.filterData.tremolo = data.playerOptions.filters.tremolo;
         player.checkFiltersState(oldFilterTimescale);        
-      };
+      }
     }
     if(res?.guildId === "string" && typeof res?.voice !== "undefined") {
       const player = this.manager.players.get(data.guildId);
@@ -299,7 +298,7 @@ export class Node {
    * @param resumingKey 
    * @param timeout
    */
-  public updateSession(resumingKey?: string, timeout?: number): Promise<Session|{}> {
+  public updateSession(resumingKey?: string, timeout?: number): Promise<Session|Record<string, string>> {
     if(!this.sessionId) throw new Error("the Lavalink-Node is either not ready, or not up to date!");
     return this.makeRequest(`/sessions/${this.sessionId}`, r => {
       r.method = "PATCH";
@@ -311,7 +310,7 @@ export class Node {
   /**
    * Gets the stats of this node
    */
-  public fetchStats(): Promise<NodeStats|{}> {
+  public fetchStats(): Promise<NodeStats|Record<string, string>> {
     return this.makeRequest(`/stats`);
   }
 
@@ -551,8 +550,7 @@ export class Node {
                   const maxMins = 8;
                   const currentDuration = player?.queue?.current?.duration || 0;
                   if(currentDuration <= maxMins*60_000 || isAbsolute(player?.queue?.current?.uri)) {
-                    let maxSize = interValSelfCounter > 400 ? 2 : 3;
-                    if(player.filterUpdated >= maxSize) {
+                    if (player.filterUpdated >= (interValSelfCounter > 400 ? 2 : 3)) {
                         player.filterUpdated = 0;
                         player.seek(player.position);
                     }

@@ -243,7 +243,6 @@ class Node {
                     player.filterData.tremolo = data.playerOptions.filters.tremolo;
                 player.checkFiltersState(oldFilterTimescale);
             }
-            ;
         }
         if (res?.guildId === "string" && typeof res?.voice !== "undefined") {
             const player = this.manager.players.get(data.guildId);
@@ -512,8 +511,7 @@ class Node {
                                 const maxMins = 8;
                                 const currentDuration = player?.queue?.current?.duration || 0;
                                 if (currentDuration <= maxMins * 60000 || (0, path_1.isAbsolute)(player?.queue?.current?.uri)) {
-                                    let maxSize = interValSelfCounter > 400 ? 2 : 3;
-                                    if (player.filterUpdated >= maxSize) {
+                                    if (player.filterUpdated >= (interValSelfCounter > 400 ? 2 : 3)) {
                                         player.filterUpdated = 0;
                                         player.seek(player.position);
                                     }

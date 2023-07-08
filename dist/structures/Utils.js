@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Plugin = exports.Structure = exports.TrackUtils = void 0;
+/* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars, @typescript-eslint/no-var-requires*/
+const Manager_1 = require("./Manager");
 const Node_1 = require("./Node");
 const Player_1 = require("./Player");
 const Queue_1 = require("./Queue");
@@ -208,7 +210,7 @@ class TrackUtils {
             return false;
         };
         const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
-        if (res.loadType !== "SEARCH_RESULT")
+        if (res.loadType !== Manager_1.v4LoadTypes.SearchResult && res.loadType !== Manager_1.LoadTypes.SearchResult)
             throw res.exception ?? {
                 message: "No tracks found.",
                 severity: "COMMON",
@@ -333,4 +335,3 @@ const structures = {
     Queue: Queue_1.Queue,
     Node: Node_1.Node,
 };
-;

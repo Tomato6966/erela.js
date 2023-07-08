@@ -4,7 +4,7 @@ import { EventEmitter } from "node:events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
-import { LavalinkPlayerVoice, PluginDataInfo } from "./Utils";
+import { PluginDataInfo, v4LoadType } from "./Utils";
 import {
   LoadType,
   Plugin,
@@ -338,7 +338,7 @@ export class Manager extends EventEmitter {
     bandcamp: /https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/(\S+)/,
     appleMusic: /https?:\/\/?(?:www\.)?music\.apple\.com\/(\S+)/,
     TwitchTv: /https?:\/\/?(?:www\.)?twitch\.tv\/\w+/,
-    vimeo: /https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|)(\d+)(?:|\/\?)/,
+    vimeo: /https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^/]*)\/videos\/|)(\d+)(?:|\/\?)/,
 }
 
   /** The map of players. */
@@ -535,7 +535,7 @@ export class Manager extends EventEmitter {
       const node = customNode || this.leastUsedNodes.first();
       if (!node) throw new Error("No available nodes.");
 
-      const res = await node.makeRequest(`/loadtracks?identifier=${query}`) as any;
+      const res = await node.makeRequest<LavalinkResult>(`/loadtracks?identifier=${query}`) as any;
       if(!res) return reject(new Error("Query not found."));
       
       const dataArray = ([v4LoadTypes.LoadFailed, v4LoadTypes.NoMatches, LoadTypes.LoadFailed, LoadTypes.NoMatches].includes(res.loadType) 
@@ -553,38 +553,13 @@ export class Manager extends EventEmitter {
         tracks: dataArray?.length ? dataArray?.map((track) => TrackUtils.build(track, requester)) : [],
       };
 
-      // v4
-      if (node.options?.version === "v4" && result.loadType === v4LoadTypes.PlaylistLoaded) {
-        const selectedTrack = typeof res.data?.info?.selectedTrack !== "number" || res.data?.info?.selectedTrack === -1 ? null : result.tracks[res.data?.info?.selectedTrack];
-        result.playlist = {
-            name: res.data.info?.name || res.data.pluginInfo?.name || null,
-            author: res.data.info?.author || res.data.pluginInfo?.author || null,
-            thumbnail: res.data.info?.artworkUrl || res.data.pluginInfo?.artworkUrl || selectedTrack?.thumbnail || null,
-            uri: res.data.info?.url || res.data.info?.uri || res.data.info?.link || res.data.pluginInfo?.url || res.data.pluginInfo?.uri || res.data.pluginInfo?.link || null,
-            selectedTrack: selectedTrack,
-            duration: result.tracks.reduce((acc, cur) => acc + (cur?.duration || 0), 0),
-        }
-      } else if (result.loadType === LoadTypes.PlaylistLoaded || result.loadType === v4LoadTypes.PlaylistLoaded) { // v3 / v2
-        if (typeof res.playlistInfo === "object") {
-            const selectedTrack = typeof res.playlistInfo?.selectedTrack !== "number" || res.playlistInfo?.selectedTrack === -1 ? null : result.tracks[res.playlistInfo?.selectedTrack];
-            result.playlist = {
-                ...res.playlistInfo,
-                // transform other Data(s)
-                name: res.playlistInfo.name || null,
-                author: res.playlistInfo.author || null,
-                thumbnail: selectedTrack?.thumbnail || null,
-                uri: res.playlistInfo?.url || res.playlistInfo?.uri || res.playlistInfo?.link || null, 
-                selectedTrack: selectedTrack,
-                duration: result.tracks.reduce((acc, cur) => acc + (cur.duration || 0), 0),
-            };
-        }
-      }
+      this.applyPlaylistInfo(result, res, node);
 
       return resolve(result);
     })
   }
 
-  private applyPlaylistInfo(result:SearchResult, res:any) {
+  private applyPlaylistInfo(result:SearchResult, res:any, node:Node) {
     // v4
     if (node.options?.version === "v4" && result.loadType === v4LoadTypes.PlaylistLoaded) {
       const selectedTrack = typeof res.data?.info?.selectedTrack !== "number" || res.data?.info?.selectedTrack === -1 ? null : result.tracks[res.data?.info?.selectedTrack];
@@ -645,8 +620,8 @@ export class Manager extends EventEmitter {
       this.validatedQuery(`${srcSearch}${_query.query}`, node);
 
       const res = await node
-        .makeRequest(`/loadtracks?identifier=${srcSearch}${encodeURIComponent(_query.query)}`)
-        .catch(err => reject(err));
+        .makeRequest<LavalinkResult>(`/loadtracks?identifier=${srcSearch}${encodeURIComponent(_query.query)}`)
+        .catch(err => reject(err)) as any;
 
       if (!res) return reject(new Error("Query not found."));
       
@@ -665,7 +640,7 @@ export class Manager extends EventEmitter {
         tracks: dataArray?.length ? dataArray?.map((track) => TrackUtils.build(track, requester)) : [],
       };
 
-      
+      this.applyPlaylistInfo(result, res, node);
 
       return resolve(result);
     });
@@ -700,7 +675,7 @@ export class Manager extends EventEmitter {
 
       const res = await node
           .makeRequest<LavalinkResult>(`/loadtracks?identifier=${encodeURIComponent(_query.query)}`)
-          .catch(err => reject(err));
+        .catch(err => reject(err)) as any;
 
       if (!res) return reject(new Error("Query not found."));
 
@@ -719,33 +694,7 @@ export class Manager extends EventEmitter {
         tracks: dataArray?.length ? dataArray?.map((track) => TrackUtils.build(track, requester)) : [],
       };
 
-      
-      // v4
-      if (node.options?.version === "v4" && result.loadType === v4LoadTypes.PlaylistLoaded) {
-        const selectedTrack = typeof res.data?.info?.selectedTrack !== "number" || res.data?.info?.selectedTrack === -1 ? null : result.tracks[res.data?.info?.selectedTrack];
-        result.playlist = {
-            name: res.data.info?.name || res.data.pluginInfo?.name || null,
-            author: res.data.info?.author || res.data.pluginInfo?.author || null,
-            thumbnail: res.data.info?.artworkUrl || res.data.pluginInfo?.artworkUrl || selectedTrack?.thumbnail || null,
-            uri: res.data.info?.url || res.data.info?.uri || res.data.info?.link || res.data.pluginInfo?.url || res.data.pluginInfo?.uri || res.data.pluginInfo?.link || null,
-            selectedTrack: selectedTrack,
-            duration: result.tracks.reduce((acc, cur) => acc + (cur?.duration || 0), 0),
-        }
-      } else if (result.loadType === LoadTypes.PlaylistLoaded || result.loadType === v4LoadTypes.PlaylistLoaded) { // v3 / v2
-        if (typeof res.playlistInfo === "object") {
-            const selectedTrack = typeof res.playlistInfo?.selectedTrack !== "number" || res.playlistInfo?.selectedTrack === -1 ? null : result.tracks[res.playlistInfo?.selectedTrack];
-            result.playlist = {
-                ...res.playlistInfo,
-                // transform other Data(s)
-                name: res.playlistInfo.name || null,
-                author: res.playlistInfo.author || null,
-                thumbnail: selectedTrack?.thumbnail || null,
-                uri: res.playlistInfo?.url || res.playlistInfo?.uri || res.playlistInfo?.link || null, 
-                selectedTrack: selectedTrack,
-                duration: result.tracks.reduce((acc, cur) => acc + (cur.duration || 0), 0),
-            };
-        }
-      }
+      this.applyPlaylistInfo(result, res, node);
 
       return resolve(result);
     });
@@ -1009,7 +958,7 @@ export interface ManagerOptions {
   /** If the plugin should force-load plugins */
   forceLoadPlugin?: boolean;
   /** Array of valid link-Strings; */
-  allowedLinks?: String[];
+  allowedLinks?: string[];
   /** RegExpressions for all Valid Links, default allowed ones are gotten from Manager#regex, aka for: youtube, spotify, soundcloud, deezer, mp3 urls of any kind, ... */
   allowedLinksRegexes?: RegExp[];
   /** If it should only allow setupped Links */
@@ -1054,7 +1003,7 @@ export interface SearchQuery {
 
 export interface SearchResult {
   /** The load type of the result. */
-  loadType: LoadType;
+  loadType: v4LoadType | LoadType;
   /** The array of tracks from the result. */
   tracks: Track[];
   /** The playlist info if the load type is PLAYLIST_LOADED. */
@@ -1085,14 +1034,22 @@ export interface PlaylistInfo {
   duration: number;
 }
 
+
+
 export interface LavalinkResult {
-  tracks: TrackData[];
-  loadType: LoadType;
+  // result from v3 / v2
+  tracks?: TrackData[];
+  // or if result is via v4:
+  data?: TrackData[] /* on search query */
+  | TrackData  /* on link result */
+  | { tracks: TrackData[] }, /* on playlist result */
+  loadType: LoadType | v4LoadType;
   exception?: {
     /** The message for the exception. */
     message: string;
     /** The severity of exception. */
     severity: string;
+
   };
   playlistInfo: {
     name: string;

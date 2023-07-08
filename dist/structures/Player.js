@@ -49,7 +49,6 @@ function check(options) {
         typeof options.selfDeafen !== "boolean")
         throw new TypeError('Player option "selfDeafen" must be a boolean.');
 }
-;
 class Player {
     options;
     /** The Queue for the Player. */
@@ -408,7 +407,7 @@ class Player {
         if (this.node.info && !this.node.info?.filters?.includes("rotation"))
             throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)");
         this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
-        this.filters.rotation = !!!this.filters.rotation;
+        this.filters.rotation = !this.filters.rotation;
         /** @deprecated but sync with rotating */
         this.filters.rotating = this.filters.rotation;
         return await this.updatePlayerFilters(), this.filters.rotation;
@@ -422,7 +421,7 @@ class Player {
         if (this.node.info && !this.node.info?.filters?.includes("rotation"))
             throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)");
         this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
-        this.filters.rotation = !!!this.filters.rotation;
+        this.filters.rotation = !this.filters.rotation;
         /** @deprecated but sync with rotating */
         this.filters.rotating = this.filters.rotation;
         return await this.updatePlayerFilters(), this.filters.rotation;
@@ -438,7 +437,7 @@ class Player {
             throw new Error("Node#Info#filters does not include the 'vibrato' Filter (Node has it not enable)");
         this.filterData.vibrato.frequency = this.filters.vibrato ? 0 : frequency;
         this.filterData.vibrato.depth = this.filters.vibrato ? 0 : depth;
-        this.filters.vibrato = !!!this.filters.vibrato;
+        this.filters.vibrato = !this.filters.vibrato;
         await this.updatePlayerFilters();
         return this.filters.vibrato;
     }
@@ -453,7 +452,7 @@ class Player {
             throw new Error("Node#Info#filters does not include the 'tremolo' Filter (Node has it not enable)");
         this.filterData.tremolo.frequency = this.filters.tremolo ? 0 : frequency;
         this.filterData.tremolo.depth = this.filters.tremolo ? 0 : depth;
-        this.filters.tremolo = !!!this.filters.tremolo;
+        this.filters.tremolo = !this.filters.tremolo;
         await this.updatePlayerFilters();
         return this.filters.tremolo;
     }
@@ -466,7 +465,7 @@ class Player {
         if (this.node.info && !this.node.info?.filters?.includes("lowPass"))
             throw new Error("Node#Info#filters does not include the 'lowPass' Filter (Node has it not enable)");
         this.filterData.lowPass.smoothing = this.filters.lowPass ? 0 : smoothing;
-        this.filters.lowPass = !!!this.filters.lowPass;
+        this.filters.lowPass = !this.filters.lowPass;
         await this.updatePlayerFilters();
         return this.filters.lowPass;
     }
@@ -481,7 +480,7 @@ class Player {
             throw new Error("Node#Info#filters does not include the 'echo' Filter (Node has it not enable aka not installed!)");
         this.filterData.echo.delay = this.filters.echo ? 0 : delay;
         this.filterData.echo.decay = this.filters.echo ? 0 : decay;
-        this.filters.echo = !!!this.filters.echo;
+        this.filters.echo = !this.filters.echo;
         await this.updatePlayerFilters();
         return this.filters.echo;
     }
@@ -496,7 +495,7 @@ class Player {
             throw new Error("Node#Info#filters does not include the 'reverb' Filter (Node has it not enable aka not installed!)");
         this.filterData.reverb.delay = this.filters.reverb ? 0 : delay;
         this.filterData.reverb.decay = this.filters.reverb ? 0 : decay;
-        this.filters.reverb = !!!this.filters.reverb;
+        this.filters.reverb = !this.filters.reverb;
         await this.updatePlayerFilters();
         return this.filters.reverb;
     }
@@ -513,7 +512,7 @@ class Player {
         this.filterData.timescale.speed = this.filters.nightcore ? 1 : speed;
         this.filterData.timescale.pitch = this.filters.nightcore ? 1 : pitch;
         this.filterData.timescale.rate = this.filters.nightcore ? 1 : rate;
-        this.filters.nightcore = !!!this.filters.nightcore;
+        this.filters.nightcore = !this.filters.nightcore;
         this.filters.vaporwave = false;
         this.filters.custom = false;
         await this.updatePlayerFilters();
@@ -532,7 +531,7 @@ class Player {
         this.filterData.timescale.speed = this.filters.vaporwave ? 1 : speed;
         this.filterData.timescale.pitch = this.filters.vaporwave ? 1 : pitch;
         this.filterData.timescale.rate = this.filters.vaporwave ? 1 : rate;
-        this.filters.vaporwave = !!!this.filters.vaporwave;
+        this.filters.vaporwave = !this.filters.vaporwave;
         this.filters.nightcore = false;
         this.filters.custom = false;
         await this.updatePlayerFilters();
@@ -553,7 +552,7 @@ class Player {
         this.filterData.karaoke.monoLevel = this.filters.karaoke ? 0 : monoLevel;
         this.filterData.karaoke.filterBand = this.filters.karaoke ? 0 : filterBand;
         this.filterData.karaoke.filterWidth = this.filters.karaoke ? 0 : filterWidth;
-        this.filters.karaoke = !!!this.filters.karaoke;
+        this.filters.karaoke = !this.filters.karaoke;
         await this.updatePlayerFilters();
         return this.filters.karaoke;
     }
@@ -617,7 +616,7 @@ class Player {
         return this;
     }
     /**
-     * Same as Manager#search() but a shortcut on the player itself.
+     * Same as Manager#search() but a shortcut on the player itself. Custom Node is provided via player.node internally
      * @param query
      * @param requester
      */
@@ -996,7 +995,6 @@ function getOptions(opts, allowFilters) {
         if (valids.includes(key) && (key !== "filters" || (key === "filters" && allowFilters))) {
             returnObject[key] = value;
         }
-        ;
     }
     return returnObject;
 }

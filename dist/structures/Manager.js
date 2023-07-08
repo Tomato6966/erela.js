@@ -149,7 +149,7 @@ class Manager extends node_events_1.EventEmitter {
         bandcamp: /https?:\/\/?(?:www\.)?([\d|\w]+)\.bandcamp\.com\/(\S+)/,
         appleMusic: /https?:\/\/?(?:www\.)?music\.apple\.com\/(\S+)/,
         TwitchTv: /https?:\/\/?(?:www\.)?twitch\.tv\/\w+/,
-        vimeo: /https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|)(\d+)(?:|\/\?)/,
+        vimeo: /https?:\/\/(www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^/]*)\/videos\/|)(\d+)(?:|\/\?)/,
     };
     /** The map of players. */
     players = new collection_1.Collection();
@@ -340,18 +340,53 @@ class Manager extends node_events_1.EventEmitter {
             if (!node)
                 throw new Error("No available nodes.");
             const res = await node.makeRequest(`/loadtracks?identifier=${query}`);
-            if (!res || !res?.tracks?.length)
+            if (!res)
                 return reject(new Error("Query not found."));
-            
-            const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
-
+            const dataArray = ([exports.v4LoadTypes.LoadFailed, exports.v4LoadTypes.NoMatches, exports.LoadTypes.LoadFailed, exports.LoadTypes.NoMatches].includes(res.loadType)
+                ? [] // error / No matches
+                : res.loadType === exports.v4LoadTypes.PlaylistLoaded
+                    ? res.data.tracks // playlist
+                    : res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"])
+                        ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]]
+                        : res?.[node.options?.version === "v4" ? "data" : "tracks"])?.filter(Boolean);
             const result = {
                 loadType: res.loadType,
+                pluginInfo: res.pluginInfo || res?.data?.pluginInfo,
                 exception: res.exception ?? null,
-                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: dataArray?.length ? dataArray?.map((track) => Utils_1.TrackUtils.build(track, requester)) : [],
             };
+            this.applyPlaylistInfo(result, res, node);
             return resolve(result);
         });
+    }
+    applyPlaylistInfo(result, res, node) {
+        // v4
+        if (node.options?.version === "v4" && result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
+            const selectedTrack = typeof res.data?.info?.selectedTrack !== "number" || res.data?.info?.selectedTrack === -1 ? null : result.tracks[res.data?.info?.selectedTrack];
+            result.playlist = {
+                name: res.data.info?.name || res.data.pluginInfo?.name || null,
+                author: res.data.info?.author || res.data.pluginInfo?.author || null,
+                thumbnail: res.data.info?.artworkUrl || res.data.pluginInfo?.artworkUrl || selectedTrack?.thumbnail || null,
+                uri: res.data.info?.url || res.data.info?.uri || res.data.info?.link || res.data.pluginInfo?.url || res.data.pluginInfo?.uri || res.data.pluginInfo?.link || null,
+                selectedTrack: selectedTrack,
+                duration: result.tracks.reduce((acc, cur) => acc + (cur?.duration || 0), 0),
+            };
+        }
+        else if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) { // v3 / v2
+            if (typeof res.playlistInfo === "object") {
+                const selectedTrack = typeof res.playlistInfo?.selectedTrack !== "number" || res.playlistInfo?.selectedTrack === -1 ? null : result.tracks[res.playlistInfo?.selectedTrack];
+                result.playlist = {
+                    ...res.playlistInfo,
+                    // transform other Data(s)
+                    name: res.playlistInfo.name || null,
+                    author: res.playlistInfo.author || null,
+                    thumbnail: selectedTrack?.thumbnail || null,
+                    uri: res.playlistInfo?.url || res.playlistInfo?.uri || res.playlistInfo?.link || null,
+                    selectedTrack: selectedTrack,
+                    duration: result.tracks.reduce((acc, cur) => acc + (cur.duration || 0), 0),
+                };
+            }
+        }
     }
     /**
      * Searches the enabled sources based off the URL or the `source` property.
@@ -376,44 +411,27 @@ class Manager extends node_events_1.EventEmitter {
             if (link && this.options.forceSearchLinkQueries)
                 return await this.searchLink(link, requester, customNode).then(data => resolve(data)).catch(err => reject(err));
             // only set the source, if it's not a link 
-            
             const srcSearch = !/^https?:\/\//.test(_query.query) ? `${_source}:` : "";
-            
             this.validatedQuery(`${srcSearch}${_query.query}`, node);
-
             const res = await node
                 .makeRequest(`/loadtracks?identifier=${srcSearch}${encodeURIComponent(_query.query)}`)
                 .catch(err => reject(err));
             if (!res)
                 return reject(new Error("Query not found."));
-                
-            const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
-
+            const dataArray = ([exports.v4LoadTypes.LoadFailed, exports.v4LoadTypes.NoMatches, exports.LoadTypes.LoadFailed, exports.LoadTypes.NoMatches].includes(res.loadType)
+                ? [] // error / No matches
+                : res.loadType === exports.v4LoadTypes.PlaylistLoaded
+                    ? res.data.tracks // playlist
+                    : res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"])
+                        ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]]
+                        : res?.[node.options?.version === "v4" ? "data" : "tracks"])?.filter(Boolean);
             const result = {
                 loadType: res.loadType,
-                exception: res.exception ?? null,
+                exception: res.loadType === exports.v4LoadTypes.LoadFailed ? res.data : res.exception ?? null,
                 pluginInfo: res.pluginInfo ?? {},
-                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: dataArray?.length ? dataArray?.map((track) => Utils_1.TrackUtils.build(track, requester)) : [],
             };
-            if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
-                if (typeof res.playlistInfo === "object") {
-                    result.playlist = {
-                        ...result.playlist,
-                        // transform other Data(s)
-                        name: res.playlistInfo.name,
-                        selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-                            Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
-                        duration: result.tracks
-                            .reduce((acc, cur) => acc + (cur.duration || 0), 0),
-                    };
-                }
-                // if(result.playlist || result.pluginInfo) {
-                //   result.tracks.forEach(track => {
-                //     if(result.playlist) track.playlist = result.playlist;
-                //     if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
-                //   });
-                // }
-            }
+            this.applyPlaylistInfo(result, res, node);
             return resolve(result);
         });
     }
@@ -444,34 +462,20 @@ class Manager extends node_events_1.EventEmitter {
                 .catch(err => reject(err));
             if (!res)
                 return reject(new Error("Query not found."));
-            
-            const dataArray = res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"]) ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]] : res?.[node.options?.version === "v4" ? "data" : "tracks"];
-
+            const dataArray = ([exports.v4LoadTypes.LoadFailed, exports.v4LoadTypes.NoMatches, exports.LoadTypes.LoadFailed, exports.LoadTypes.NoMatches].includes(res.loadType)
+                ? [] // error / No matches
+                : res.loadType === exports.v4LoadTypes.PlaylistLoaded
+                    ? res.data.tracks // playlist
+                    : res?.[node.options?.version === "v4" ? "data" : "tracks"] && !Array.isArray(res?.[node.options?.version === "v4" ? "data" : "tracks"])
+                        ? [res?.[node.options?.version === "v4" ? "data" : "tracks"]]
+                        : res?.[node.options?.version === "v4" ? "data" : "tracks"])?.filter(Boolean);
             const result = {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
                 pluginInfo: res.pluginInfo ?? {},
-                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],m
+                tracks: dataArray?.length ? dataArray?.map((track) => Utils_1.TrackUtils.build(track, requester)) : [],
             };
-            if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
-                if (typeof res.playlistInfo === "object") {
-                    result.playlist = {
-                        ...result.playlist,
-                        // transform other Data(s)
-                        name: res.playlistInfo.name,
-                        selectedTrack: res.playlistInfo.selectedTrack === -1 ? null :
-                            Utils_1.TrackUtils.build(res.tracks[res.playlistInfo.selectedTrack], requester),
-                        duration: result.tracks
-                            .reduce((acc, cur) => acc + (cur.duration || 0), 0),
-                    };
-                }
-                // if(result.playlist || result.pluginInfo) {
-                //   result.tracks.forEach(track => {
-                //     if(result.playlist) track.playlist = result.playlist;
-                //     if(result.pluginInfo) track.pluginInfo = result.pluginInfo;
-                //   });
-                // }
-            }
+            this.applyPlaylistInfo(result, res, node);
             return resolve(result);
         });
     }
