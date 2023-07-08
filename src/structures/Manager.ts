@@ -316,13 +316,13 @@ export class Manager extends EventEmitter {
     AllDeezerRegexWithoutPageLink: /(https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album|artist|mixes\/genre|episode)\/(\d+)/,
     AllDeezerRegex: /((https?:\/\/|)?(?:www\.)?deezer\.com\/(?:\w{2}\/)?(track|playlist|album|artist|mixes\/genre|episode)\/(\d+)|(https?:\/\/|)?(?:www\.)?deezer\.page\.link\/(\S+))/,
     
-    SpotifySongRegex: /https?:\/\/(www\.)?open\.spotify\.com\/track\/([A-Za-z0-9]+)/,
-    SpotifyPlaylistRegex: /https?:\/\/(www\.)?open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/,
-    SpotifyArtistRegex: /https?:\/\/(www\.)?open\.spotify\.com\/artist\/([A-Za-z0-9]+)/,
-    SpotifyEpisodeRegex: /https?:\/\/(www\.)?open\.spotify\.com\/episode\/([A-Za-z0-9]+)/,
-    SpotifyShowRegex: /https?:\/\/(www\.)?open\.spotify\.com\/show\/([A-Za-z0-9]+)/,
-    SpotifyAlbumRegex: /https?:\/\/(www\.)?open\.spotify\.com\/album\/([A-Za-z0-9]+)/,
-    AllSpotifyRegex: /https?:\/\/(www\.)?open\.spotify\.com\/(track|playlist|artist|episode|show|album)\/([A-Za-z0-9]+)/,
+    SpotifySongRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?track\/(?<identifier>[a-zA-Z0-9-_]+)/,
+    SpotifyPlaylistRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?playlist\/(?<identifier>[a-zA-Z0-9-_]+)/,
+    SpotifyArtistRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?artist\/(?<identifier>[a-zA-Z0-9-_]+)/,
+    SpotifyEpisodeRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?episode\/(?<identifier>[a-zA-Z0-9-_]+)/,
+    SpotifyShowRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?show\/(?<identifier>[a-zA-Z0-9-_]+)/,
+    SpotifyAlbumRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?album\/(?<identifier>[a-zA-Z0-9-_]+)/,
+    AllSpotifyRegex: /(https?:\/\/)(www\.)?open\.spotify\.com\/((?<region>[a-zA-Z-]+)\/)?(user\/(?<user>[a-zA-Z0-9-_]+)\/)?(?<type>track|album|playlist|artist|episode|show)\/(?<identifier>[a-zA-Z0-9-_]+)/,
     
     mp3Url: /(https?|ftp|file):\/\/(www.)?(.*?)\.(mp3)$/,
     m3uUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(m3u)$/,
@@ -330,6 +330,7 @@ export class Manager extends EventEmitter {
     mp4Url: /(https?|ftp|file):\/\/(www.)?(.*?)\.(mp4)$/,
     m4aUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(m4a)$/,
     wavUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(wav)$/,
+    aacpUrl: /(https?|ftp|file):\/\/(www.)?(.*?)\.(aacp)$/,
 
     tiktok: /https:\/\/www\.tiktok\.com\//,
     mixcloud: /https:\/\/www\.mixcloud\.com\//,
