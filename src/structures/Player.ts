@@ -679,7 +679,7 @@ export class Player {
     return this;
   }
   /**
-   * Same as Manager#search() but a shortcut on the player itself.
+   * Same as Manager#search() but a shortcut on the player itself. Custom Node is provided via player.node internally
    * @param query
    * @param requester
    */

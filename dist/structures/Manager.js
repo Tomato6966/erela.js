@@ -376,10 +376,13 @@ class Manager extends node_events_1.EventEmitter {
             if (link && this.options.forceSearchLinkQueries)
                 return await this.searchLink(link, requester, customNode).then(data => resolve(data)).catch(err => reject(err));
             // only set the source, if it's not a link 
-            const search = `${!/^https?:\/\//.test(_query.query) ? `${_source}:` : ""}${_query.query}`;
-            this.validatedQuery(search, node);
+            
+            const srcSearch = !/^https?:\/\//.test(_query.query) ? `${_source}:` : "";
+            
+            this.validatedQuery(`${srcSearch}${_query.query}`, node);
+
             const res = await node
-                .makeRequest(`/loadtracks?identifier=${encodeURIComponent(search)}`)
+                .makeRequest(`/loadtracks?identifier=${srcSearch}${encodeURIComponent(_query.query)}`)
                 .catch(err => reject(err));
             if (!res)
                 return reject(new Error("Query not found."));
@@ -448,7 +451,7 @@ class Manager extends node_events_1.EventEmitter {
                 loadType: res.loadType,
                 exception: res.exception ?? null,
                 pluginInfo: res.pluginInfo ?? {},
-                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],
+                tracks: dataArray?.filter(Boolean)?.map((track) => Utils_1.TrackUtils.build(track, requester)) ?? [],m
             };
             if (result.loadType === exports.LoadTypes.PlaylistLoaded || result.loadType === exports.v4LoadTypes.PlaylistLoaded) {
                 if (typeof res.playlistInfo === "object") {
