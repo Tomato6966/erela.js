@@ -698,15 +698,6 @@ class Manager extends node_events_1.EventEmitter {
             player.voice = Object.assign({});
             await player.pause(true);
         }
-        if (REQUIRED_KEYS.every(key => key in player.voiceState)) {
-            console.log("DEBUG:", "endPointChange", endPointChange, "sessionIdChange", sessionIdChange, "tokenChange", tokenChange, "update", update);
-            if (!player.node?.sessionId) {
-                console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
-                await player.node.send(player.voiceState);
-                return;
-            }
-            return;
-        }
         return;
     }
 }
