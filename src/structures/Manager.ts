@@ -881,9 +881,12 @@ export class Manager extends EventEmitter {
     const player = this.players.get(update.guild_id) as Player;
     if (!player) return;
     
-    const sessionIdChange = update.session_id && player.voiceState && player.voiceState?.sessionId !== update.session_id
-    const tokenChange = update.session_id && player.voiceState && player.voiceState?.token !== update.token
-    const endPointChange = update.session_id && player.voiceState && player.voiceState?.endpoint !== update.endpoint
+    // @ts-ignore
+    const sessionIdChange = update.session_id && player.voice && player.voice?.sessionId !== update.session_id;
+    // @ts-ignore
+    const tokenChange = update.session_id && player.voice && player.voice?.token !== update.token;
+    // @ts-ignore
+    const endPointChange = update.session_id && player.voice && player.voice?.endpoint !== update.endpoint;
 
     if ("token" in update) {
       player.voiceState.event = update;
@@ -926,22 +929,12 @@ export class Manager extends EventEmitter {
     }
 
     if (REQUIRED_KEYS.every(key => key in player.voiceState)) {
-      console.log("DEBUG:", "endPointChange", endPointChange, "sessionIdChange", sessionIdChange, "tokenChange", tokenChange);
+      console.log("DEBUG:", "endPointChange", endPointChange, "sessionIdChange", sessionIdChange, "tokenChange", tokenChange, "update", update);
       if (!player.node?.sessionId) { 
         console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
         await player.node.send(player.voiceState);
         return;
       }
-      await player.node.updatePlayer({
-        guildId: player.guild,
-        playerOptions: {
-          voice: {
-            token: update.token,
-            endpoint: update.endpoint,
-            sessionId: player.voice?.sessionId || player.voiceState.sessionId,
-          }
-        }
-      });
       return 
     }
     return 
@@ -1019,7 +1012,7 @@ export type LavalinkSearchPlatform = "ytsearch" | "ytmsearch" | "scsearch" | "sp
 export type ErelaSearchPlatform = "youtube" | "youtube music" | "soundcloud" | "ytm" | "yt" | "sc" | "am" | "sp" | "sprec" | "spsuggestion" | "ds" | "dz" | "deezer" | "yandex" | "yandexmusic";
 export type SearchPlatform = LavalinkSearchPlatform | ErelaSearchPlatform;
 
-export type SourcesRegex = "YoutubeRegex" | "YoutubeMusicRegex" | "SoundCloudRegex" | "SoundCloudMobileRegex" | "DeezerTrackRegex" | "DeezerArtistRegex" | "DeezerEpisodeRegex" | "DeezerMixesRegex" | "DeezerPageLinkRegex" | "DeezerPlaylistRegex" | "DeezerAlbumRegex" | "AllDeezerRegex" | "AllDeezerRegexWithoutPageLink" | "SpotifySongRegex" | "SpotifyPlaylistRegex" | "SpotifyArtistRegex" | "SpotifyEpisodeRegex" | "SpotifyShowRegex" | "SpotifyAlbumRegex" | "AllSpotifyRegex" | "mp3Url" | "m3uUrl" | "m3u8Url" | "mp4Url" | "m4aUrl" | "wavUrl" | "tiktok" | "mixcloud" | "musicYandex" | "radiohost" | "bandcamp" | "appleMusic" | "TwitchTv" | "vimeo"
+export type SourcesRegex = "YoutubeRegex" | "YoutubeMusicRegex" | "SoundCloudRegex" | "SoundCloudMobileRegex" | "DeezerTrackRegex" | "DeezerArtistRegex" | "DeezerEpisodeRegex" | "DeezerMixesRegex" | "DeezerPageLinkRegex" | "DeezerPlaylistRegex" | "DeezerAlbumRegex" | "AllDeezerRegex" | "AllDeezerRegexWithoutPageLink" | "SpotifySongRegex" | "SpotifyPlaylistRegex" | "SpotifyArtistRegex" | "SpotifyEpisodeRegex" | "SpotifyShowRegex" | "SpotifyAlbumRegex" | "AllSpotifyRegex" | "mp3Url" | "m3uUrl" | "m3u8Url" | "mp4Url" | "m4aUrl" | "wavUrl" | "aacpUrl" | "tiktok" | "mixcloud" | "musicYandex" | "radiohost" | "bandcamp" | "appleMusic" | "TwitchTv" | "vimeo"
 
 export interface SearchQuery {
   /** The source to search from. */
