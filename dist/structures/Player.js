@@ -584,12 +584,12 @@ class Player {
             delete sendData.channelMix;
         const now = Date.now();
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
             if (sendData.rotation) {
                 // @ts-ignore
                 sendData.rotating = sendData.rotation;
                 delete sendData.rotation;
             } // on websocket it's called rotating, and on rest it's called rotation
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
             await this.node.send({
                 op: "filters",
                 guildId: this.guild,
@@ -781,6 +781,7 @@ class Player {
         this.set("lastposition", this.position);
         const now = Date.now();
         if (!this.node.sessionId) {
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
             await this.node.send({
                 track: options.encodedTrack,
                 op: "play",

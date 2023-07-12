@@ -880,12 +880,19 @@ export class Manager extends EventEmitter {
 
     const player = this.players.get(update.guild_id) as Player;
     if (!player) return;
+    
+    const sessionIdChange = update.session_id && player.voiceState && player.voiceState?.sessionId !== update.session_id
+    const tokenChange = update.session_id && player.voiceState && player.voiceState?.token !== update.token
+    const endPointChange = update.session_id && player.voiceState && player.voiceState?.endpoint !== update.endpoint
 
     if ("token" in update) {
       player.voiceState.event = update;
       if (!player.node?.sessionId) {
-        if (REQUIRED_KEYS.every(key => key in player.voiceState)) await player.node.send(player.voiceState);
-        return;
+        if (REQUIRED_KEYS.every(key => key in player.voiceState)) {
+          console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+          await player.node.send(player.voiceState);
+          return 
+        }
       }
       await player.node.updatePlayer({
         guildId: player.guild,
@@ -897,8 +904,9 @@ export class Manager extends EventEmitter {
           }
         }
       });
-      return;
+      return 
     }
+
     /* voice state update */
     if (update.user_id !== this.options.clientId) return;      
     
@@ -917,8 +925,26 @@ export class Manager extends EventEmitter {
       await player.pause(true);
     }
 
-    if (REQUIRED_KEYS.every(key => key in player.voiceState)) await player.node.send(player.voiceState);
-    return;
+    if (REQUIRED_KEYS.every(key => key in player.voiceState)) {
+      console.log("DEBUG:", "endPointChange", endPointChange, "sessionIdChange", sessionIdChange, "tokenChange", tokenChange);
+      if (!player.node?.sessionId) { 
+        console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+        await player.node.send(player.voiceState);
+        return;
+      }
+      await player.node.updatePlayer({
+        guildId: player.guild,
+        playerOptions: {
+          voice: {
+            token: update.token,
+            endpoint: update.endpoint,
+            sessionId: player.voice?.sessionId || player.voiceState.sessionId,
+          }
+        }
+      });
+      return 
+    }
+    return 
   }
 }
 
