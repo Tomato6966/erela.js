@@ -112,7 +112,7 @@ export abstract class TrackUtils {
             typeof data.info.image === "string" ?
               data.info.image :
               ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d)) ?
-                `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
+                `https://img.youtube.com/vi/${data.info.identifier}/maxresdefault.jpg`
                 : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
                   ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
                   : null,
@@ -127,7 +127,7 @@ export abstract class TrackUtils {
             typeof data.info.image === "string" ? 
                 data.info.image :
                 ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d)) ?
-                    `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
+                    `https://img.youtube.com/vi/${data.info.identifier}/maxresdefault.jpg`
                     : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
                         ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
                         : null,
