@@ -1,21 +1,31 @@
 ## FORK - SLIM!
 
-In this fork, everything unrelated is removed.
+In this branche, everything unrelated is removed.
 And all the code to keep support for v2 and v3 is also gone.
 It is made to make your bot memory usage as low as possible
 
 Things removed / changed:
 
 `queue.totalSize` -> Removed (can be calculated manually via `queue.size + (queue.current ? 1 : 0)`)
+
 `queue.duration` -> Removed (can be calculated manually by doing: `queue.reduce((a, b) => a + b.duration, 0)`)
+
 `queue.remove` -> Removed (can be all done via queue.splice)
 
+
+
 `track.thumbnail` -> Removed (`track.artworkUrl` is the same)
+
 `track.displayThumbnail` -> Removed
+
 `track.isPreview` -> Removed (not needed)
+
 `track.track` -> Removed (base64 encoded string) (`track.encodedString` is the new accessable variable)
+
 `track.encoded` -> Removed (base64 encoded string) (`track.encodedString` is the new accessable variable)
+
 `track.isrc` -> Removed (usually not needed)
+
 `track.sourceName` -> Removed (can be found manually by applying Manager.regex's to the track.uri and finding the track sourceName like that (if needed))
 
 
