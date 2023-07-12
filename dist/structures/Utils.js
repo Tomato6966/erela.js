@@ -97,7 +97,17 @@ class TrackUtils {
                 isSeekable: data.info.isSeekable,
                 isStream: data.info.isStream,
                 uri: data.info.uri,
-                artworkUrl: data.info.artworkUrl,
+                artworkUrl: typeof data.info.artworkUrl === "string" ?
+                    data.info.artworkUrl
+                    : typeof data.info.thumbnail === "string" ?
+                        data.info.thumbnail :
+                        typeof data.info.image === "string" ?
+                            data.info.image :
+                            ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d)) ?
+                                `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
+                                : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
+                                    ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
+                                    : null,
                 isrc: data.info.isrc,
                 // library data
                 isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
@@ -113,6 +123,7 @@ class TrackUtils {
                                 : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
                                     ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
                                     : null,
+                sourceName: data.info.sourceName,
                 requester: requester || {},
             };
             if (this.trackPartial) {
@@ -172,6 +183,8 @@ class TrackUtils {
             if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
                 if (unresolvedTrack.thumbnail?.length)
                     tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+                if (unresolvedTrack.artworkUrl?.length)
+                    tracks.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
                 if (unresolvedTrack.title?.length)
                     tracks.tracks[0].title = unresolvedTrack.title;
                 if (unresolvedTrack.author?.length)
@@ -184,6 +197,8 @@ class TrackUtils {
                     tracks.tracks[0].author = unresolvedTrack.author;
                 if (unresolvedTrack.thumbnail != tracks.tracks[0].thumbnail)
                     tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+                if (unresolvedTrack.artworkUrl != tracks.tracks[0].artworkUrl)
+                    tracks.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
             }
             for (const key of Object.keys(unresolvedTrack))
                 if (typeof tracks.tracks[0][key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
@@ -227,6 +242,8 @@ class TrackUtils {
                 if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
                     if (unresolvedTrack.thumbnail?.length)
                         originalAudio.thumbnail = unresolvedTrack.thumbnail;
+                    if (unresolvedTrack.artworkUrl?.length)
+                        originalAudio.artworkUrl = unresolvedTrack.artworkUrl;
                     if (unresolvedTrack.title?.length)
                         originalAudio.title = unresolvedTrack.title;
                     if (unresolvedTrack.author?.length)
@@ -239,6 +256,8 @@ class TrackUtils {
                         originalAudio.author = unresolvedTrack.author;
                     if (originalAudio.thumbnail != unresolvedTrack.thumbnail)
                         originalAudio.thumbnail = unresolvedTrack.thumbnail;
+                    if (originalAudio.artworkUrl != unresolvedTrack.artworkUrl)
+                        originalAudio.artworkUrl = unresolvedTrack.artworkUrl;
                 }
                 for (const key of Object.keys(unresolvedTrack))
                     if (typeof originalAudio[key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
@@ -253,6 +272,8 @@ class TrackUtils {
                 if (unresolvedTrack.uri)
                     sameDuration.uri = unresolvedTrack.uri;
                 if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
+                    if (unresolvedTrack.artworkUrl?.length)
+                        sameDuration.artworkUrl = unresolvedTrack.artworkUrl;
                     if (unresolvedTrack.thumbnail?.length)
                         sameDuration.thumbnail = unresolvedTrack.thumbnail;
                     if (unresolvedTrack.title?.length)
@@ -267,6 +288,8 @@ class TrackUtils {
                         sameDuration.author = unresolvedTrack.author;
                     if (sameDuration.thumbnail != unresolvedTrack.thumbnail)
                         sameDuration.thumbnail = unresolvedTrack.thumbnail;
+                    if (sameDuration.artworkUrl != unresolvedTrack.artworkUrl)
+                        sameDuration.artworkUrl = unresolvedTrack.artworkUrl;
                 }
                 for (const key of Object.keys(unresolvedTrack))
                     if (typeof sameDuration[key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
@@ -279,6 +302,8 @@ class TrackUtils {
         if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
             if (unresolvedTrack.thumbnail?.length)
                 res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+            if (unresolvedTrack.artworkUrl?.length)
+                res.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
             if (unresolvedTrack.title?.length)
                 res.tracks[0].title = unresolvedTrack.title;
             if (unresolvedTrack.author?.length)
@@ -291,6 +316,8 @@ class TrackUtils {
                 res.tracks[0].author = unresolvedTrack.author;
             if (unresolvedTrack.thumbnail != res.tracks[0].thumbnail)
                 res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+            if (unresolvedTrack.artworkUrl != res.tracks[0].artworkUrl)
+                res.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
         }
         for (const key of Object.keys(unresolvedTrack))
             if (typeof res.tracks[0][key] === "undefined" && key !== "resolve" && unresolvedTrack[key])

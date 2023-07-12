@@ -105,7 +105,17 @@ export abstract class TrackUtils {
         isSeekable: data.info.isSeekable,
         isStream: data.info.isStream,
         uri: data.info.uri,
-        artworkUrl: data.info.artworkUrl,
+        artworkUrl: typeof data.info.artworkUrl === "string" ?
+          data.info.artworkUrl
+          : typeof data.info.thumbnail === "string" ?
+            data.info.thumbnail :
+            typeof data.info.image === "string" ?
+              data.info.image :
+              ["youtube.", "youtu.be"].some(d => data.info.uri?.includes?.(d)) ?
+                `https://img.youtube.com/vi/${data.info.identifier}/mqdefault.jpg`
+                : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
+                  ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
+                  : null,
         isrc: data.info.isrc,
         // library data
         isPreview: (data.info.identifier?.includes?.("/preview") && data.info.identifier?.includes?.("soundcloud")) || (data.info.length === 30000 && ["soundcloud.", "deezer."].some(domain => data.info.identifier?.includes?.(domain))),
@@ -121,6 +131,7 @@ export abstract class TrackUtils {
                     : (data.info?.md5_image && data.info?.uri?.includes?.("deezer"))
                         ? `https://cdns-images.dzcdn.net/images/cover/${data.info.md5_image}/500x500.jpg`
                         : null,
+        sourceName: data.info.sourceName,
         requester: requester || {},
       };
 
@@ -184,14 +195,16 @@ export abstract class TrackUtils {
       const tracks = await TrackUtils.manager.searchLocal(unresolvedTrack.uri, unresolvedTrack.requester, customNode)
       if(!tracks?.tracks?.length) return undefined;
       if(unresolvedTrack.uri) tracks.tracks[0].uri = unresolvedTrack.uri;
-      if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
-          if(unresolvedTrack.thumbnail?.length) tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
-          if(unresolvedTrack.title?.length) tracks.tracks[0].title = unresolvedTrack.title;
-          if(unresolvedTrack.author?.length) tracks.tracks[0].author = unresolvedTrack.author;
+      if (TrackUtils.manager.options.useUnresolvedData) { // overwrite values
+        if (unresolvedTrack.thumbnail?.length) tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+        if (unresolvedTrack.artworkUrl?.length) tracks.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
+        if(unresolvedTrack.title?.length) tracks.tracks[0].title = unresolvedTrack.title;
+        if(unresolvedTrack.author?.length) tracks.tracks[0].author = unresolvedTrack.author;
       } else { // only overwrite if undefined / invalid
-          if((tracks.tracks[0].title == 'Unknown title' || tracks.tracks[0].title == "Unspecified description") && unresolvedTrack.title != tracks.tracks[0].title) tracks.tracks[0].title = unresolvedTrack.title;
-          if(unresolvedTrack.author != tracks.tracks[0].author) tracks.tracks[0].author = unresolvedTrack.author;
-          if(unresolvedTrack.thumbnail != tracks.tracks[0].thumbnail) tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+        if((tracks.tracks[0].title == 'Unknown title' || tracks.tracks[0].title == "Unspecified description") && unresolvedTrack.title != tracks.tracks[0].title) tracks.tracks[0].title = unresolvedTrack.title;
+        if(unresolvedTrack.author != tracks.tracks[0].author) tracks.tracks[0].author = unresolvedTrack.author;
+        if (unresolvedTrack.thumbnail != tracks.tracks[0].thumbnail) tracks.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+        if (unresolvedTrack.artworkUrl != tracks.tracks[0].artworkUrl) tracks.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
       }
       for (const key of Object.keys(unresolvedTrack))
               if (typeof tracks.tracks[0][key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
@@ -234,13 +247,15 @@ export abstract class TrackUtils {
       if (originalAudio) {
         if(unresolvedTrack.uri) originalAudio.uri = unresolvedTrack.uri;
         if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
-            if(unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
-            if(unresolvedTrack.title?.length) originalAudio.title = unresolvedTrack.title;
-            if(unresolvedTrack.author?.length) originalAudio.author = unresolvedTrack.author;
+          if (unresolvedTrack.thumbnail?.length) originalAudio.thumbnail = unresolvedTrack.thumbnail;
+          if (unresolvedTrack.artworkUrl?.length) originalAudio.artworkUrl = unresolvedTrack.artworkUrl;
+          if(unresolvedTrack.title?.length) originalAudio.title = unresolvedTrack.title;
+          if(unresolvedTrack.author?.length) originalAudio.author = unresolvedTrack.author;
         } else { // only overwrite if undefined / invalid
-            if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
-            if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
-            if(originalAudio.thumbnail != unresolvedTrack.thumbnail) originalAudio.thumbnail = unresolvedTrack.thumbnail;    
+          if((originalAudio.title == 'Unknown title' || originalAudio.title == "Unspecified description") && originalAudio.title != unresolvedTrack.title) originalAudio.title = unresolvedTrack.title;
+          if(originalAudio.author != unresolvedTrack.author) originalAudio.author = unresolvedTrack.author;
+          if (originalAudio.thumbnail != unresolvedTrack.thumbnail) originalAudio.thumbnail = unresolvedTrack.thumbnail;    
+          if (originalAudio.artworkUrl != unresolvedTrack.artworkUrl) originalAudio.artworkUrl = unresolvedTrack.artworkUrl;    
         }
         for (const key of Object.keys(unresolvedTrack))
             if (typeof originalAudio[key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
@@ -258,13 +273,15 @@ export abstract class TrackUtils {
       if (sameDuration) {
         if(unresolvedTrack.uri) sameDuration.uri = unresolvedTrack.uri;
         if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
-            if(unresolvedTrack.thumbnail?.length) sameDuration.thumbnail = unresolvedTrack.thumbnail;
-            if(unresolvedTrack.title?.length) sameDuration.title = unresolvedTrack.title;
-            if(unresolvedTrack.author?.length) sameDuration.author = unresolvedTrack.author;
+          if (unresolvedTrack.artworkUrl?.length) sameDuration.artworkUrl = unresolvedTrack.artworkUrl;
+          if(unresolvedTrack.thumbnail?.length) sameDuration.thumbnail = unresolvedTrack.thumbnail;
+          if(unresolvedTrack.title?.length) sameDuration.title = unresolvedTrack.title;
+          if(unresolvedTrack.author?.length) sameDuration.author = unresolvedTrack.author;
         } else { // only overwrite if undefined / invalid
-            if((sameDuration.title == 'Unknown title' || sameDuration.title == "Unspecified description") && sameDuration.title != unresolvedTrack.title) sameDuration.title = unresolvedTrack.title;
-            if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
-            if(sameDuration.thumbnail != unresolvedTrack.thumbnail) sameDuration.thumbnail = unresolvedTrack.thumbnail;
+          if((sameDuration.title == 'Unknown title' || sameDuration.title == "Unspecified description") && sameDuration.title != unresolvedTrack.title) sameDuration.title = unresolvedTrack.title;
+          if(sameDuration.author != unresolvedTrack.author) sameDuration.author = unresolvedTrack.author;
+          if (sameDuration.thumbnail != unresolvedTrack.thumbnail) sameDuration.thumbnail = unresolvedTrack.thumbnail;
+          if(sameDuration.artworkUrl != unresolvedTrack.artworkUrl) sameDuration.artworkUrl = unresolvedTrack.artworkUrl;
         }
         for (const key of Object.keys(unresolvedTrack))
             if (typeof sameDuration[key] === "undefined" && key !== "resolve" && unresolvedTrack[key])
@@ -274,13 +291,15 @@ export abstract class TrackUtils {
     }
     if(unresolvedTrack.uri) res.tracks[0].uri = unresolvedTrack.uri;
     if(TrackUtils.manager.options.useUnresolvedData) { // overwrite values
-        if(unresolvedTrack.thumbnail?.length) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
-        if(unresolvedTrack.title?.length) res.tracks[0].title = unresolvedTrack.title;
-        if(unresolvedTrack.author?.length) res.tracks[0].author = unresolvedTrack.author;
+      if (unresolvedTrack.thumbnail?.length) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+      if (unresolvedTrack.artworkUrl?.length) res.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
+      if(unresolvedTrack.title?.length) res.tracks[0].title = unresolvedTrack.title;
+      if(unresolvedTrack.author?.length) res.tracks[0].author = unresolvedTrack.author;
     } else { // only overwrite if undefined / invalid
-        if((res.tracks[0].title == 'Unknown title' || res.tracks[0].title == "Unspecified description") && unresolvedTrack.title != res.tracks[0].title) res.tracks[0].title = unresolvedTrack.title;
-        if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
-        if(unresolvedTrack.thumbnail != res.tracks[0].thumbnail) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+      if((res.tracks[0].title == 'Unknown title' || res.tracks[0].title == "Unspecified description") && unresolvedTrack.title != res.tracks[0].title) res.tracks[0].title = unresolvedTrack.title;
+      if(unresolvedTrack.author != res.tracks[0].author) res.tracks[0].author = unresolvedTrack.author;
+      if (unresolvedTrack.thumbnail != res.tracks[0].thumbnail) res.tracks[0].thumbnail = unresolvedTrack.thumbnail;
+      if (unresolvedTrack.artworkUrl != res.tracks[0].artworkUrl) res.tracks[0].artworkUrl = unresolvedTrack.artworkUrl;
     }
     for (const key of Object.keys(unresolvedTrack))
             if (typeof res.tracks[0][key] === "undefined" && key !== "resolve" && unresolvedTrack[key])

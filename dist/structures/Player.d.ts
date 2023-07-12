@@ -1,4 +1,4 @@
-import { Manager, SearchQuery, SearchResult } from "./Manager";
+import { LavalinkSearchPlatform, Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
 import { LavalinkFilterData, LavalinkPlayerVoice, TimescaleFilter } from "./Utils";
@@ -372,6 +372,8 @@ export interface Track {
     artworkUrl: string | null;
     /** v4: ISRC if available */
     isrc: string | null;
+    /** v4: Sourcename of how you found that track! */
+    sourceName: LavalinkSearchPlatform | string | null;
 }
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
 export interface UnresolvedTrack extends Partial<Track> {

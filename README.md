@@ -1,5 +1,7 @@
 # erela.js - Updated & Improved by Tomato6966
 
+Check out the [slimmed](https://github.com/Tomato6966/erela.js/tree/slim) Version, which is lavalink-v4 only and allows you to save up to 25% of memory usage than with the normal feature rich erela.js version (however you loose some properties...)
+
 An up to date Lavalink Wrapper, which makes it easy to use Lavalink within your Discord Bot!
 - Works in Typescript, CommonJS and ModuleJS
 - Made for discord.js, but works in [discordeno (example)](#discordeno), eris, oceanic and many other libraries too!
