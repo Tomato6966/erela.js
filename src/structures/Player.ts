@@ -93,8 +93,6 @@ export interface PlayerFilters {
   /** only with the custom lavalink filter plugin */ 
   reverb: boolean;
   rotation: boolean;
-  /** @deprecated */
-  rotating: boolean; 
   karaoke: boolean;
   tremolo: boolean;
   vibrato: boolean;
@@ -133,8 +131,6 @@ export class Player {
   public state: State = "DISCONNECTED";
   /** The equalizer bands array. */
   public bands = new Array<number>(15).fill(0.0);
-  /** @deprecated The voice state object from Discord. */
-  public voiceState: VoiceState;
   /** The new VoiceState Data from Lavalink */
   public voice: LavalinkPlayerVoice;
   /** The Manager. */
@@ -220,7 +216,6 @@ export class Player {
     } 
 
     this.guild = options.guild;
-    this.voiceState = Object.assign({ op: "voiceUpdate", guildId: options.guild });
 
     if (options.voiceChannel) this.voiceChannel = options.voiceChannel;
     if (options.textChannel) this.textChannel = options.textChannel;
@@ -246,7 +241,6 @@ export class Player {
       nightcore: false,
       echo: false,
       reverb: false,
-      rotating: false,
       rotation: false, 
       karaoke: false,
       tremolo: false,
@@ -331,7 +325,6 @@ export class Player {
     this.filters.reverb = false;
     this.filters.nightcore = false;
     this.filters.lowPass = false;
-    this.filters.rotating = false;
     this.filters.rotation = false;
     this.filters.tremolo = false;
     this.filters.vibrato = false;
@@ -476,25 +469,8 @@ export class Player {
     this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
     
     this.filters.rotation = !this.filters.rotation;
-    /** @deprecated but sync with rotating */
-    this.filters.rotating = this.filters.rotation;
     
     return await this.updatePlayerFilters(), this.filters.rotation;
-  }
-  /**
-   * @deprected - use #toggleRotation() Enabels / Disables the rotation effect, (Optional: provide your Own Data)
-   * @param rotationHz
-   * @returns 
-   */
-  public async toggleRotating(rotationHz = 0.2): Promise<boolean> {
-      if(this.node.info && !this.node.info?.filters?.includes("rotation")) throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)")
-      this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
-      
-      this.filters.rotation = !this.filters.rotation;
-      /** @deprecated but sync with rotating */
-      this.filters.rotating = this.filters.rotation;
-      
-      return await this.updatePlayerFilters(), this.filters.rotation;
   }
   /**
    * Enabels / Disables the Vibrato effect, (Optional: provide your Own Data)
@@ -643,36 +619,22 @@ export class Player {
     //if(!this.filters.karaoke) delete sendData.karaoke;
     if(!this.filters.echo) delete sendData.echo;
     if(!this.filters.reverb) delete sendData.reverb;
-    if(!this.filters.lowPass) delete sendData.lowPass;
-    if(!this.filters.karaoke) delete sendData.karaoke;
-    //if(!this.filters.rotating) delete sendData.rotating;
+    if (!this.filters.lowPass) delete sendData.lowPass;
+    if (!this.filters.karaoke) delete sendData.karaoke;
+    // if (!this.filters.rotation) delete sendData.rotation;
     if(this.filters.audioOutput === "stereo") delete sendData.channelMix;
     const now = Date.now();
-    if(!this.node.sessionId) {
-      if(sendData.rotation) {
-        // @ts-ignore
-        sendData.rotating = sendData.rotation; 
-        delete sendData.rotation;
-      } // on websocket it's called rotating, and on rest it's called rotation
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#updatePlayerFilters)");
-      await this.node.send({
-        op: "filters",
-        guildId: this.guild,
-        equalizer: this.bands.map((gain, band) => ({ band, gain })),
-        ...sendData
-      });
-    } else {
-      sendData.equalizer = this.bands.map((gain, band) => ({ band, gain }));
-      for(const key of [...Object.keys(sendData)]) {
-        if(this.node.info && !this.node.info?.filters?.includes?.(key)) delete sendData[key];
-      }
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        playerOptions: {
-          filters: sendData,
-        }
-      })
+    
+    sendData.equalizer = this.bands.map((gain, band) => ({ band, gain }));
+    for(const key of [...Object.keys(sendData)]) {
+      if(this.node.info && !this.node.info?.filters?.includes?.(key)) delete sendData[key];
     }
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      playerOptions: {
+        filters: sendData,
+      }
+    })
     this.ping = Date.now() - now;
     if(this.options.instaUpdateFiltersFix === true) this.filterUpdated = 1;
     return this;
@@ -701,42 +663,24 @@ export class Player {
       throw new TypeError("Bands must be a non-empty object array containing 'band' and 'gain' properties.");
 
     for (const { band, gain } of bands) this.bands[band] = gain;
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#setEQ)");
-      await this.node.send({
-        op: "filters",
-        guildId: this.guild,
-        equalizer: this.bands.map((gain, band) => ({ band, gain })),
-      });
-    } else {
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        playerOptions: {
-          filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
-        }
-      })
-    }
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      playerOptions: {
+        filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
+      }
+    })
     return this;
   }
 
   /** Clears the equalizer bands. */
   public async clearEQ(): Promise<this> {
     this.bands = new Array(15).fill(0.0);
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#clearEQ)");
-      await this.node.send({
-        op: "filters",
-        guildId: this.guild,
-        equalizer: this.bands.map((gain, band) => ({ band, gain })),
-      });
-    } else {
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        playerOptions: {
-          filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
-        }
-      })
-    }
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      playerOptions: {
+        filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
+      }
+    })
     return this;
   }
 
@@ -868,12 +812,12 @@ export class Player {
 
     const options = {
       guildId: this.guild,
-      encodedTrack: this.queue.current.track,
+      encodedTrack: this.queue.current.encodedTrack,
       ...finalOptions,
     };
 
     if (typeof options.encodedTrack !== "string") {
-      options.encodedTrack = (options.encodedTrack as Track).track;
+      options.encodedTrack = (options.encodedTrack as Track).encodedTrack;
     }
     if (typeof options.volume === "number" && !isNaN(options.volume)) {
         this.volume = Math.max(Math.min(options.volume, 500), 0);
@@ -886,21 +830,11 @@ export class Player {
     this.set("lastposition", this.position);
 
     const now = Date.now();
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#play)");
-      await this.node.send({
-        track: options.encodedTrack,
-        op: "play",
-        guildId: this.guild,
-        ...finalOptions
-      });
-    } else {
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        noReplace: finalOptions.noReplace ?? false,
-        playerOptions: options,
-      })
-    }
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      noReplace: finalOptions.noReplace ?? false,
+      playerOptions: options,
+    })
     this.ping = Date.now() - now;
     return;
   }
@@ -921,29 +855,20 @@ export class Player {
     this.lavalinkVolume = Math.floor(vol * 100) / 100;
 
     const now = Date.now();
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#setVolume)");
-      await this.node.send({
-        op: "volume",
+    if(this.manager.options.applyVolumeAsFilter) {
+      await this.node.updatePlayer({
         guildId: this.guild,
-        volume: vol,
+        playerOptions: {
+          filters: { volume: vol / 100 }
+        }
       });
     } else {
-      if(this.manager.options.applyVolumeAsFilter) {
-        await this.node.updatePlayer({
-          guildId: this.guild,
-          playerOptions: {
-            filters: { volume: vol / 100 }
-          }
-        });
-      } else {
-        await this.node.updatePlayer({
-          guildId: this.guild,
-          playerOptions: {
-            volume: vol
-          }
-        });
-      }
+      await this.node.updatePlayer({
+        guildId: this.guild,
+        playerOptions: {
+          volume: vol
+        }
+      });
     }
     this.ping = Date.now() - now;
     return this;
@@ -1018,18 +943,10 @@ export class Player {
     }
 
     const now = Date.now();
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#stop)");
-      await this.node.send({
-        op: "stop",
-        guildId: this.guild,
-      });
-    } else {
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        playerOptions: { encodedTrack: null }
-      });
-    }
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      playerOptions: { encodedTrack: null }
+    });
     this.ping = Date.now() - now;
 
     return this;
@@ -1044,27 +961,16 @@ export class Player {
       throw new RangeError('Pause can only be "true" or "false".');
 
     // If already paused or the queue is empty do nothing https://github.com/MenuDocs/erela.js/issues/58
-    if (this.paused === paused || !this.queue.totalSize) return this;
+    if (this.paused === paused || (!this.queue.current && !this.queue.size)) return this;
 
     this.playing = !paused;
     this.paused = paused;
 
     const now = Date.now();
-    
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#pause)");
-      await this.node.send({
-        op: "pause",
-        guildId: this.guild,
-        pause: paused,
-      });
-    } else {
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        playerOptions: { paused },
-      });
-    }
-
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      playerOptions: { paused },
+    });
     this.ping = Date.now() - now;
 
     return this;
@@ -1089,19 +995,10 @@ export class Player {
 
     const now = Date.now();
     
-    if(!this.node.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#seek)");
-      await this.node.send({
-        op: "seek",
-        guildId: this.guild,
-        position,
-      });
-    } else {
-      await this.node.updatePlayer({
-        guildId: this.guild,
-        playerOptions: { position }
-      })
-    }
+    await this.node.updatePlayer({
+      guildId: this.guild,
+      playerOptions: { position }
+    })
     this.ping = Date.now() - now;
     return this;
   }
@@ -1132,10 +1029,8 @@ export interface PlayerOptions {
 
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {
-  /** @deprecated The base64 encoded track. */
-  readonly track: string;
   /** The encoded base64 track. */
-  readonly encodedTrack: string;
+  encodedTrack: string;
   /** The title of the track. */
   title: string;
   /** The identifier of the track. */
@@ -1150,17 +1045,10 @@ export interface Track {
   isStream: boolean;
   /** The uri of the track. */
   uri: string;
-  /** The thumbnail of the track or null if it's a unsupported source. */
-  thumbnail: string | null;
   /** The user that requested the track. */
   requester: unknown | null;
-  /** If the Track is a preview */
-  isPreview: boolean;
-  /** v4: If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+  /** v4: If the Track has a artworkUrl */
   artworkUrl: string | null;
-  /** v4: ISRC if available */
-  isrc: string | null;
-
 }
 
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
@@ -1171,15 +1059,13 @@ export interface UnresolvedTrack extends Partial<Track> {
   author?: string;
   /** The duration to search within 1500 milliseconds of the results from YouTube. */
   duration?: number;
-  /** Thumbnail of the track */
-  thumbnail?: string;
-  /** v4: If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+  /** v4: If the Track has a artworkUrl  */
   artworkUrl: string | null;
   /** v4: If the Track has a ISRC */
   isrc?: string | null;
   /** Identifier of the track */
   identifier?: string;
-  /** If it's a local track */
+  /** If it's a local track - unly important if you wanna unresolve local tracks and utilize searchLocal */
   local?: boolean;
   /** Resolves into a Track. */
   resolve(): Promise<void>;

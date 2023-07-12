@@ -279,14 +279,6 @@ export class Node {
    * @param guildId
    */
   public async destroyPlayer(guildId: string): Promise<void> {
-    if(!this.sessionId) {
-      console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (node#destroyPlayer)");
-      await this.send({
-        op: "destroy",
-        guildId: guildId
-      });
-      return;
-    }
     await this.makeRequest(`/sessions/${this.sessionId}/players/${guildId}`, r => {
       r.method = "DELETE";
     })

@@ -367,7 +367,7 @@ class Manager extends node_events_1.EventEmitter {
             result.playlist = {
                 name: res.data.info?.name || res.data.pluginInfo?.name || null,
                 author: res.data.info?.author || res.data.pluginInfo?.author || null,
-                thumbnail: res.data.info?.artworkUrl || res.data.pluginInfo?.artworkUrl || selectedTrack?.thumbnail || null,
+                artworkUrl: res.data.info?.artworkUrl || res.data.pluginInfo?.artworkUrl || selectedTrack?.artworkUrl || null,
                 uri: res.data.info?.url || res.data.info?.uri || res.data.info?.link || res.data.pluginInfo?.url || res.data.pluginInfo?.uri || res.data.pluginInfo?.link || null,
                 selectedTrack: selectedTrack,
                 duration: result.tracks.reduce((acc, cur) => acc + (cur?.duration || 0), 0),
@@ -381,7 +381,7 @@ class Manager extends node_events_1.EventEmitter {
                     // transform other Data(s)
                     name: res.playlistInfo.name || null,
                     author: res.playlistInfo.author || null,
-                    thumbnail: selectedTrack?.thumbnail || null,
+                    artworkUrl: selectedTrack?.artworkUrl || null,
                     uri: res.playlistInfo?.url || res.playlistInfo?.uri || res.playlistInfo?.link || null,
                     selectedTrack: selectedTrack,
                     duration: result.tracks.reduce((acc, cur) => acc + (cur.duration || 0), 0),
@@ -652,21 +652,13 @@ class Manager extends node_events_1.EventEmitter {
         if (!player)
             return;
         if ("token" in update) {
-            player.voiceState.event = update;
-            if (!player.node?.sessionId) {
-                if (REQUIRED_KEYS.every(key => key in player.voiceState)) {
-                    console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (manager-event#updateVoiceState)");
-                    await player.node.send(player.voiceState);
-                    return;
-                }
-            }
             await player.node.updatePlayer({
                 guildId: player.guild,
                 playerOptions: {
                     voice: {
                         token: update.token,
                         endpoint: update.endpoint,
-                        sessionId: player.voice?.sessionId || player.voiceState.sessionId,
+                        sessionId: player.voice?.sessionId,
                     }
                 }
             });
@@ -679,8 +671,6 @@ class Manager extends node_events_1.EventEmitter {
             if (player.voiceChannel !== update.channel_id) {
                 this.emit("playerMove", player, player.voiceChannel, update.channel_id);
             }
-            if (player.voiceState)
-                player.voiceState.sessionId = update.session_id;
             if (player.voice)
                 player.voice.sessionId = update.session_id;
             player.voiceChannel = update.channel_id;
@@ -688,7 +678,6 @@ class Manager extends node_events_1.EventEmitter {
         else {
             this.emit("playerDisconnect", player, player.voiceChannel);
             player.voiceChannel = null;
-            player.voiceState = Object.assign({});
             player.voice = Object.assign({});
             await player.pause(true);
         }

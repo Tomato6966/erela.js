@@ -7,16 +7,6 @@ const Utils_1 = require("./Utils");
  * @noInheritDoc
  */
 class Queue extends Array {
-    /** The total duration of the queue. */
-    get duration() {
-        const current = this.current?.duration ?? 0;
-        return this
-            .reduce((acc, cur) => acc + (cur.duration || 0), current);
-    }
-    /** The total size of tracks in the queue including the current track. */
-    get totalSize() {
-        return this.length + (this.current ? 1 : 0);
-    }
     /** The size of tracks in the queue. */
     get size() {
         return this.length;
@@ -63,24 +53,6 @@ class Queue extends Array {
             else
                 this.splice(offset, 0, track);
         }
-    }
-    remove(startOrPosition = 0, end) {
-        if (typeof end !== "undefined") {
-            if (isNaN(Number(startOrPosition))) {
-                throw new RangeError(`Missing "start" parameter.`);
-            }
-            else if (isNaN(Number(end))) {
-                throw new RangeError(`Missing "end" parameter.`);
-            }
-            else if (startOrPosition >= end) {
-                throw new RangeError("Start can not be bigger than end.");
-            }
-            else if (startOrPosition >= this.length) {
-                throw new RangeError(`Start can not be bigger than ${this.length}.`);
-            }
-            return this.splice(startOrPosition, end - startOrPosition);
-        }
-        return this.splice(startOrPosition, 1);
     }
     /** Clears the queue. */
     clear() {

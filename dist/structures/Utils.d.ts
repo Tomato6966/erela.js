@@ -170,9 +170,6 @@ export interface LavalinkPlayerVoice {
     ping?: number;
 }
 export interface TrackData {
-    /** @deprecated */
-    track?: string;
-    encoded?: string;
     encodedTrack?: string;
     info: Partial<TrackDataInfoExtended>;
     pluginInfo: Partial<PluginDataInfo> | Record<string, string | number>;

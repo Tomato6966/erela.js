@@ -305,8 +305,8 @@ export interface PlaylistInfo {
     name: string;
     /** The Playlist Author */
     author?: string;
-    /** The Playlist Thumbnail */
-    thumbnail?: string;
+    /** The Playlist artworkUrl */
+    artworkUrl?: string;
     /** A Uri to the playlist */
     uri?: string;
     /** The playlist selected track. */

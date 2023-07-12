@@ -2,7 +2,7 @@ import { Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
 import { LavalinkFilterData, LavalinkPlayerVoice, TimescaleFilter } from "./Utils";
-import { State, VoiceState } from "./Utils";
+import { State } from "./Utils";
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
 export declare const validAudioOutputs: {
     mono: {
@@ -51,8 +51,6 @@ export interface PlayerFilters {
     /** only with the custom lavalink filter plugin */
     reverb: boolean;
     rotation: boolean;
-    /** @deprecated */
-    rotating: boolean;
     karaoke: boolean;
     tremolo: boolean;
     vibrato: boolean;
@@ -92,8 +90,6 @@ export declare class Player {
     state: State;
     /** The equalizer bands array. */
     bands: number[];
-    /** @deprecated The voice state object from Discord. */
-    voiceState: VoiceState;
     /** The new VoiceState Data from Lavalink */
     voice: LavalinkPlayerVoice;
     /** The Manager. */
@@ -172,12 +168,6 @@ export declare class Player {
      * @returns
      */
     toggleRotation(rotationHz?: number): Promise<boolean>;
-    /**
-     * @deprected - use #toggleRotation() Enabels / Disables the rotation effect, (Optional: provide your Own Data)
-     * @param rotationHz
-     * @returns
-     */
-    toggleRotating(rotationHz?: number): Promise<boolean>;
     /**
      * Enabels / Disables the Vibrato effect, (Optional: provide your Own Data)
      * @param frequency
@@ -344,10 +334,8 @@ export interface PlayerOptions {
 }
 /** If track partials are set some of these will be `undefined` as they were removed. */
 export interface Track {
-    /** @deprecated The base64 encoded track. */
-    readonly track: string;
     /** The encoded base64 track. */
-    readonly encodedTrack: string;
+    encodedTrack: string;
     /** The title of the track. */
     title: string;
     /** The identifier of the track. */
@@ -362,16 +350,10 @@ export interface Track {
     isStream: boolean;
     /** The uri of the track. */
     uri: string;
-    /** The thumbnail of the track or null if it's a unsupported source. */
-    thumbnail: string | null;
     /** The user that requested the track. */
     requester: unknown | null;
-    /** If the Track is a preview */
-    isPreview: boolean;
-    /** v4: If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+    /** v4: If the Track has a artworkUrl */
     artworkUrl: string | null;
-    /** v4: ISRC if available */
-    isrc: string | null;
 }
 /** Unresolved tracks can't be played normally, they will resolve before playing into a Track. */
 export interface UnresolvedTrack extends Partial<Track> {
@@ -381,15 +363,13 @@ export interface UnresolvedTrack extends Partial<Track> {
     author?: string;
     /** The duration to search within 1500 milliseconds of the results from YouTube. */
     duration?: number;
-    /** Thumbnail of the track */
-    thumbnail?: string;
-    /** v4: If the Track has a artworkUrl --> will overwrite thumbnail too! (if not a youtube video) */
+    /** v4: If the Track has a artworkUrl  */
     artworkUrl: string | null;
     /** v4: If the Track has a ISRC */
     isrc?: string | null;
     /** Identifier of the track */
     identifier?: string;
-    /** If it's a local track */
+    /** If it's a local track - unly important if you wanna unresolve local tracks and utilize searchLocal */
     local?: boolean;
     /** Resolves into a Track. */
     resolve(): Promise<void>;
