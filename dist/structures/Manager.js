@@ -651,17 +651,11 @@ class Manager extends node_events_1.EventEmitter {
         const player = this.players.get(update.guild_id);
         if (!player)
             return;
-        // @ts-ignore
-        const sessionIdChange = update.session_id && player.voice && player.voice?.sessionId !== update.session_id;
-        // @ts-ignore
-        const tokenChange = update.session_id && player.voice && player.voice?.token !== update.token;
-        // @ts-ignore
-        const endPointChange = update.session_id && player.voice && player.voice?.endpoint !== update.endpoint;
         if ("token" in update) {
             player.voiceState.event = update;
             if (!player.node?.sessionId) {
                 if (REQUIRED_KEYS.every(key => key in player.voiceState)) {
-                    console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+                    console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (manager-event#updateVoiceState)");
                     await player.node.send(player.voiceState);
                     return;
                 }

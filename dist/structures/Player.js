@@ -589,7 +589,7 @@ class Player {
                 sendData.rotating = sendData.rotation;
                 delete sendData.rotation;
             } // on websocket it's called rotating, and on rest it's called rotation
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#updatePlayerFilters)");
             await this.node.send({
                 op: "filters",
                 guildId: this.guild,
@@ -636,7 +636,7 @@ class Player {
         for (const { band, gain } of bands)
             this.bands[band] = gain;
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#setEQ)");
             await this.node.send({
                 op: "filters",
                 guildId: this.guild,
@@ -657,7 +657,7 @@ class Player {
     async clearEQ() {
         this.bands = new Array(15).fill(0.0);
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#clearEQ)");
             await this.node.send({
                 op: "filters",
                 guildId: this.guild,
@@ -781,7 +781,7 @@ class Player {
         this.set("lastposition", this.position);
         const now = Date.now();
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#play)");
             await this.node.send({
                 track: options.encodedTrack,
                 op: "play",
@@ -814,7 +814,7 @@ class Player {
         this.lavalinkVolume = Math.floor(vol * 100) / 100;
         const now = Date.now();
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#setVolume)");
             await this.node.send({
                 op: "volume",
                 guildId: this.guild,
@@ -907,7 +907,7 @@ class Player {
         }
         const now = Date.now();
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#stop)");
             await this.node.send({
                 op: "stop",
                 guildId: this.guild,
@@ -936,7 +936,7 @@ class Player {
         this.paused = paused;
         const now = Date.now();
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#pause)");
             await this.node.send({
                 op: "pause",
                 guildId: this.guild,
@@ -969,7 +969,7 @@ class Player {
         this.set("lastposition", this.position);
         const now = Date.now();
         if (!this.node.sessionId) {
-            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST");
+            console.warn("@deprecated - The Lavalink-Node is either not up to date (or not ready)! -- Using WEBSOCKET instead of REST (player#seek)");
             await this.node.send({
                 op: "seek",
                 guildId: this.guild,
