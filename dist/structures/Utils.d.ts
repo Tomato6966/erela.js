@@ -93,8 +93,7 @@ export interface LavalinkPlayerVoice {
     connected?: boolean;
     ping?: number;
 }
-export interface LavalinkPlayerVoiceOptions extends Omit<LavalinkPlayerVoice, 'connected' | 'ping'> {
-}
+export type LavalinkPlayerVoiceOptions = Omit<LavalinkPlayerVoice, 'connected' | 'ping'>;
 export interface PlayerUpdateOptions {
     encodedTrack?: string | null;
     identifier?: string;

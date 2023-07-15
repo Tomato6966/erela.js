@@ -1,8 +1,7 @@
 import { LavalinkSearchPlatform, Manager, SearchQuery, SearchResult } from "./Manager";
 import { Node } from "./Node";
 import { Queue } from "./Queue";
-import { LavalinkFilterData, LavalinkPlayerVoice, TimescaleFilter } from "./Utils";
-import { State, VoiceState } from "./Utils";
+import { LavalinkFilterData, LavalinkPlayerVoice, State, TimescaleFilter, VoiceState } from "./Utils";
 export type AudioOutputs = "mono" | "stereo" | "left" | "right";
 export declare const validAudioOutputs: {
     mono: {
@@ -245,7 +244,7 @@ export declare class Player {
      * @param query
      * @param requester
      */
-    search(query: string | SearchQuery, requester?: unknown): Promise<SearchResult>;
+    search(query: string | SearchQuery, requester?: string): Promise<SearchResult>;
     /**
      * Sets the players equalizer band on-top of the existing ones.
      * @param bands
