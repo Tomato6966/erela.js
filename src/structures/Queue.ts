@@ -110,6 +110,10 @@ export class Queue extends Array<Track | UnresolvedTrack> {
 
   /** Shuffles the queue. */
   public shuffle(): void {
+    if(this.length <= 1) return;
+    // swap #1 and #2 if only 2 tracks.
+    if(this.length == 2) return [this[0], this[1]] = [this[1], this[0]];
+    // randomly swap places.
     for (let i = this.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this[i], this[j]] = [this[j], this[i]];
