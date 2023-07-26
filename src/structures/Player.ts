@@ -502,7 +502,7 @@ export class Player {
    * @param depth
    * @returns 
    */
-  public async toggleVibrato(frequency = 2, depth = 0.5): Promise<boolean> {
+  public async toggleVibrato(frequency = 10, depth = 1): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("vibrato")) throw new Error("Node#Info#filters does not include the 'vibrato' Filter (Node has it not enable)")
       this.filterData.vibrato.frequency = this.filters.vibrato ? 0 : frequency;
       this.filterData.vibrato.depth = this.filters.vibrato ? 0 : depth;
@@ -517,7 +517,7 @@ export class Player {
    * @param depth
    * @returns 
    */
-  public async toggleTremolo(frequency = 2, depth = 0.5): Promise<boolean> {
+  public async toggleTremolo(frequency = 4, depth = 0.8): Promise<boolean> {
       if(this.node.info && !this.node.info?.filters?.includes("tremolo")) throw new Error("Node#Info#filters does not include the 'tremolo' Filter (Node has it not enable)")
       this.filterData.tremolo.frequency = this.filters.tremolo ? 0 : frequency;
       this.filterData.tremolo.depth = this.filters.tremolo ? 0 : depth;
