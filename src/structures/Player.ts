@@ -281,12 +281,12 @@ export class Player {
           rotationHz: 0
       },
       tremolo: {
-          frequency: 2, // 0 < x
-          depth: 0.1 // 0 < x = 1
+          frequency: 0, // 0 < x
+          depth: 0// 0 < x = 1
       },
       vibrato: {
-          frequency: 2, // 0 < x = 14
-          depth: 0.1      // 0 < x = 1
+          frequency: 0, // 0 < x = 14
+          depth: 0     // 0 < x = 1
       },
       channelMix: validAudioOutputs.stereo,
       /*distortion: {
