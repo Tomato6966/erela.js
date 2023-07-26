@@ -4,8 +4,7 @@ import { EventEmitter } from "node:events";
 import { VoiceState } from "..";
 import { Node, NodeOptions } from "./Node";
 import { Player, PlayerOptions, Track, UnresolvedTrack } from "./Player";
-import { PluginDataInfo, v4LoadType } from "./Utils";
-import { LoadType, Plugin, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent } from "./Utils";
+import { LoadType, Plugin, PluginDataInfo, TrackData, TrackEndEvent, TrackExceptionEvent, TrackStartEvent, TrackStuckEvent, VoicePacket, VoiceServer, WebSocketClosedEvent, v4LoadType } from "./Utils";
 export declare const v4LoadTypes: {
     TrackLoaded: string;
     PlaylistLoaded: string;
@@ -14,95 +13,101 @@ export declare const v4LoadTypes: {
     LoadFailed: string;
 };
 export declare const LoadTypes: Record<"TrackLoaded" | "PlaylistLoaded" | "SearchResult" | "NoMatches" | "LoadFailed", LoadType>;
-export interface Manager {
+export interface ManagerEvents {
     /**
      * Emitted when a Node is created.
      * @event Manager#nodeCreate
      */
-    on(event: "nodeCreate", listener: (node: Node) => void): this;
+    nodeCreate: (node: Node) => void;
     /**
      * Emitted when a Node is destroyed.
      * @event Manager#nodeDestroy
      */
-    on(event: "nodeDestroy", listener: (node: Node) => void): this;
+    nodeDestroy: (node: Node) => void;
     /**
      * Emitted when a Node connects.
      * @event Manager#nodeConnect
      */
-    on(event: "nodeConnect", listener: (node: Node) => void): this;
+    nodeConnect: (node: Node) => void;
     /**
      * Emitted when a Node reconnects.
      * @event Manager#nodeReconnect
      */
-    on(event: "nodeReconnect", listener: (node: Node) => void): this;
+    nodeReconnect: (node: Node) => void;
     /**
      * Emitted when a Node disconnects.
      * @event Manager#nodeDisconnect
      */
-    on(event: "nodeDisconnect", listener: (node: Node, reason: {
+    nodeDisconnect: (node: Node, reason: {
         code?: number;
         reason?: string;
-    }) => void): this;
+    }) => void;
     /**
      * Emitted when a Node has an error.
      * @event Manager#nodeError
      */
-    on(event: "nodeError", listener: (node: Node, error: Error) => void): this;
+    nodeError: (node: Node, error: Error) => void;
     /**
      * Emitted whenever any Lavalink event is received.
      * @event Manager#nodeRaw
      */
-    on(event: "nodeRaw", listener: (payload: unknown) => void): this;
+    nodeRaw: (payload: unknown) => void;
     /**
      * Emitted when a player is created.
      * @event Manager#playerCreate
      */
-    on(event: "playerCreate", listener: (player: Player) => void): this;
+    playerCreate: (player: Player) => void;
     /**
      * Emitted when a player is destroyed.
      * @event Manager#playerDestroy
      */
-    on(event: "playerDestroy", listener: (player: Player) => void): this;
+    playerDestroy: (player: Player) => void;
     /**
      * Emitted when a player queue ends.
      * @event Manager#queueEnd
      */
-    on(event: "queueEnd", listener: (player: Player, track: Track | UnresolvedTrack, payload: TrackEndEvent) => void): this;
+    queueEnd: (player: Player, track: Track | UnresolvedTrack, payload: TrackEndEvent) => void;
     /**
      * Emitted when a player is moved to a new voice channel.
      * @event Manager#playerMove
      */
-    on(event: "playerMove", listener: (player: Player, initChannel: string, newChannel: string) => void): this;
+    playerMove: (player: Player, initChannel: string, newChannel: string) => void;
     /**
      * Emitted when a player is disconnected from it's current voice channel.
      * @event Manager#playerDisconnect
      */
-    on(event: "playerDisconnect", listener: (player: Player, oldChannel: string) => void): this;
+    playerDisconnect: (player: Player, oldChannel: string) => void;
     /**
      * Emitted when a track starts.
      * @event Manager#trackStart
      */
-    on(event: "trackStart", listener: (player: Player, track: Track, payload: TrackStartEvent) => void): this;
+    trackStart: (player: Player, track: Track, payload: TrackStartEvent) => void;
     /**
      * Emitted when a track ends.
      * @event Manager#trackEnd
      */
-    on(event: "trackEnd", listener: (player: Player, track: Track, payload: TrackEndEvent) => void): this;
+    trackEnd: (player: Player, track: Track, payload: TrackEndEvent) => void;
     /**
      * Emitted when a track gets stuck during playback.
      * @event Manager#trackStuck
      */
-    on(event: "trackStuck", listener: (player: Player, track: Track, payload: TrackStuckEvent) => void): this;
+    trackStuck: (player: Player, track: Track, payload: TrackStuckEvent) => void;
     /**
      * Emitted when a track has an error during playback.
      * @event Manager#trackError
      */
-    on(event: "trackError", listener: (player: Player, track: Track | UnresolvedTrack, payload: TrackExceptionEvent) => void): this;
+    trackError: (player: Player, track: Track | UnresolvedTrack, payload: TrackExceptionEvent) => void;
     /**
      * Emitted when a voice connection is closed.
      * @event Manager#socketClosed
      */
-    on(event: "socketClosed", listener: (player: Player, payload: WebSocketClosedEvent) => void): this;
+    socketClosed: (player: Player, payload: WebSocketClosedEvent) => void;
+}
+export interface Manager {
+    on<K extends keyof ManagerEvents>(event: K, listener: ManagerEvents[K]): this;
+    once<K extends keyof ManagerEvents>(event: K, listener: ManagerEvents[K]): this;
+    emit<K extends keyof ManagerEvents>(event: K, ...args: Parameters<ManagerEvents[K]>): boolean;
+    off<K extends keyof ManagerEvents>(event: K, listener: ManagerEvents[K]): this;
 }
 /**
  * The main hub for interacting with Lavalink and using Erela.JS,
@@ -160,12 +165,12 @@ export declare class Manager extends EventEmitter {
      */
     search(query: string | SearchQuery, requester?: unknown, customNode?: Node): Promise<SearchResult>;
     /**
-       * Searches the a link directly without any source
-       * @param query
-       * @param requester
-       * @param customNode
-       * @returns The search result.
-       */
+     * Searches the a link directly without any source
+     * @param query
+     * @param requester
+     * @param customNode
+     * @returns The search result.
+     */
     searchLink(query: string | SearchQuery, requester?: unknown, customNode?: Node): Promise<SearchResult>;
     validatedQuery(queryString: string, node: Node): void;
     /**

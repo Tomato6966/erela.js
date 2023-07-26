@@ -4,24 +4,28 @@ exports.Player = exports.validAudioOutputs = void 0;
 const Utils_1 = require("./Utils");
 exports.validAudioOutputs = {
     mono: {
+        // totalLeft: 1, totalRight: 1
         leftToLeft: 0.5,
         leftToRight: 0.5,
         rightToLeft: 0.5,
         rightToRight: 0.5,
     },
     stereo: {
+        // totalLeft: 1, totalRight: 1
         leftToLeft: 1,
         leftToRight: 0,
         rightToLeft: 0,
         rightToRight: 1,
     },
     left: {
+        // totalLeft: 1, totalRight: 0
         leftToLeft: 0.5,
         leftToRight: 0,
         rightToLeft: 0.5,
         rightToRight: 0,
     },
     right: {
+        // totalLeft: 0, totalRight: 1
         leftToLeft: 0,
         leftToRight: 0.5,
         rightToLeft: 0,
@@ -151,15 +155,19 @@ class Player {
         /** Ping to Lavalink from Client */
         this.ping = undefined;
         /** The Voice Connection Ping from Lavalink */
-        this.wsPing = undefined,
+        (this.wsPing = undefined),
             /** The equalizer bands array. */
-            this.bands = new Array(15).fill(0.0);
+            (this.bands = new Array(15).fill(0.0));
         this.set("lastposition", undefined);
-        if (typeof options.customData === "object" && Object.keys(options.customData).length) {
+        if (typeof options.customData === "object" &&
+            Object.keys(options.customData).length) {
             this.data = { ...this.data, ...options.customData };
         }
         this.guild = options.guild;
-        this.voiceState = Object.assign({ op: "voiceUpdate", guildId: options.guild });
+        this.voiceState = Object.assign({
+            op: "voiceUpdate",
+            guildId: options.guild,
+        });
         if (options.voiceChannel)
             this.voiceChannel = options.voiceChannel;
         if (options.textChannel)
@@ -173,7 +181,9 @@ class Player {
         }
         this.region = options?.region;
         const customNode = this.manager.nodes.get(options.node);
-        const regionNode = this.manager.leastUsedNodes.filter(x => x.regions?.includes(options.region?.toLowerCase()))?.first();
+        const regionNode = this.manager.leastUsedNodes
+            .filter((x) => x.regions?.includes(options.region?.toLowerCase()))
+            ?.first();
         this.node = customNode || regionNode || this.manager.leastUsedNodes.first();
         if (!this.node)
             throw new RangeError("No available nodes.");
@@ -194,37 +204,37 @@ class Player {
         };
         this.filterData = {
             lowPass: {
-                smoothing: 0
+                smoothing: 0,
             },
             karaoke: {
                 level: 0,
                 monoLevel: 0,
                 filterBand: 0,
-                filterWidth: 0
+                filterWidth: 0,
             },
             timescale: {
                 speed: 1,
                 pitch: 1,
-                rate: 1 // 0 = x
+                rate: 1, // 0 = x
             },
             echo: {
                 delay: 0,
-                decay: 0
+                decay: 0,
             },
             reverb: {
                 delay: 0,
-                decay: 0
+                decay: 0,
             },
             rotation: {
-                rotationHz: 0
+                rotationHz: 0,
             },
             tremolo: {
                 frequency: 2,
-                depth: 0.1 // 0 < x = 1
+                depth: 0.1, // 0 < x = 1
             },
             vibrato: {
                 frequency: 2,
-                depth: 0.1 // 0 < x = 1
+                depth: 0.1, // 0 < x = 1
             },
             channelMix: exports.validAudioOutputs.stereo,
             /*distortion: {
@@ -244,15 +254,24 @@ class Player {
     }
     checkFiltersState(oldFilterTimescale) {
         this.filters.rotation = this.filterData.rotation.rotationHz !== 0;
-        this.filters.vibrato = this.filterData.vibrato.frequency !== 0 || this.filterData.vibrato.depth !== 0;
-        this.filters.tremolo = this.filterData.tremolo.frequency !== 0 || this.filterData.tremolo.depth !== 0;
-        this.filters.echo = this.filterData.echo.decay !== 0 || this.filterData.echo.delay !== 0;
-        this.filters.reverb = this.filterData.reverb.decay !== 0 || this.filterData.reverb.delay !== 0;
+        this.filters.vibrato =
+            this.filterData.vibrato.frequency !== 0 ||
+                this.filterData.vibrato.depth !== 0;
+        this.filters.tremolo =
+            this.filterData.tremolo.frequency !== 0 ||
+                this.filterData.tremolo.depth !== 0;
+        this.filters.echo =
+            this.filterData.echo.decay !== 0 || this.filterData.echo.delay !== 0;
+        this.filters.reverb =
+            this.filterData.reverb.decay !== 0 || this.filterData.reverb.delay !== 0;
         this.filters.lowPass = this.filterData.lowPass.smoothing !== 0;
-        this.filters.karaoke = Object.values(this.filterData.karaoke).some(v => v !== 0);
-        if ((this.filters.nightcore || this.filters.vaporwave) && oldFilterTimescale) {
-            if (oldFilterTimescale.pitch !== this.filterData.timescale.pitch || oldFilterTimescale.rate !== this.filterData.timescale.rate || oldFilterTimescale.speed !== this.filterData.timescale.speed) {
-                this.filters.custom = Object.values(this.filterData.timescale).some(v => v !== 1);
+        this.filters.karaoke = Object.values(this.filterData.karaoke).some((v) => v !== 0);
+        if ((this.filters.nightcore || this.filters.vaporwave) &&
+            oldFilterTimescale) {
+            if (oldFilterTimescale.pitch !== this.filterData.timescale.pitch ||
+                oldFilterTimescale.rate !== this.filterData.timescale.rate ||
+                oldFilterTimescale.speed !== this.filterData.timescale.speed) {
+                this.filters.custom = Object.values(this.filterData.timescale).some((v) => v !== 1);
                 this.filters.nightcore = false;
                 this.filters.vaporwave = false;
             }
@@ -279,37 +298,37 @@ class Player {
         for (const [key, value] of Object.entries({
             volume: 1,
             lowPass: {
-                smoothing: 0
+                smoothing: 0,
             },
             karaoke: {
                 level: 0,
                 monoLevel: 0,
                 filterBand: 0,
-                filterWidth: 0
+                filterWidth: 0,
             },
             timescale: {
                 speed: 1,
                 pitch: 1,
-                rate: 1 // 0 = x
+                rate: 1, // 0 = x
             },
             echo: {
                 delay: 0,
-                decay: 0
+                decay: 0,
             },
             reverb: {
                 delay: 0,
-                decay: 0
+                decay: 0,
             },
             rotation: {
-                rotationHz: 0
+                rotationHz: 0,
             },
             tremolo: {
                 frequency: 2,
-                depth: 0.1 // 0 < x = 1
+                depth: 0.1, // 0 < x = 1
             },
             vibrato: {
                 frequency: 2,
-                depth: 0.1 // 0 < x = 1
+                depth: 0.1, // 0 < x = 1
             },
             channelMix: exports.validAudioOutputs.stereo,
         })) {
@@ -406,7 +425,9 @@ class Player {
     async toggleRotation(rotationHz = 0.2) {
         if (this.node.info && !this.node.info?.filters?.includes("rotation"))
             throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)");
-        this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
+        this.filterData.rotation.rotationHz = this.filters.rotation
+            ? 0
+            : rotationHz;
         this.filters.rotation = !this.filters.rotation;
         /** @deprecated but sync with rotating */
         this.filters.rotating = this.filters.rotation;
@@ -420,7 +441,9 @@ class Player {
     async toggleRotating(rotationHz = 0.2) {
         if (this.node.info && !this.node.info?.filters?.includes("rotation"))
             throw new Error("Node#Info#filters does not include the 'rotation' Filter (Node has it not enable)");
-        this.filterData.rotation.rotationHz = this.filters.rotation ? 0 : rotationHz;
+        this.filterData.rotation.rotationHz = this.filters.rotation
+            ? 0
+            : rotationHz;
         this.filters.rotation = !this.filters.rotation;
         /** @deprecated but sync with rotating */
         this.filters.rotating = this.filters.rotation;
@@ -551,14 +574,19 @@ class Player {
         this.filterData.karaoke.level = this.filters.karaoke ? 0 : level;
         this.filterData.karaoke.monoLevel = this.filters.karaoke ? 0 : monoLevel;
         this.filterData.karaoke.filterBand = this.filters.karaoke ? 0 : filterBand;
-        this.filterData.karaoke.filterWidth = this.filters.karaoke ? 0 : filterWidth;
+        this.filterData.karaoke.filterWidth = this.filters.karaoke
+            ? 0
+            : filterWidth;
         this.filters.karaoke = !this.filters.karaoke;
         await this.updatePlayerFilters();
         return this.filters.karaoke;
     }
     /** Function to find out if currently there is a custom timescamle etc. filter applied */
     isCustomFilterActive() {
-        this.filters.custom = !this.filters.nightcore && !this.filters.vaporwave && Object.values(this.filterData.timescale).some(d => d !== 1);
+        this.filters.custom =
+            !this.filters.nightcore &&
+                !this.filters.vaporwave &&
+                Object.values(this.filterData.timescale).some((d) => d !== 1);
         return this.filters.custom;
     }
     // function to update all filters at ONCE (and eqs)
@@ -594,7 +622,7 @@ class Player {
                 op: "filters",
                 guildId: this.guild,
                 equalizer: this.bands.map((gain, band) => ({ band, gain })),
-                ...sendData
+                ...sendData,
             });
         }
         else {
@@ -607,7 +635,7 @@ class Player {
                 guildId: this.guild,
                 playerOptions: {
                     filters: sendData,
-                }
+                },
             });
         }
         this.ping = Date.now() - now;
@@ -631,7 +659,8 @@ class Player {
         // Hacky support for providing an array
         if (Array.isArray(bands[0]))
             bands = bands[0];
-        if (!bands.length || !bands.every((band) => JSON.stringify(Object.keys(band).sort()) === '["band","gain"]'))
+        if (!bands.length ||
+            !bands.every((band) => JSON.stringify(Object.keys(band).sort()) === '["band","gain"]'))
             throw new TypeError("Bands must be a non-empty object array containing 'band' and 'gain' properties.");
         for (const { band, gain } of bands)
             this.bands[band] = gain;
@@ -647,8 +676,10 @@ class Player {
             await this.node.updatePlayer({
                 guildId: this.guild,
                 playerOptions: {
-                    filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
-                }
+                    filters: {
+                        equalizer: this.bands.map((gain, band) => ({ band, gain })),
+                    },
+                },
             });
         }
         return this;
@@ -668,8 +699,10 @@ class Player {
             await this.node.updatePlayer({
                 guildId: this.guild,
                 playerOptions: {
-                    filters: { equalizer: this.bands.map((gain, band) => ({ band, gain })) }
-                }
+                    filters: {
+                        equalizer: this.bands.map((gain, band) => ({ band, gain })),
+                    },
+                },
             });
         }
         return this;
@@ -750,7 +783,9 @@ class Player {
         }
         if (!this.queue.current)
             throw new RangeError("No current track.");
-        const finalOptions = getOptions(playOptions || optionsOrTrack, !!this.node.sessionId) ? optionsOrTrack : {};
+        const finalOptions = getOptions(playOptions || optionsOrTrack, !!this.node.sessionId)
+            ? optionsOrTrack
+            : {};
         if (Utils_1.TrackUtils.isUnresolvedTrack(this.queue.current)) {
             try {
                 this.queue.current = await Utils_1.TrackUtils.getClosestTrack(this.queue.current, this.node);
@@ -786,7 +821,7 @@ class Player {
                 track: options.encodedTrack,
                 op: "play",
                 guildId: this.guild,
-                ...finalOptions
+                ...finalOptions,
             });
         }
         else {
@@ -826,16 +861,16 @@ class Player {
                 await this.node.updatePlayer({
                     guildId: this.guild,
                     playerOptions: {
-                        filters: { volume: vol / 100 }
-                    }
+                        filters: { volume: vol / 100 },
+                    },
                 });
             }
             else {
                 await this.node.updatePlayer({
                     guildId: this.guild,
                     playerOptions: {
-                        volume: vol
-                    }
+                        volume: vol,
+                    },
                 });
             }
         }
@@ -858,8 +893,8 @@ class Player {
         await this.node.updatePlayer({
             guildId: this.guild,
             playerOptions: {
-                filters: { volume: this.filterData.volume }
-            }
+                filters: { volume: this.filterData.volume },
+            },
         });
         this.ping = Date.now() - now;
         return this;
@@ -916,7 +951,7 @@ class Player {
         else {
             await this.node.updatePlayer({
                 guildId: this.guild,
-                playerOptions: { encodedTrack: null }
+                playerOptions: { encodedTrack: null },
             });
         }
         this.ping = Date.now() - now;
@@ -979,7 +1014,7 @@ class Player {
         else {
             await this.node.updatePlayer({
                 guildId: this.guild,
-                playerOptions: { position }
+                playerOptions: { position },
             });
         }
         this.ping = Date.now() - now;
@@ -988,12 +1023,20 @@ class Player {
 }
 exports.Player = Player;
 function getOptions(opts, allowFilters) {
-    const valids = ["startTime", "endTime", "noReplace", "volume", "pause", "filters"];
+    const valids = [
+        "startTime",
+        "endTime",
+        "noReplace",
+        "volume",
+        "pause",
+        "filters",
+    ];
     const returnObject = {};
     if (!opts)
         return false;
     for (const [key, value] of Object.entries(Object.assign({}, opts))) {
-        if (valids.includes(key) && (key !== "filters" || (key === "filters" && allowFilters))) {
+        if (valids.includes(key) &&
+            (key !== "filters" || (key === "filters" && allowFilters))) {
             returnObject[key] = value;
         }
     }
