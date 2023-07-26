@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Plugin = exports.Structure = exports.TrackUtils = void 0;
-/* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars, @typescript-eslint/no-var-requires*/
-const Manager_1 = require("./Manager");
 const Node_1 = require("./Node");
 const Player_1 = require("./Player");
 const Queue_1 = require("./Queue");
@@ -225,8 +223,7 @@ class TrackUtils {
             return tracks.tracks[0];
         }
         const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
-       
-        const res = this.isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+        const res = this.isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.searchLocal(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
         if (!res?.tracks?.length)
             throw res.exception ?? {
                 message: "[GetClosestTrack] No tracks found.",

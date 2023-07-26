@@ -29,14 +29,14 @@ export declare abstract class TrackUtils {
      * @param requester
      */
     static build(data: Partial<TrackData>, requester?: unknown): Track;
-    /** @hidden */
-    static isvalidUri(str: string): boolean;
     /**
      * Builds a UnresolvedTrack to be resolved before being played  .
      * @param query
      * @param requester
      */
     static buildUnresolved(query: string | UnresolvedQuery, requester?: unknown): UnresolvedTrack;
+    /** @hidden */
+    private static isvalidUri;
     static getClosestTrack(unresolvedTrack: UnresolvedTrack, customNode?: Node): Promise<Track>;
 }
 /** Gets or extends structures to extend the built in, or already extended, classes to add more functionality. */
@@ -70,7 +70,7 @@ export interface UnresolvedQuery {
     artworkUrl: string | null;
     /** Identifier of the track */
     identifier?: string;
-    /** The Uri of the track */
+    /** The Uri of the track | if provided it will search via uri */
     uri?: string;
     /** If it's a local track */
     local?: boolean;
