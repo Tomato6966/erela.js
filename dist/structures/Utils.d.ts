@@ -29,6 +29,8 @@ export declare abstract class TrackUtils {
      * @param requester
      */
     static build(data: Partial<TrackData>, requester?: unknown): Track;
+    /** @hidden */
+    static isvalidUri(str: string): boolean;
     /**
      * Builds a UnresolvedTrack to be resolved before being played  .
      * @param query
@@ -68,6 +70,8 @@ export interface UnresolvedQuery {
     artworkUrl: string | null;
     /** Identifier of the track */
     identifier?: string;
+    /** The Uri of the track */
+    uri?: string;
     /** If it's a local track */
     local?: boolean;
 }

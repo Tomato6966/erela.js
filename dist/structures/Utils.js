@@ -169,6 +169,25 @@ class TrackUtils {
         });
         return unresolvedTrack;
     }
+    /** @hidden */
+    static isvalidUri(str) {
+        const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
+        if (TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
+            valids.push(...TrackUtils.manager.options.validUnresolvedUris);
+        }
+        // auto remove plugins which make it to unresolved, so that it can search on youtube etc.
+        if (TrackUtils.manager.options.plugins && TrackUtils.manager.options.plugins.length) {
+            const pluginNames = TrackUtils.manager.options.plugins.map(c => c?.constructor?.name?.toLowerCase?.());
+            for (const valid of valids)
+                if (pluginNames?.some?.(v => valid?.toLowerCase?.().includes?.(v)))
+                    valids.splice(valids.indexOf(valid), 1);
+        }
+        if (!str)
+            return false;
+        if (valids.some(x => str.includes(x.toLowerCase())))
+            return true;
+        return false;
+    }
     static async getClosestTrack(unresolvedTrack, customNode) {
         if (!TrackUtils.manager)
             throw new RangeError("Manager has not been initiated.");
@@ -206,28 +225,11 @@ class TrackUtils {
             return tracks.tracks[0];
         }
         const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
-        const isvalidUri = (str) => {
-            const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
-            if (TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
-                valids.push(...TrackUtils.manager.options.validUnresolvedUris);
-            }
-            // auto remove plugins which make it to unresolved, so that it can search on youtube etc.
-            if (TrackUtils.manager.options.plugins && TrackUtils.manager.options.plugins.length) {
-                const pluginNames = TrackUtils.manager.options.plugins.map(c => c?.constructor?.name?.toLowerCase?.());
-                for (const valid of valids)
-                    if (pluginNames?.some?.(v => valid?.toLowerCase?.().includes?.(v)))
-                        valids.splice(valids.indexOf(valid), 1);
-            }
-            if (!str)
-                return false;
-            if (valids.some(x => str.includes(x.toLowerCase())))
-                return true;
-            return false;
-        };
-        const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
-        if (res.loadType !== Manager_1.v4LoadTypes.SearchResult && res.loadType !== Manager_1.LoadTypes.SearchResult)
+       
+        const res = this.isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+        if (!res?.tracks?.length)
             throw res.exception ?? {
-                message: "No tracks found.",
+                message: "[GetClosestTrack] No tracks found.",
                 severity: "COMMON",
             };
         if (unresolvedTrack.author) {

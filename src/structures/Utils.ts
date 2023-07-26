@@ -182,6 +182,22 @@ export abstract class TrackUtils {
     return unresolvedTrack as UnresolvedTrack;
   }
 
+  /** @hidden */
+  private static isvalidUri(str:string):boolean {
+    const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
+    if (TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
+      valids.push(...TrackUtils.manager.options.validUnresolvedUris);
+    }
+    // auto remove plugins which make it to unresolved, so that it can search on youtube etc.
+    if (TrackUtils.manager.options.plugins && TrackUtils.manager.options.plugins.length) {
+      const pluginNames = TrackUtils.manager.options.plugins.map(c => c?.constructor?.name?.toLowerCase?.());
+      for (const valid of valids) if (pluginNames?.some?.(v => valid?.toLowerCase?.().includes?.(v))) valids.splice(valids.indexOf(valid), 1);
+    }
+    if (!str) return false;
+    if (valids.some(x => str.includes(x.toLowerCase()))) return true;
+    return false;
+  }
+
   static async getClosestTrack(
     unresolvedTrack: UnresolvedTrack,
     customNode?: Node,
@@ -213,24 +229,11 @@ export abstract class TrackUtils {
     }
 
     const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
-    const isvalidUri = (str) => {
-      const valids = ["www.youtu", "music.youtu", "soundcloud.com"];
-      if(TrackUtils.manager.options.validUnresolvedUris && TrackUtils.manager.options.validUnresolvedUris.length) {
-          valids.push(...TrackUtils.manager.options.validUnresolvedUris);
-      }
-      // auto remove plugins which make it to unresolved, so that it can search on youtube etc.
-      if(TrackUtils.manager.options.plugins && TrackUtils.manager.options.plugins.length) {
-          const pluginNames = TrackUtils.manager.options.plugins.map(c => c?.constructor?.name?.toLowerCase?.());
-          for(const valid of valids) if(pluginNames?.some?.(v => valid?.toLowerCase?.().includes?.(v))) valids.splice(valids.indexOf(valid), 1);
-      }
-      if(!str) return false;
-      if(valids.some(x => str.includes(x.toLowerCase()))) return true;
-      return false
-    }
+
     const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
 
-    if (res.loadType !== v4LoadTypes.SearchResult && res.loadType !== LoadTypes.SearchResult) throw res.exception ?? {
-      message: "No tracks found.",
+    if (!res?.tracks?.length) throw res.exception ?? {
+      message: "[GetClosestTrack] No tracks found.",
       severity: "COMMON",
     };
 
@@ -361,6 +364,8 @@ export interface UnresolvedQuery {
   artworkUrl: string | null;
   /** Identifier of the track */
   identifier?: string;
+  /** The Uri of the track | if provided it will search via uri */
+  uri?: string;
   /** If it's a local track */
   local?: boolean;
 }
