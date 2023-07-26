@@ -230,7 +230,7 @@ export abstract class TrackUtils {
 
     const query = [unresolvedTrack.title, unresolvedTrack.author].filter(str => !!str).join(" by ");
 
-    const res = isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.search(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
+    const res = this.isvalidUri(unresolvedTrack.uri) ? await TrackUtils.manager.searchLocal(unresolvedTrack.uri, unresolvedTrack.requester, customNode) : await TrackUtils.manager.search(query, unresolvedTrack.requester, customNode);
 
     if (!res?.tracks?.length) throw res.exception ?? {
       message: "[GetClosestTrack] No tracks found.",
