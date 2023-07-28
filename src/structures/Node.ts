@@ -222,7 +222,6 @@ export class Node {
         const url = new URL(`${this.poolAddress}${r.path}`);
         url.searchParams.append("noReplace", data.noReplace?.toString() || "false")
         r.path = url.toString().replace(this.poolAddress, "");
-        console.log(r.path);
       }
     });
     this.syncPlayerData({}, res);
