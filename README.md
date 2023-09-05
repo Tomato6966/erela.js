@@ -1,3 +1,22 @@
+# ❗Important
+
+**This client is __not maintained__ any more (since 01.09.2023)**
+> You can still use it, however if lavalink makes some changes they might not work.
+
+Instead use my __own lavalink wrapper: [lavalink-client](https://github.com/tomato6966/lavalink-client), it's also on [npm](https://npmjs.com/lavalink-client) and has [docs](https://lc4.gitbook.io/lavalink-client/)
+Covers followings:
+- Included Queue and similar style to erela.js making it easy to get started for beginners
+  - Advance Developers, can assign their own storemanagers (for the queue) to store the queue externally for example on redis, mongodb etc.
+  - Queue has previous, tracks visible inside of it with several utils for external and internal queues
+- Filtermanager for toggling filters and using custom values
+   - with insta filter fix option and support for pluginFilters
+- Support for most common lavalink-plugins like [LavaSrc](https://github.com/topi314/LavaSrc), [LavaSearc](https://github.com/topi314/LavaSearch), [Extra Filter Plugin](https://github.com/rohank05/lavalink-filter-plugin), ...
+- Written In Typescript for: TS, CJS, MJS, JS, ESM projects supported!
+- Works with any discord library, example in discord.js
+- Destroy reasons for better handlings (even recognises channel delete for player destroy etc.)
+- Supports all features of lavalink v4 (literally all features, not like other libs)
+- autoplay function, requester-transformer function, onEmpty options, onDestroy options, ... and so much more!
+
 # erela.js - Updated & Improved by Tomato6966
 
 Check out the [slimmed](https://github.com/Tomato6966/erela.js/tree/slim) Version, which is lavalink-v4 only and allows you to save up to 25% of memory usage than with the normal feature rich erela.js version (however you loose some properties...)
